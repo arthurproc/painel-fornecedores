@@ -1,0 +1,21 @@
+export type PlanningOpportunity = {
+  id: string;
+  entidadeOuEmpresa: string;
+  tipoDeAquisicao: string;
+  tipoDeContrato: string;
+  gerenciaOuSecretariaOuAutarquia: string;
+  objeto: string;
+  localDeExecucaoDoServico: string;
+  origemDaDemanda: string;
+  terminoDoContratoVigente: string;
+  dataDeNecessidadeDeInicioDosServicos: string;
+  valorPrevisto: number;
+  vigenciaDias: number;
+  contratoInterno: boolean;
+  efetivoPrevisto: number;
+  tipoDeGasto: string;
+  previsaoDeDesembolso2026: string;
+  nivelDeAprovacaoDaRC: string;
+  status: "OPEN" | "CLOSED";
+  alreadyInterested: boolean;
+};
