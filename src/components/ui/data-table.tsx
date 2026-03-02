@@ -154,7 +154,9 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={
+                    table.getVisibleLeafColumns().length || columns.length
+                  }
                   className="h-24 text-center"
                 >
                   Nenhum resultado encontrado.
