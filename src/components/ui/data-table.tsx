@@ -77,6 +77,7 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center gap-2 py-4">
         {filterColumn && (
           <Input
+            aria-label={filterPlaceholder}
             placeholder={filterPlaceholder}
             value={
               (table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""
