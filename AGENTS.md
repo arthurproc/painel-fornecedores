@@ -73,7 +73,8 @@ Internal pages (empresa/fornecedor) are wrapped by `<AppShell tipo="empresa|forn
 | `src/app/` | Routes and pages |
 | `src/components/ui/` | shadcn primitives — do not edit by hand; reinstall to upgrade |
 | `src/components/layout/` | AppShell, Sidebar, Topbar |
-| `src/lib/mock-data.ts` | Single source of mocked data — types `Projeto`, `Fornecedor`, `Proposta`, plus `categorias`, `regioes`, `statusLabels`, `statusColors` |
+| `src/lib/platform-data.ts` | Canonical platform reference lists — `categorias`, `regioes`. Admin-managed in production; single source of truth for the mockup |
+| `src/lib/mock-data.ts` | Entity mock data — types `Projeto`, `Fornecedor`, `Proposta`, plus `statusLabels`, `statusColors`. Re-exports `categorias` and `regioes` from `platform-data.ts` |
 | `src/lib/utils.ts` | shadcn `cn()` helper |
 | `src/app/globals.css` | Design tokens (OKLCH) + `@theme inline` |
 

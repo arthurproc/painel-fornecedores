@@ -13,6 +13,9 @@ import {
   XCircle,
   ExternalLink,
   Briefcase,
+  Mail,
+  Phone,
+  ChevronUp,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,6 +50,7 @@ export default function ProjetoEmpresaPage({
   const [selectedProposta, setSelectedProposta] = useState<Proposta | null>(null);
   const [confirmDialog, setConfirmDialog] = useState(false);
   const [fornecedorSelecionado, setFornecedorSelecionado] = useState<string | null>(null);
+  const [contatoVisivel, setContatoVisivel] = useState<Set<string>>(new Set());
 
   const handleSelecionar = (proposta: Proposta) => {
     setSelectedProposta(proposta);
@@ -56,8 +60,21 @@ export default function ProjetoEmpresaPage({
   const confirmarSelecao = () => {
     if (selectedProposta) {
       setFornecedorSelecionado(selectedProposta.fornecedor.id);
+      setContatoVisivel((prev) => new Set(prev).add(selectedProposta.id));
     }
     setConfirmDialog(false);
+  };
+
+  const toggleContato = (propostaId: string) => {
+    setContatoVisivel((prev) => {
+      const next = new Set(prev);
+      if (next.has(propostaId)) {
+        next.delete(propostaId);
+      } else {
+        next.add(propostaId);
+      }
+      return next;
+    });
   };
 
   return (
@@ -138,8 +155,8 @@ export default function ProjetoEmpresaPage({
               <CardContent className="p-4 flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                 <p className="text-sm font-medium text-emerald-800">
-                  Fornecedor selecionado com sucesso! O fornecedor sera
-                  notificado e podera iniciar o projeto.
+                  Fornecedor selecionado com sucesso! O fornecedor será
+                  notificado e poderá iniciar o projeto.
                 </p>
               </CardContent>
             </Card>
@@ -220,8 +237,8 @@ export default function ProjetoEmpresaPage({
                           ))}
                         </div>
 
-                        {!fornecedorSelecionado && (
-                          <div className="flex gap-2 mt-4">
+                        <div className="flex gap-2 mt-4">
+                          {!fornecedorSelecionado && (
                             <Button
                               size="sm"
                               onClick={() => handleSelecionar(proposta)}
@@ -230,18 +247,55 @@ export default function ProjetoEmpresaPage({
                               <CheckCircle2 className="w-3.5 h-3.5" />{" "}
                               Selecionar
                             </Button>
-                            <Link
-                              href={`/fornecedor/perfil?id=${proposta.fornecedor.id}`}
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1"
+                            onClick={() => toggleContato(proposta.id)}
+                          >
+                            {contatoVisivel.has(proposta.id) ? (
+                              <>
+                                <ChevronUp className="w-3.5 h-3.5" /> Ocultar contato
+                              </>
+                            ) : (
+                              <>
+                                <Phone className="w-3.5 h-3.5" /> Ver contato
+                              </>
+                            )}
+                          </Button>
+                          <Link
+                            href={`/empresa/fornecedor/${proposta.fornecedor.id}`}
+                          >
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-1"
                             >
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="gap-1"
-                              >
-                                <ExternalLink className="w-3.5 h-3.5" /> Ver
-                                Perfil
-                              </Button>
-                            </Link>
+                              <ExternalLink className="w-3.5 h-3.5" /> Ver perfil
+                            </Button>
+                          </Link>
+                        </div>
+
+                        {contatoVisivel.has(proposta.id) && (
+                          <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15 flex flex-col gap-2">
+                            <p className="text-xs font-medium text-primary mb-1">
+                              Dados para contato
+                            </p>
+                            <a
+                              href={`mailto:${proposta.fornecedor.contato.email}`}
+                              className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors"
+                            >
+                              <Mail className="w-4 h-4 text-primary shrink-0" />
+                              {proposta.fornecedor.contato.email}
+                            </a>
+                            <a
+                              href={`tel:${proposta.fornecedor.contato.telefone}`}
+                              className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors"
+                            >
+                              <Phone className="w-4 h-4 text-primary shrink-0" />
+                              {proposta.fornecedor.contato.telefone}
+                            </a>
                           </div>
                         )}
                       </div>
@@ -258,9 +312,9 @@ export default function ProjetoEmpresaPage({
       <Dialog open={confirmDialog} onOpenChange={setConfirmDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirmar Selecao de Fornecedor</DialogTitle>
+            <DialogTitle>Confirmar Seleção de Fornecedor</DialogTitle>
             <DialogDescription>
-              Voce esta selecionando o fornecedor{" "}
+              Você está selecionando o fornecedor{" "}
               <strong>{selectedProposta?.fornecedor.nome}</strong> com proposta
               de <strong>{selectedProposta?.valor}</strong> e prazo de{" "}
               <strong>{selectedProposta?.prazoEntrega}</strong>.

@@ -42,29 +42,7 @@ export interface Proposta {
   status: "pendente" | "aceita" | "recusada";
 }
 
-export const categorias = [
-  "Manutenção Industrial",
-  "Transporte e Logística",
-  "Equipamentos de Mineração",
-  "Serviços Ambientais",
-  "Construção Civil",
-  "Tecnologia da Informação",
-  "Consultoria",
-  "Segurança do Trabalho",
-  "Elétrica e Automação",
-  "Alimentação e Catering",
-];
-
-export const regioes = [
-  "Itabira - MG",
-  "João Monlevade - MG",
-  "Nova Era - MG",
-  "Santa Maria de Itabira - MG",
-  "Barão de Cocais - MG",
-  "São Gonçalo do Rio Abaixo - MG",
-  "Belo Horizonte - MG",
-  "Ipatinga - MG",
-];
+export { categorias, regioes } from "@/lib/platform-data";
 
 export const projetos: Projeto[] = [
   {
