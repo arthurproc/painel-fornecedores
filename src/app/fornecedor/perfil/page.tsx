@@ -14,56 +14,35 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { fornecedores } from "@/lib/mock-data";
+import { fornecedores, projetos } from "@/lib/mock-data";
 
-const avaliacoes = [
-  {
-    empresa: "Vale S.A.",
-    logo: "V",
-    nota: 5,
-    comentario:
-      "Excelente trabalho na manutencao das correias. Equipe muito profissional e dentro do prazo.",
-    data: "Mar 2026",
-  },
-  {
-    empresa: "Usiminas",
-    logo: "U",
-    nota: 5,
-    comentario:
-      "Servico impecavel. Recomendo para qualquer trabalho de manutencao industrial.",
-    data: "Fev 2026",
-  },
-  {
-    empresa: "ArcelorMittal",
-    logo: "A",
-    nota: 4,
-    comentario:
-      "Bom trabalho, cumpriu com os requisitos do contrato. Prazo ligeiramente ultrapassado.",
-    data: "Jan 2026",
-  },
-];
+function formatarMesAno(data: string): string {
+  const [, mes, ano] = data.split("/");
+  const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  return `${meses[parseInt(mes) - 1]} ${ano}`;
+}
 
 const projetosRealizados = [
   {
-    titulo: "Manutencao de Britadores - Mina de Cauê",
+    titulo: "Manutenção de Britadores — Mina de Cauê",
     empresa: "Vale S.A.",
     valor: "R$ 450.000",
     data: "2025",
   },
   {
-    titulo: "Revisao Eletrica de Subestacao",
+    titulo: "Revisão Elétrica de Subestação",
     empresa: "Usiminas",
     valor: "R$ 180.000",
     data: "2025",
   },
   {
-    titulo: "Instalacao de Sensores de Vibracao",
+    titulo: "Instalação de Sensores de Vibração",
     empresa: "ArcelorMittal",
     valor: "R$ 95.000",
     data: "2024",
   },
   {
-    titulo: "Manutencao Preventiva Anual - Planta Itabira",
+    titulo: "Manutenção Preventiva Anual — Planta Itabira",
     empresa: "Vale S.A.",
     valor: "R$ 620.000",
     data: "2024",
@@ -73,10 +52,32 @@ const projetosRealizados = [
 export default function PerfilFornecedorPage() {
   const fornecedor = fornecedores[0]; // TechMinas
 
+  const reviews = projetos
+    .filter((p) => p.fechamento?.fornecedorId === fornecedor.id)
+    .map((p) => ({
+      empresa: p.empresa,
+      logo: p.empresaLogo,
+      qualidade: p.fechamento!.avaliacao.qualidade,
+      prazo: p.fechamento!.avaliacao.prazo,
+      comentario: p.fechamento!.avaliacao.comentario,
+      data: formatarMesAno(p.fechamento!.dataFechamento),
+    }));
+
+  const avgQualidade =
+    reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.qualidade, 0) / reviews.length
+      : 0;
+  const avgPrazo =
+    reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.prazo, 0) / reviews.length
+      : 0;
+  const satisfacao = Math.round((avgQualidade / 5) * 100);
+  const entregaNoPrazo = Math.round((avgPrazo / 5) * 100);
+
   return (
     <AppShell tipo="fornecedor" titulo="Meu Perfil">
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Profile Header */}
+        {/* Cabeçalho do perfil */}
         <Card>
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
@@ -90,7 +91,7 @@ export default function PerfilFornecedorPage() {
                     <span className="flex items-center gap-1">
                       <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                       {fornecedor.avaliacao} ({fornecedor.projetosRealizados}{" "}
-                      avaliacoes)
+                      avaliações)
                     </span>
                     <span className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
@@ -133,10 +134,10 @@ export default function PerfilFornecedorPage() {
 
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-2 space-y-6">
-            {/* Categorias */}
+            {/* Áreas de Atuação */}
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Areas de Atuacao</CardTitle>
+                <CardTitle className="text-base">Áreas de Atuação</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
@@ -152,9 +153,7 @@ export default function PerfilFornecedorPage() {
             {/* Projetos Realizados */}
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">
-                  Projetos Realizados
-                </CardTitle>
+                <CardTitle className="text-base">Projetos Realizados</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -178,57 +177,85 @@ export default function PerfilFornecedorPage() {
               </CardContent>
             </Card>
 
-            {/* Avaliacoes */}
+            {/* Avaliações */}
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Avaliacoes</CardTitle>
+                <CardTitle className="text-base">Avaliações</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {avaliacoes.map((av) => (
-                    <div key={av.data}>
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-bold">
-                          {av.logo}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <p className="font-medium text-sm">{av.empresa}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {av.data}
-                            </p>
+                {reviews.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Nenhuma avaliação registrada ainda.
+                  </p>
+                ) : (
+                  <div className="space-y-5">
+                    {reviews.map((av, idx) => (
+                      <div key={idx}>
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-bold shrink-0">
+                            {av.logo}
                           </div>
-                          <div className="flex gap-0.5">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-3 h-3 ${
-                                  i < av.nota
-                                    ? "fill-amber-400 text-amber-400"
-                                    : "text-muted"
-                                }`}
-                              />
-                            ))}
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <p className="font-medium text-sm">{av.empresa}</p>
+                              <p className="text-xs text-muted-foreground">{av.data}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">
+                                  Qualidade do serviço
+                                </span>
+                                <div className="flex gap-0.5">
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`w-3 h-3 ${
+                                        i < av.qualidade
+                                          ? "fill-amber-400 text-amber-400"
+                                          : "text-muted"
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">
+                                  Cumprimento de prazo
+                                </span>
+                                <div className="flex gap-0.5">
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`w-3 h-3 ${
+                                        i < av.prazo
+                                          ? "fill-amber-400 text-amber-400"
+                                          : "text-muted"
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
+                        <p className="text-sm text-muted-foreground mt-2 ml-11">
+                          {av.comentario}
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground ml-11">
-                        {av.comentario}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
 
-          {/* Sidebar */}
+          {/* Coluna lateral */}
           <div className="space-y-6">
-            {/* Certificacoes */}
+            {/* Certificações */}
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Award className="w-4 h-4" /> Certificacoes
+                  <Award className="w-4 h-4" /> Certificações
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -246,17 +273,15 @@ export default function PerfilFornecedorPage() {
               </CardContent>
             </Card>
 
-            {/* Stats */}
+            {/* Estatísticas */}
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Estatisticas</CardTitle>
+                <CardTitle className="text-base">Estatísticas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-muted-foreground">
-                      Taxa de Sucesso
-                    </span>
+                    <span className="text-muted-foreground">Taxa de Sucesso</span>
                     <span className="font-medium">92%</span>
                   </div>
                   <Progress value={92} className="h-2" />
@@ -266,18 +291,18 @@ export default function PerfilFornecedorPage() {
                     <span className="text-muted-foreground">
                       Entrega no Prazo
                     </span>
-                    <span className="font-medium">88%</span>
+                    <span className="font-medium">{entregaNoPrazo}%</span>
                   </div>
-                  <Progress value={88} className="h-2" />
+                  <Progress value={entregaNoPrazo} className="h-2" />
                 </div>
                 <div>
                   <div className="flex items-center justify-between text-sm mb-1">
                     <span className="text-muted-foreground">
-                      Satisfacao do Cliente
+                      Satisfação do Cliente
                     </span>
-                    <span className="font-medium">96%</span>
+                    <span className="font-medium">{satisfacao}%</span>
                   </div>
-                  <Progress value={96} className="h-2" />
+                  <Progress value={satisfacao} className="h-2" />
                 </div>
               </CardContent>
             </Card>

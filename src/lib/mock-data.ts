@@ -14,7 +14,7 @@ export interface Projeto {
   requisitos: string[];
   fechamento?: {
     fornecedorId: string;
-    valorFinal: string;
+    valorFinal?: string;
     dataFechamento: string;
     visibilidade: "publico" | "fornecedores" | "privado";
     avaliacao: {
@@ -46,14 +46,57 @@ export interface Proposta {
   id: string;
   fornecedor: Fornecedor;
   projeto: Projeto;
-  valor: string;
+  valor?: string;
   prazoEntrega: string;
   mensagem: string;
   dataEnvio: string;
   status: "pendente" | "aceita" | "recusada";
 }
 
+export interface Empresa {
+  id: string;
+  nome: string;
+  logo: string;
+  setor: string;
+  descricao: string;
+  regiao: string;
+  desde: string;
+}
+
 export { categorias, regioes } from "@/lib/platform-data";
+
+export const empresas: Empresa[] = [
+  {
+    id: "vale",
+    nome: "Vale S.A.",
+    logo: "V",
+    setor: "Mineração",
+    descricao:
+      "Uma das maiores mineradoras do mundo, com operações concentradas no complexo de Itabira. A Vale é referência global em minério de ferro e pelotas, com décadas de presença na região e forte compromisso com fornecedores locais.",
+    regiao: "Itabira - MG",
+    desde: "1942",
+  },
+  {
+    id: "usiminas",
+    nome: "Usiminas",
+    logo: "U",
+    setor: "Siderurgia",
+    descricao:
+      "Grupo siderúrgico com plantas em Ipatinga e João Monlevade, a Usiminas é um dos maiores produtores de aços planos do Brasil. Atua fortemente na contratação de serviços industriais especializados na região central de Minas Gerais.",
+    regiao: "João Monlevade - MG",
+    desde: "1956",
+  },
+  {
+    id: "arcelormittal",
+    nome: "ArcelorMittal",
+    logo: "A",
+    setor: "Siderurgia",
+    descricao:
+      "Maior produtora de aço do mundo, com unidade em João Monlevade dedicada à produção de aços longos. Contrata regularmente fornecedores locais para manutenção, segurança do trabalho, construção civil e logística industrial.",
+    regiao: "João Monlevade - MG",
+    desde: "1921",
+  },
+];
 
 export const projetos: Projeto[] = [
   {
@@ -245,6 +288,174 @@ export const projetos: Projeto[] = [
         prazo: 4,
         comentario:
           "Bom serviço, cumpriu todos os requisitos ambientais. Pequenos atrasos na documentação final.",
+      },
+    },
+  },
+  {
+    id: "9",
+    titulo: "Revisão Geral de Equipamentos de Içamento",
+    empresa: "Usiminas",
+    empresaLogo: "U",
+    descricao:
+      "Revisão completa de pontes rolantes, talhas e equipamentos de içamento da planta de João Monlevade, incluindo troca de cabos e inspeção estrutural.",
+    categoria: "Manutenção Industrial",
+    regiao: "João Monlevade - MG",
+    orcamento: "R$ 80.000 - R$ 120.000",
+    prazo: "20/01/2026",
+    dataPublicacao: "05/12/2025",
+    status: "arquivado",
+    interessados: 3,
+    requisitos: ["NR-11", "NR-12", "Inspetor de solda certificado"],
+    fechamento: {
+      fornecedorId: "1",
+      valorFinal: "R$ 92.000,00",
+      dataFechamento: "18/01/2026",
+      visibilidade: "publico",
+      avaliacao: {
+        qualidade: 5,
+        prazo: 4,
+        comentario:
+          "Serviço de alta qualidade. Pequeno atraso na entrega dos relatórios técnicos, mas dentro do aceitável.",
+      },
+    },
+  },
+  {
+    id: "10",
+    titulo: "Relatório de Impacto Ambiental — Expansão Norte",
+    empresa: "ArcelorMittal",
+    empresaLogo: "A",
+    descricao:
+      "Elaboração do RIMA para licenciamento da expansão da área industrial norte, incluindo estudos de flora, fauna, solo e recursos hídricos.",
+    categoria: "Serviços Ambientais",
+    regiao: "João Monlevade - MG",
+    orcamento: "R$ 150.000 - R$ 220.000",
+    prazo: "28/01/2026",
+    dataPublicacao: "10/11/2025",
+    status: "arquivado",
+    interessados: 2,
+    requisitos: ["Licença IBAMA", "CREA-MG", "Engenheiro ambiental responsável"],
+    fechamento: {
+      fornecedorId: "2",
+      valorFinal: "R$ 185.000,00",
+      dataFechamento: "25/01/2026",
+      visibilidade: "publico",
+      avaliacao: {
+        qualidade: 4,
+        prazo: 5,
+        comentario:
+          "Entregaram o RIMA dentro do prazo com documentação completa e precisa. Recomendamos.",
+      },
+    },
+  },
+  {
+    id: "11",
+    titulo: "Transporte de Equipamentos Pesados — Parada Geral",
+    empresa: "Vale S.A.",
+    empresaLogo: "V",
+    descricao:
+      "Transporte especializado de equipamentos industriais de grande porte durante a parada geral de manutenção do complexo de Itabira.",
+    categoria: "Transporte e Logística",
+    regiao: "Itabira - MG",
+    orcamento: "R$ 280.000 - R$ 380.000",
+    prazo: "15/03/2026",
+    dataPublicacao: "20/01/2026",
+    status: "arquivado",
+    interessados: 4,
+    requisitos: ["RNTRC", "Licença para transporte de carga especial", "Seguro de carga"],
+    fechamento: {
+      fornecedorId: "3",
+      valorFinal: "R$ 340.000,00",
+      dataFechamento: "14/03/2026",
+      visibilidade: "publico",
+      avaliacao: {
+        qualidade: 5,
+        prazo: 5,
+        comentario:
+          "Transporte especializado executado com perfeição. Equipamentos chegaram sem nenhum incidente e no prazo exato.",
+      },
+    },
+  },
+  {
+    id: "12",
+    titulo: "Ampliação do Almoxarifado Industrial",
+    empresa: "Usiminas",
+    empresaLogo: "U",
+    descricao:
+      "Ampliação e reforma do almoxarifado industrial da planta de João Monlevade, com instalações elétricas, estrutura metálica e piso industrial.",
+    categoria: "Construção Civil",
+    regiao: "João Monlevade - MG",
+    orcamento: "R$ 450.000 - R$ 600.000",
+    prazo: "10/02/2026",
+    dataPublicacao: "15/10/2025",
+    status: "arquivado",
+    interessados: 5,
+    requisitos: ["CREA-MG", "ART de responsabilidade técnica", "Experiência em obras industriais"],
+    fechamento: {
+      fornecedorId: "4",
+      valorFinal: "R$ 520.000,00",
+      dataFechamento: "18/02/2026",
+      visibilidade: "publico",
+      avaliacao: {
+        qualidade: 4,
+        prazo: 3,
+        comentario:
+          "Qualidade da construção boa, mas houve atrasos que impactaram o cronograma de produção. Comunicação poderia melhorar.",
+      },
+    },
+  },
+  {
+    id: "13",
+    titulo: "Implantação do Programa de Gestão de Riscos",
+    empresa: "Vale S.A.",
+    empresaLogo: "V",
+    descricao:
+      "Implantação completa do Programa de Gerenciamento de Riscos (PGR) conforme NR-01, incluindo inventário de riscos e plano de ação.",
+    categoria: "Segurança do Trabalho",
+    regiao: "Itabira - MG",
+    orcamento: "R$ 100.000 - R$ 160.000",
+    prazo: "31/03/2026",
+    dataPublicacao: "10/01/2026",
+    status: "arquivado",
+    interessados: 6,
+    requisitos: ["Registro no MTE", "Engenheiro de segurança", "Médico do trabalho"],
+    fechamento: {
+      fornecedorId: "5",
+      valorFinal: "R$ 130.000,00",
+      dataFechamento: "28/03/2026",
+      visibilidade: "publico",
+      avaliacao: {
+        qualidade: 5,
+        prazo: 5,
+        comentario:
+          "PGR implementado com excelência técnica. Equipe extremamente qualificada e proativa em todo o processo.",
+      },
+    },
+  },
+  {
+    id: "14",
+    titulo: "Treinamento NR-35 e Trabalho em Altura",
+    empresa: "ArcelorMittal",
+    empresaLogo: "A",
+    descricao:
+      "Treinamento de capacitação em NR-35 (Trabalho em Altura) para 120 colaboradores, incluindo teórico, prático e emissão de certificados.",
+    categoria: "Segurança do Trabalho",
+    regiao: "João Monlevade - MG",
+    orcamento: "R$ 50.000 - R$ 80.000",
+    prazo: "20/02/2026",
+    dataPublicacao: "05/01/2026",
+    status: "arquivado",
+    interessados: 4,
+    requisitos: ["Instrutor certificado NR-35", "Espaço para treinamento prático", "Material didático"],
+    fechamento: {
+      fornecedorId: "5",
+      valorFinal: "R$ 65.000,00",
+      dataFechamento: "19/02/2026",
+      visibilidade: "publico",
+      avaliacao: {
+        qualidade: 5,
+        prazo: 5,
+        comentario:
+          "Treinamento impecável. Todos os colaboradores aprovados na primeira tentativa. Instrutores muito didáticos.",
       },
     },
   },

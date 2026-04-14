@@ -176,11 +176,9 @@ The platform has **three distinct user modules**:
 | Item | Status | Notes |
 |------|--------|-------|
 | Review submission | `mockup-done` | Submitted via close-contract modal — split ratings (Qualidade + Prazo, 1–5 ★) + free-text comment |
-| Review display on supplier profile | `mockup-missing` | Reviews collected but not yet rendered on `/fornecedor/perfil` or `/empresa/fornecedor/[id]` |
+| Review display on supplier profile | `mockup-done` | Split-rating cards on `/fornecedor/perfil` and `/empresa/fornecedor/[id]`; stats (Entrega no Prazo, Satisfação) computed from real review averages |
 
 **Decisions made (2026-04-14):** Split ratings (Qualidade do serviço + Cumprimento de prazo). Visibility: Público by default. Supplier response: deferred to post-MVP.
-
-**Remaining gap:** Wire the submitted reviews into the supplier profile stats (Taxa de Sucesso / Entrega no Prazo) and the reviews list on `/empresa/fornecedor/[id]`.
 
 ---
 
@@ -188,9 +186,7 @@ The platform has **three distinct user modules**:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Client company public profile | `mockup-missing` | Supplier should see company details before submitting a proposal |
-
-**Routes to create:** `/fornecedor/empresa/[id]` — shows client name, sector, region, open demands, closed projects.
+| Client company public profile | `mockup-done` | `/fornecedor/empresa/[id]` — header with sector/region/stats, open demands grid, closed contracts list; linked from company card on `/fornecedor/projeto/[id]` |
 
 ---
 

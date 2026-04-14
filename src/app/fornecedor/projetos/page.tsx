@@ -134,6 +134,7 @@ export default function BuscarProjetosPage() {
             <Link
               key={projeto.id}
               href={`/fornecedor/projeto/${projeto.id}`}
+              className="block"
             >
               <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
                 <CardContent className="p-5">

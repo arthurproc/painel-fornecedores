@@ -28,7 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { projetos, statusLabels, statusColors } from "@/lib/mock-data";
+import { projetos, empresas, statusLabels, statusColors } from "@/lib/mock-data";
 
 export default function ProjetoFornecedorPage({
   params,
@@ -37,6 +37,7 @@ export default function ProjetoFornecedorPage({
 }) {
   const { id } = use(params);
   const projeto = projetos.find((p) => p.id === id) || projetos[0];
+  const empresa = empresas.find((e) => e.nome === projeto.empresa);
   const [showForm, setShowForm] = useState(false);
   const [enviado, setEnviado] = useState(false);
 
@@ -87,24 +88,30 @@ export default function ProjetoFornecedorPage({
         )}
 
         {/* Company Info */}
-        <Card>
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center text-lg font-bold">
-              {projeto.empresaLogo}
-            </div>
-            <div>
-              <p className="font-semibold text-lg">{projeto.empresa}</p>
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Building2 className="w-3.5 h-3.5" /> Mineracao e Siderurgia
-                </span>
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5" /> {projeto.regiao}
-                </span>
+        <Link href={empresa ? `/fornecedor/empresa/${empresa.id}` : "#"}>
+          <Card className="hover:shadow-sm transition-shadow cursor-pointer">
+            <CardContent className="p-5 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center text-lg font-bold">
+                  {projeto.empresaLogo}
+                </div>
+                <div>
+                  <p className="font-semibold text-lg">{projeto.empresa}</p>
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Building2 className="w-3.5 h-3.5" />
+                      {empresa?.setor ?? "Indústria"}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5" /> {projeto.regiao}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+              <span className="text-xs text-muted-foreground">Ver perfil →</span>
+            </CardContent>
+          </Card>
+        </Link>
 
         {/* Project Details */}
         <Card>
@@ -218,8 +225,11 @@ export default function ProjetoFornecedorPage({
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Valor da Proposta</Label>
-                <Input placeholder="R$ 0,00" defaultValue="R$ 320.000,00" />
+                <Label>
+                  Valor da Proposta{" "}
+                  <span className="text-muted-foreground font-normal">(opcional)</span>
+                </Label>
+                <Input placeholder="R$ 0,00" />
               </div>
               <div className="space-y-2">
                 <Label>Prazo de Entrega</Label>

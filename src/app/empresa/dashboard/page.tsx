@@ -104,7 +104,11 @@ export default function EmpresaDashboard() {
             </div>
             <div className="space-y-3">
               {meusProjetos.map((projeto) => (
-                <Link key={projeto.id} href={`/empresa/projeto/${projeto.id}`}>
+                <Link
+                  key={projeto.id}
+                  href={`/empresa/projeto/${projeto.id}`}
+                  className="block"
+                >
                   <Card className="hover:shadow-sm transition-shadow cursor-pointer">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
@@ -164,8 +168,8 @@ export default function EmpresaDashboard() {
                       {proposta.projeto.titulo}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-primary">
-                        {proposta.valor}
+                      <span className={`text-sm ${proposta.valor ? "font-semibold text-primary" : "text-muted-foreground"}`}>
+                        {proposta.valor ?? "Valor não informado"}
                       </span>
                       <Badge variant="secondary" className={statusColors[proposta.status]}>
                         {statusLabels[proposta.status]}
@@ -213,8 +217,8 @@ export default function EmpresaDashboard() {
                           </p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-sm font-semibold text-primary">
-                            {f.valorFinal}
+                          <p className={`text-sm ${f.valorFinal ? "font-semibold text-primary" : "text-muted-foreground"}`}>
+                            {f.valorFinal ?? "Valor não informado"}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {f.dataFechamento}

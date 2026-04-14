@@ -118,6 +118,7 @@ export default function FornecedorDashboard() {
                 <Link
                   key={projeto.id}
                   href={`/fornecedor/projeto/${projeto.id}`}
+                  className="block"
                 >
                   <Card className="hover:shadow-sm transition-shadow cursor-pointer">
                     <CardContent className="p-4">
@@ -175,8 +176,8 @@ export default function FornecedorDashboard() {
                       {proposta.dataEnvio}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-primary">
-                        {proposta.valor}
+                      <span className={`text-sm ${proposta.valor ? "font-semibold text-primary" : "text-muted-foreground"}`}>
+                        {proposta.valor ?? "Valor não informado"}
                       </span>
                       <Badge
                         variant="secondary"

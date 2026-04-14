@@ -17,119 +17,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { fornecedores } from "@/lib/mock-data";
+import { fornecedores, projetos } from "@/lib/mock-data";
 
-const avaliacoesPorFornecedor: Record<
-  string,
-  { empresa: string; logo: string; nota: number; comentario: string; data: string }[]
-> = {
-  "1": [
-    {
-      empresa: "Vale S.A.",
-      logo: "V",
-      nota: 5,
-      comentario:
-        "Excelente trabalho na manutenção das correias. Equipe muito profissional e dentro do prazo.",
-      data: "Mar 2026",
-    },
-    {
-      empresa: "Usiminas",
-      logo: "U",
-      nota: 5,
-      comentario:
-        "Serviço impecável. Recomendo para qualquer trabalho de manutenção industrial.",
-      data: "Fev 2026",
-    },
-    {
-      empresa: "ArcelorMittal",
-      logo: "A",
-      nota: 4,
-      comentario:
-        "Bom trabalho, cumpriu com os requisitos do contrato. Prazo ligeiramente ultrapassado.",
-      data: "Jan 2026",
-    },
-  ],
-  "2": [
-    {
-      empresa: "Vale S.A.",
-      logo: "V",
-      nota: 5,
-      comentario:
-        "Monitoramento ambiental implantado com precisão e dentro do cronograma. Equipe técnica de alto nível.",
-      data: "Mar 2026",
-    },
-    {
-      empresa: "ArcelorMittal",
-      logo: "A",
-      nota: 4,
-      comentario:
-        "Bom serviço de licenciamento, comunicação poderia ser mais ágil.",
-      data: "Jan 2026",
-    },
-  ],
-  "3": [
-    {
-      empresa: "Vale S.A.",
-      logo: "V",
-      nota: 4,
-      comentario:
-        "Transporte confiável, frota bem mantida e rastreamento em tempo real funcionou perfeitamente.",
-      data: "Fev 2026",
-    },
-    {
-      empresa: "Usiminas",
-      logo: "U",
-      nota: 5,
-      comentario:
-        "Parceria excelente. Cumpriram todos os volumes acordados sem intercorrências.",
-      data: "Dez 2025",
-    },
-  ],
-  "4": [
-    {
-      empresa: "Usiminas",
-      logo: "U",
-      nota: 5,
-      comentario:
-        "Reforma do refeitório entregue no prazo com acabamento de qualidade. Muito satisfeitos.",
-      data: "Mar 2026",
-    },
-    {
-      empresa: "ArcelorMittal",
-      logo: "A",
-      nota: 4,
-      comentario:
-        "Trabalho sólido em construção civil industrial. Equipe bem preparada.",
-      data: "Nov 2025",
-    },
-  ],
-  "5": [
-    {
-      empresa: "Vale S.A.",
-      logo: "V",
-      nota: 5,
-      comentario:
-        "Consultoria em SST absolutamente completa. Programas de segurança entregues dentro do prazo e com alto rigor técnico.",
-      data: "Abr 2026",
-    },
-    {
-      empresa: "ArcelorMittal",
-      logo: "A",
-      nota: 5,
-      comentario:
-        "Melhor consultoria de segurança do trabalho com quem já trabalhamos. Recomendo sem reservas.",
-      data: "Fev 2026",
-    },
-    {
-      empresa: "Usiminas",
-      logo: "U",
-      nota: 5,
-      comentario:
-        "Treinamentos NR ministrados com excelência. Equipe extremamente qualificada.",
-      data: "Jan 2026",
-    },
-  ],
-};
+function formatarMesAno(data: string): string {
+  const [, mes, ano] = data.split("/");
+  const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  return `${meses[parseInt(mes) - 1]} ${ano}`;
+}
 
 const projetosPorFornecedor: Record<
   string,
@@ -164,15 +58,8 @@ const projetosPorFornecedor: Record<
   ],
 };
 
-const estatisticasPorFornecedor: Record<
-  string,
-  { taxaSucesso: number; entregaNoPrazo: number; satisfacao: number }
-> = {
-  "1": { taxaSucesso: 92, entregaNoPrazo: 88, satisfacao: 96 },
-  "2": { taxaSucesso: 89, entregaNoPrazo: 91, satisfacao: 94 },
-  "3": { taxaSucesso: 95, entregaNoPrazo: 93, satisfacao: 91 },
-  "4": { taxaSucesso: 87, entregaNoPrazo: 84, satisfacao: 93 },
-  "5": { taxaSucesso: 98, entregaNoPrazo: 97, satisfacao: 99 },
+const taxaSucessoPorFornecedor: Record<string, number> = {
+  "1": 92, "2": 89, "3": 95, "4": 87, "5": 98,
 };
 
 export default function PerfilFornecedorEmpresaPage({
@@ -182,9 +69,30 @@ export default function PerfilFornecedorEmpresaPage({
 }) {
   const { id } = use(params);
   const fornecedor = fornecedores.find((f) => f.id === id) ?? fornecedores[0];
-  const avaliacoes = avaliacoesPorFornecedor[fornecedor.id] ?? [];
-  const projetos = projetosPorFornecedor[fornecedor.id] ?? [];
-  const stats = estatisticasPorFornecedor[fornecedor.id] ?? { taxaSucesso: 90, entregaNoPrazo: 88, satisfacao: 92 };
+  const projetosHistorico = projetosPorFornecedor[fornecedor.id] ?? [];
+
+  const reviews = projetos
+    .filter((p) => p.fechamento?.fornecedorId === fornecedor.id)
+    .map((p) => ({
+      empresa: p.empresa,
+      logo: p.empresaLogo,
+      qualidade: p.fechamento!.avaliacao.qualidade,
+      prazo: p.fechamento!.avaliacao.prazo,
+      comentario: p.fechamento!.avaliacao.comentario,
+      data: formatarMesAno(p.fechamento!.dataFechamento),
+    }));
+
+  const avgQualidade =
+    reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.qualidade, 0) / reviews.length
+      : 0;
+  const avgPrazo =
+    reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.prazo, 0) / reviews.length
+      : 0;
+  const satisfacao = Math.round((avgQualidade / 5) * 100);
+  const entregaNoPrazo = Math.round((avgPrazo / 5) * 100);
+  const taxaSucesso = taxaSucessoPorFornecedor[fornecedor.id] ?? 90;
 
   return (
     <AppShell tipo="empresa" titulo="Perfil do Fornecedor">
@@ -276,7 +184,7 @@ export default function PerfilFornecedorEmpresaPage({
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {projetos.map((proj) => (
+                  {projetosHistorico.map((proj) => (
                     <div
                       key={proj.titulo}
                       className="flex items-center justify-between p-3 rounded-lg bg-muted/30"
@@ -296,44 +204,74 @@ export default function PerfilFornecedorEmpresaPage({
               </CardContent>
             </Card>
 
-            {/* Avaliacoes */}
+            {/* Avaliações */}
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">Avaliações</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {avaliacoes.map((av) => (
-                    <div key={`${av.empresa}-${av.data}`}>
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-bold shrink-0">
-                          {av.logo}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <p className="font-medium text-sm">{av.empresa}</p>
-                            <p className="text-xs text-muted-foreground">{av.data}</p>
+                {reviews.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Nenhuma avaliação registrada ainda.
+                  </p>
+                ) : (
+                  <div className="space-y-5">
+                    {reviews.map((av, idx) => (
+                      <div key={idx}>
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-bold shrink-0">
+                            {av.logo}
                           </div>
-                          <div className="flex gap-0.5 mt-0.5">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-3 h-3 ${
-                                  i < av.nota
-                                    ? "fill-amber-400 text-amber-400"
-                                    : "text-muted"
-                                }`}
-                              />
-                            ))}
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <p className="font-medium text-sm">{av.empresa}</p>
+                              <p className="text-xs text-muted-foreground">{av.data}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">
+                                  Qualidade do serviço
+                                </span>
+                                <div className="flex gap-0.5">
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`w-3 h-3 ${
+                                        i < av.qualidade
+                                          ? "fill-amber-400 text-amber-400"
+                                          : "text-muted"
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">
+                                  Cumprimento de prazo
+                                </span>
+                                <div className="flex gap-0.5">
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`w-3 h-3 ${
+                                        i < av.prazo
+                                          ? "fill-amber-400 text-amber-400"
+                                          : "text-muted"
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
+                        <p className="text-sm text-muted-foreground mt-2 ml-11">
+                          {av.comentario}
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground ml-11">
-                        {av.comentario}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -368,23 +306,23 @@ export default function PerfilFornecedorEmpresaPage({
                 <div>
                   <div className="flex items-center justify-between text-sm mb-1">
                     <span className="text-muted-foreground">Taxa de Sucesso</span>
-                    <span className="font-medium">{stats.taxaSucesso}%</span>
+                    <span className="font-medium">{taxaSucesso}%</span>
                   </div>
-                  <Progress value={stats.taxaSucesso} className="h-2" />
+                  <Progress value={taxaSucesso} className="h-2" />
                 </div>
                 <div>
                   <div className="flex items-center justify-between text-sm mb-1">
                     <span className="text-muted-foreground">Entrega no Prazo</span>
-                    <span className="font-medium">{stats.entregaNoPrazo}%</span>
+                    <span className="font-medium">{entregaNoPrazo}%</span>
                   </div>
-                  <Progress value={stats.entregaNoPrazo} className="h-2" />
+                  <Progress value={entregaNoPrazo} className="h-2" />
                 </div>
                 <div>
                   <div className="flex items-center justify-between text-sm mb-1">
                     <span className="text-muted-foreground">Satisfação do Cliente</span>
-                    <span className="font-medium">{stats.satisfacao}%</span>
+                    <span className="font-medium">{satisfacao}%</span>
                   </div>
-                  <Progress value={stats.satisfacao} className="h-2" />
+                  <Progress value={satisfacao} className="h-2" />
                 </div>
               </CardContent>
             </Card>

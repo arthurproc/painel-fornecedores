@@ -243,13 +243,13 @@ export default function ProjetoEmpresaPage({
                     <span className="font-medium">
                       {propostaSelecionada.fornecedor.nome}
                     </span>{" "}
-                    — {propostaSelecionada.valor}
+                    — {propostaSelecionada.valor ?? "valor não informado"}
                   </p>
                 )}
                 {projeto.fechamento && !propostaSelecionada && (
                   <p className="text-xs text-gray-600 mt-0.5">
                     Fechado em {projeto.fechamento.dataFechamento} —{" "}
-                    {projeto.fechamento.valorFinal}
+                    {projeto.fechamento.valorFinal ?? "valor não informado"}
                   </p>
                 )}
               </div>
@@ -339,8 +339,8 @@ export default function ProjetoEmpresaPage({
                               </div>
                             </div>
                             <div className="text-right">
-                              <p className="text-lg font-bold text-primary">
-                                {proposta.valor}
+                              <p className={`text-lg font-bold ${proposta.valor ? "text-primary" : "text-muted-foreground font-normal text-sm"}`}>
+                                {proposta.valor ?? "Valor não informado"}
                               </p>
                               <p className="text-xs text-muted-foreground">
                                 Prazo: {proposta.prazoEntrega}
@@ -445,9 +445,13 @@ export default function ProjetoEmpresaPage({
             <DialogTitle>Confirmar Seleção de Fornecedor</DialogTitle>
             <DialogDescription>
               Você está selecionando o fornecedor{" "}
-              <strong>{selectedProposta?.fornecedor.nome}</strong> com proposta
-              de <strong>{selectedProposta?.valor}</strong> e prazo de{" "}
-              <strong>{selectedProposta?.prazoEntrega}</strong>.
+              <strong>{selectedProposta?.fornecedor.nome}</strong>
+              {selectedProposta?.valor ? (
+                <> com proposta de <strong>{selectedProposta.valor}</strong></>
+              ) : (
+                <> (valor não informado)</>
+              )}{" "}
+              e prazo de <strong>{selectedProposta?.prazoEntrega}</strong>.
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-3 justify-end mt-4">
@@ -487,8 +491,8 @@ export default function ProjetoEmpresaPage({
                   <div className="flex gap-6 text-sm">
                     <span className="text-muted-foreground">
                       Valor:{" "}
-                      <span className="font-medium text-foreground">
-                        {propostaSelecionada.valor}
+                      <span className={propostaSelecionada.valor ? "font-medium text-foreground" : ""}>
+                        {propostaSelecionada.valor ?? "não informado"}
                       </span>
                     </span>
                     <span className="text-muted-foreground">
