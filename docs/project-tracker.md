@@ -45,9 +45,9 @@ The platform has **three distinct user modules**:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Admin dashboard | `mockup-missing` | KPIs: active users/month, organizations, proposals |
-| Organization list | `mockup-missing` | View all client + supplier companies |
-| User management | `mockup-missing` | Manage users across orgs, change permissions |
+| Admin dashboard | `mockup-done` | `/admin/dashboard` — 4 KPI cards, recent demands, supplier list |
+| Organization list | `mockup-done` | `/admin/organizacoes` — tabbed view (empresas/fornecedores) with stats |
+| User management | `mockup-done` | `/admin/usuarios` — full user table with role, org type, status |
 
 **Routes to create:** `/admin/dashboard`, `/admin/organizacoes`, `/admin/usuarios`
 
@@ -217,7 +217,7 @@ Ordered by impact/dependency:
 1. **Supplier contact display** — complete the `empresa/projeto/[id]` flow so that selecting a supplier shows their contact info. Small, high-value, unblocked.
 2. **Close demand flow** — modal within `empresa/projeto/[id]`. Needed to demo the full company lifecycle.
 3. **Client company profile** — `/fornecedor/empresa/[id]`. Completes the supplier's view of a demand.
-4. **Admin platform panel** — `/admin/dashboard`, orgs, users. Needed for Celso to see the platform's own experience.
+4. ~~**Admin platform panel**~~ — done (`/admin/dashboard`, `/admin/organizacoes`, `/admin/usuarios`).
 5. **Organization member management** — settings pages for both empresa and fornecedor.
 6. **Installed technical capacity form** — part of supplier registration, critical for matching.
 7. **Demand edit screen** — needs business rules first (align with Celso).

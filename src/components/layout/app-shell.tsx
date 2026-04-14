@@ -4,7 +4,7 @@ import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 
 interface AppShellProps {
-  tipo: "empresa" | "fornecedor";
+  tipo: "empresa" | "fornecedor" | "admin";
   titulo: string;
   children: React.ReactNode;
 }

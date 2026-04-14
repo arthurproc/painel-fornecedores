@@ -12,18 +12,19 @@ import {
   Briefcase,
   ChevronLeft,
   ChevronRight,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 interface SidebarProps {
-  tipo: "empresa" | "fornecedor";
+  tipo: "empresa" | "fornecedor" | "admin";
 }
 
 const empresaLinks = [
   { href: "/empresa/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/empresa/novo-projeto", label: "Novo Projeto", icon: FolderPlus },
-  { href: "/empresa/projeto/1", label: "Meus Projetos", icon: Briefcase },
+  { href: "/empresa/projetos", label: "Meus Projetos", icon: Briefcase },
 ];
 
 const fornecedorLinks = [
@@ -32,12 +33,22 @@ const fornecedorLinks = [
   { href: "/fornecedor/perfil", label: "Meu Perfil", icon: User },
 ];
 
+const adminLinks = [
+  { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/organizacoes", label: "Organizações", icon: Building2 },
+  { href: "/admin/usuarios", label: "Usuários", icon: Users },
+];
+
 export function Sidebar({ tipo }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const links = tipo === "empresa" ? empresaLinks : fornecedorLinks;
-  const nome = tipo === "empresa" ? "Vale S.A." : "TechMinas Serviços";
-  const iniciais = tipo === "empresa" ? "V" : "TM";
+  const links =
+    tipo === "empresa" ? empresaLinks : tipo === "fornecedor" ? fornecedorLinks : adminLinks;
+  const nome =
+    tipo === "empresa" ? "Vale S.A." : tipo === "fornecedor" ? "TechMinas Serviços" : "ConectaFornece";
+  const iniciais = tipo === "empresa" ? "V" : tipo === "fornecedor" ? "TM" : "CF";
+  const subtitulo =
+    tipo === "admin" ? "Administrador" : tipo === "empresa" ? "Empresa" : "Fornecedor";
 
   return (
     <aside
@@ -53,8 +64,8 @@ export function Sidebar({ tipo }: SidebarProps) {
         {!collapsed && (
           <div className="overflow-hidden">
             <p className="font-semibold text-sm truncate">{nome}</p>
-            <p className="text-xs text-sidebar-foreground/60 capitalize">
-              {tipo}
+            <p className="text-xs text-sidebar-foreground/60">
+              {subtitulo}
             </p>
           </div>
         )}

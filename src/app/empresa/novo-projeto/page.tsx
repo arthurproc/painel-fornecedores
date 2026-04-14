@@ -56,8 +56,8 @@ export default function NovoProjetoPage() {
                 fornecedores da regiao.
               </p>
               <div className="flex gap-3 justify-center">
-                <Link href="/empresa/projeto/1">
-                  <Button>Ver Projeto</Button>
+                <Link href="/empresa/projetos">
+                  <Button>Ver Meus Projetos</Button>
                 </Link>
                 <Link href="/empresa/dashboard">
                   <Button variant="outline">Voltar ao Dashboard</Button>
