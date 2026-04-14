@@ -81,15 +81,15 @@ export default function LandingPage() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-6">
               <Star className="w-4 h-4" />
-              Plataforma #1 da Regiao de Itabira
+              Plataforma #1 da Região de Itabira
             </div>
             <h1 className="text-5xl font-bold tracking-tight text-foreground leading-tight mb-6">
-              Conectando grandes empresas aos melhores fornecedores da regiao
+              Conectando grandes empresas aos melhores fornecedores da região
             </h1>
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              A plataforma que facilita a conexao entre empresas que precisam de
-              servicos e fornecedores qualificados em Itabira e regiao. Publique
-              projetos, encontre parceiros e feche negocios.
+              A plataforma que facilita a conexão entre empresas que precisam de
+              serviços e fornecedores qualificados em Itabira e região. Publique
+              projetos, encontre parceiros e feche negócios.
             </p>
             <div className="flex gap-4">
               <Link href="/registro">
@@ -128,7 +128,7 @@ export default function LandingPage() {
         <div className="text-center mb-14">
           <h2 className="text-3xl font-bold mb-3">Como Funciona</h2>
           <p className="text-muted-foreground text-lg">
-            Tres passos simples para conectar sua empresa ao mercado local
+            Três passos simples para conectar sua empresa ao mercado local
           </p>
         </div>
         <div className="grid grid-cols-3 gap-8">
@@ -190,14 +190,14 @@ export default function LandingPage() {
               <h3 className="text-2xl font-bold mb-3">Sou uma Empresa</h3>
               <p className="opacity-80 mb-6 leading-relaxed">
                 Publique seus projetos e encontre fornecedores qualificados na
-                regiao. Compare propostas e escolha o melhor parceiro.
+                região. Compare propostas e escolha o melhor parceiro.
               </p>
               <ul className="space-y-2 mb-8">
                 {[
                   "Publique projetos gratuitamente",
                   "Receba propostas de fornecedores verificados",
-                  "Compare precos e avaliacoes",
-                  "Gerencie contratos em um so lugar",
+                  "Compare preços e avaliações",
+                  "Gerencie contratos em um só lugar",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-2 text-sm">
                     <CheckCircle2 className="w-4 h-4 shrink-0 opacity-80" />
@@ -218,14 +218,14 @@ export default function LandingPage() {
               <Truck className="w-10 h-10 mb-4 text-primary" />
               <h3 className="text-2xl font-bold mb-3">Sou um Fornecedor</h3>
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                Encontre oportunidades de negocio com grandes empresas da
-                regiao. Mostre seus servicos e conquiste novos clientes.
+                Encontre oportunidades de negócio com grandes empresas da
+                região. Mostre seus serviços e conquiste novos clientes.
               </p>
               <ul className="space-y-2 mb-8">
                 {[
                   "Acesse projetos de grandes empresas",
-                  "Construa sua reputacao com avaliacoes",
-                  "Receba notificacoes de novos projetos",
+                  "Construa sua reputação com avaliações",
+                  "Receba notificações de novos projetos",
                   "Perfil profissional completo",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-2 text-sm">

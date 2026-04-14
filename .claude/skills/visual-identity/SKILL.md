@@ -7,7 +7,7 @@ description: Enforces ConectaFornece visual identity — OKLCH design tokens, DM
 
 - Stack: Next.js 16, React 19, Tailwind CSS v4, shadcn/ui (installed via the `shadcn` package).
 - Light mode is the only supported mode. Gate `dark:` utilities behind a `:root` dark block in `src/app/globals.css` (add the block first, then author `dark:` classes).
-- Interface language is pt-BR. Component and hook names stay in English; UI strings stay in Portuguese without accents (e.g., `regiao`, `servicos`, `tres`) to match existing code.
+- Interface language is pt-BR with full diacritics (e.g., `região`, `serviços`, `três`, `manutenção`). Component and hook names stay in English.
 - Two app areas exist: `/empresa/*` and `/fornecedor/*`, plus landing, `/login`, `/registro`.
 
 ## Design Tokens (globals.css, OKLCH)
@@ -142,7 +142,7 @@ The project is desktop-first with no responsive breakpoints yet. When introducin
 
 ## Naming Conventions
 
-- UI strings in Portuguese, no accents, to match existing keys (`valor`, `label`, `titulo`, `descricao`, `nome`).
+- UI strings in pt-BR with full accents (`região`, `serviços`, `manutenção`). Mock-data keys stay accent-free in identifiers (`titulo`, `descricao`, `regiao`) — the string *values* carry the accents.
 - Component files and exports in English PascalCase; hooks in English camelCase with `use` prefix.
 - Route folders follow app-area names: `src/app/empresa/...`, `src/app/fornecedor/...`.
 
@@ -187,7 +187,7 @@ The project is desktop-first with no responsive breakpoints yet. When introducin
 - [ ] Highlight icons follow the `bg-primary/10` + `text-primary` container pattern.
 - [ ] Public sections wrap in `max-w-7xl mx-auto px-6`; app pages use `AppShell`.
 - [ ] Sidebar elements rely on `sidebar*` tokens and inherited foreground (no manual color overrides).
-- [ ] UI strings are pt-BR without accents and match existing key names.
+- [ ] UI strings are pt-BR with full accents; object keys stay accent-free (`titulo`, `descricao`, `regiao`).
 - [ ] `dark:` classes appear only after a `:root` dark block exists in `globals.css`.
 
 ## References
