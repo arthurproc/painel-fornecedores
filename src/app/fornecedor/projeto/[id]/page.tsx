@@ -12,6 +12,7 @@ import {
   Building2,
   Send,
   CheckCircle2,
+  Archive,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,6 +49,24 @@ export default function ProjetoFornecedorPage({
         >
           <ArrowLeft className="w-4 h-4" /> Voltar aos Projetos
         </Link>
+
+        {/* Contrato fechado — notificação ao fornecedor selecionado */}
+        {projeto.status === "arquivado" && projeto.fechamento && (
+          <Card className="border-amber-200 bg-amber-50">
+            <CardContent className="p-4 flex items-start gap-3">
+              <Archive className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-amber-800">
+                  Você foi selecionado para este contrato!
+                </p>
+                <p className="text-sm text-amber-700 mt-0.5">
+                  Contrato fechado em {projeto.fechamento.dataFechamento}. Entre
+                  em contato com {projeto.empresa} para dar início ao projeto.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Success message */}
         {enviado && (

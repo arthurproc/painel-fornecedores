@@ -9,9 +9,20 @@ export interface Projeto {
   orcamento: string;
   prazo: string;
   dataPublicacao: string;
-  status: "aberto" | "em_analise" | "em_andamento" | "concluido";
+  status: "aberto" | "em_analise" | "em_andamento" | "concluido" | "arquivado";
   interessados: number;
   requisitos: string[];
+  fechamento?: {
+    fornecedorId: string;
+    valorFinal: string;
+    dataFechamento: string;
+    visibilidade: "publico" | "fornecedores" | "privado";
+    avaliacao: {
+      qualidade: number;
+      prazo: number;
+      comentario: string;
+    };
+  };
 }
 
 export interface Fornecedor {
@@ -171,6 +182,72 @@ export const projetos: Projeto[] = [
       "Laudo técnico dos produtos",
     ],
   },
+  {
+    id: "7",
+    titulo: "Manutenção de Pontes Rolantes",
+    empresa: "Vale S.A.",
+    empresaLogo: "V",
+    descricao:
+      "Serviço de manutenção preventiva e corretiva em pontes rolantes e equipamentos de içamento do complexo minerador de Itabira. Inclui lubrificação, troca de cabos, inspeção estrutural e alinhamento de trilhos.",
+    categoria: "Manutenção Industrial",
+    regiao: "Itabira - MG",
+    orcamento: "R$ 120.000 - R$ 180.000",
+    prazo: "28/02/2026",
+    dataPublicacao: "05/01/2026",
+    status: "arquivado",
+    interessados: 4,
+    requisitos: [
+      "NR-11",
+      "Experiência em equipamentos de içamento",
+      "Inspetor de solda certificado",
+      "Laudo de inspeção NR-12",
+    ],
+    fechamento: {
+      fornecedorId: "1",
+      valorFinal: "R$ 145.000,00",
+      dataFechamento: "14/02/2026",
+      visibilidade: "publico",
+      avaliacao: {
+        qualidade: 5,
+        prazo: 5,
+        comentario:
+          "Excelente equipe, serviço entregue no prazo e dentro das especificações. Recomendamos fortemente.",
+      },
+    },
+  },
+  {
+    id: "8",
+    titulo: "Gestão de Resíduos Industriais",
+    empresa: "Vale S.A.",
+    empresaLogo: "V",
+    descricao:
+      "Contratação de empresa especializada para coleta, tratamento e destinação ambientalmente adequada de resíduos sólidos industriais gerados nas operações do complexo de Itabira.",
+    categoria: "Serviços Ambientais",
+    regiao: "Itabira - MG",
+    orcamento: "R$ 200.000 - R$ 320.000",
+    prazo: "31/03/2026",
+    dataPublicacao: "10/02/2026",
+    status: "arquivado",
+    interessados: 3,
+    requisitos: [
+      "Licença ambiental para transporte de resíduos",
+      "Certificação ISO 14001",
+      "Plano de gerenciamento de resíduos",
+      "Certificado de destinação final",
+    ],
+    fechamento: {
+      fornecedorId: "2",
+      valorFinal: "R$ 275.000,00",
+      dataFechamento: "20/03/2026",
+      visibilidade: "fornecedores",
+      avaliacao: {
+        qualidade: 4,
+        prazo: 4,
+        comentario:
+          "Bom serviço, cumpriu todos os requisitos ambientais. Pequenos atrasos na documentação final.",
+      },
+    },
+  },
 ];
 
 export const fornecedores: Fornecedor[] = [
@@ -324,6 +401,7 @@ export const statusLabels: Record<string, string> = {
   em_analise: "Em Análise",
   em_andamento: "Em Andamento",
   concluido: "Concluído",
+  arquivado: "Arquivado",
   pendente: "Pendente",
   aceita: "Aceita",
   recusada: "Recusada",
@@ -334,6 +412,7 @@ export const statusColors: Record<string, string> = {
   em_analise: "bg-amber-100 text-amber-800",
   em_andamento: "bg-blue-100 text-blue-800",
   concluido: "bg-gray-100 text-gray-800",
+  arquivado: "bg-gray-100 text-gray-600",
   pendente: "bg-amber-100 text-amber-800",
   aceita: "bg-emerald-100 text-emerald-800",
   recusada: "bg-red-100 text-red-800",

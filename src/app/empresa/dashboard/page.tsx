@@ -6,12 +6,31 @@ import {
   Clock,
   ArrowRight,
   Eye,
+  Archive,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { projetos, propostas, statusLabels, statusColors } from "@/lib/mock-data";
+import {
+  projetos,
+  propostas,
+  fornecedores,
+  statusLabels,
+  statusColors,
+} from "@/lib/mock-data";
+
+const visibilidadeLabels: Record<string, string> = {
+  publico: "Público",
+  fornecedores: "Apenas fornecedores",
+  privado: "Privado",
+};
+
+const visibilidadeColors: Record<string, string> = {
+  publico: "bg-emerald-100 text-emerald-800",
+  fornecedores: "bg-blue-100 text-blue-800",
+  privado: "bg-gray-100 text-gray-800",
+};
 
 const statsCards = [
   {
@@ -41,8 +60,11 @@ const statsCards = [
 ];
 
 export default function EmpresaDashboard() {
-  const meusProjetos = projetos.filter((p) =>
-    ["Vale S.A."].includes(p.empresa)
+  const meusProjetos = projetos.filter(
+    (p) => ["Vale S.A."].includes(p.empresa) && p.status !== "arquivado"
+  );
+  const projetosFechados = projetos.filter(
+    (p) => ["Vale S.A."].includes(p.empresa) && p.status === "arquivado"
   );
   const propostasRecentes = propostas.filter((p) => p.status === "pendente").slice(0, 3);
 
@@ -155,6 +177,68 @@ export default function EmpresaDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Contratos Fechados */}
+        {projetosFechados.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Archive className="w-5 h-5 text-muted-foreground" />
+              <h2 className="text-lg font-semibold">Contratos Fechados</h2>
+              <Badge
+                variant="secondary"
+                className="bg-gray-100 text-gray-700 text-xs"
+              >
+                {projetosFechados.length}
+              </Badge>
+            </div>
+            <Card>
+              <CardContent className="p-0">
+                <div className="divide-y divide-border">
+                  {projetosFechados.map((projeto) => {
+                    const f = projeto.fechamento!;
+                    const fornecedor = fornecedores.find(
+                      (fn) => fn.id === f.fornecedorId
+                    );
+                    return (
+                      <div
+                        key={projeto.id}
+                        className="flex items-center gap-4 px-5 py-4"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {projeto.titulo}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {fornecedor?.nome ?? "—"} · {projeto.categoria}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-sm font-semibold text-primary">
+                            {f.valorFinal}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {f.dataFechamento}
+                          </p>
+                        </div>
+                        <Badge
+                          variant="secondary"
+                          className={visibilidadeColors[f.visibilidade]}
+                        >
+                          {visibilidadeLabels[f.visibilidade]}
+                        </Badge>
+                        <Link href={`/empresa/projeto/${projeto.id}`}>
+                          <Button size="sm" variant="outline" className="gap-1">
+                            <Eye className="w-3.5 h-3.5" /> Ver
+                          </Button>
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </AppShell>
   );

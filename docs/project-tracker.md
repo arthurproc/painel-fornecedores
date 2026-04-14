@@ -144,9 +144,9 @@ The platform has **three distinct user modules**:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Close demand flow | `mockup-missing` | Set demand as "contract closed", choose visibility |
-| Move to "closed contracts" table | `mockup-missing` | Archived demands available for reference |
-| Visibility settings | `mockup-missing` | Client chooses who can see the closed demand |
+| Close demand flow | `mockup-done` | Modal on `/empresa/projeto/[id]` — supplier summary, visibility picker, split ratings, archive |
+| Move to "closed contracts" table | `mockup-done` | "Contratos Fechados" section on `/empresa/dashboard` with supplier, value, date, visibility |
+| Visibility settings | `mockup-done` | Three options: Público / Apenas fornecedores / Privado |
 
 **Routes to create:** Flow within `/empresa/projeto/[id]` (modal or step) + new section in `/empresa/dashboard` for closed contracts.
 
@@ -175,12 +175,12 @@ The platform has **three distinct user modules**:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Review submission | `mockup-missing` | Reviews shown on supplier profile but no trigger exists yet |
+| Review submission | `mockup-done` | Submitted via close-contract modal — split ratings (Qualidade + Prazo, 1–5 ★) + free-text comment |
+| Review display on supplier profile | `mockup-missing` | Reviews collected but not yet rendered on `/fornecedor/perfil` or `/empresa/fornecedor/[id]` |
 
-**Dependency:** Close-demand flow. Reviews should be submitted by the empresa when archiving a demand.
-**Needs clarification:** What fields (text + star rating only? delivery rating + quality rating separately?)? Are reviews public or visible only to logged-in empresas? Can the supplier respond?
+**Decisions made (2026-04-14):** Split ratings (Qualidade do serviço + Cumprimento de prazo). Visibility: Público by default. Supplier response: deferred to post-MVP.
 
-**Action:** Define review fields and visibility rules with Celso when building the close-demand flow. Do not build reviews in isolation.
+**Remaining gap:** Wire the submitted reviews into the supplier profile stats (Taxa de Sucesso / Entrega no Prazo) and the reviews list on `/empresa/fornecedor/[id]`.
 
 ---
 
