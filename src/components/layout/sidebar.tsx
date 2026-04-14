@@ -25,12 +25,14 @@ const empresaLinks = [
   { href: "/empresa/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/empresa/novo-projeto", label: "Novo Projeto", icon: FolderPlus },
   { href: "/empresa/projetos", label: "Meus Projetos", icon: Briefcase },
+  { href: "/empresa/configuracoes/membros", label: "Membros", icon: Users },
 ];
 
 const fornecedorLinks = [
   { href: "/fornecedor/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/fornecedor/projetos", label: "Buscar Projetos", icon: Search },
   { href: "/fornecedor/perfil", label: "Meu Perfil", icon: User },
+  { href: "/fornecedor/configuracoes/membros", label: "Membros", icon: Users },
 ];
 
 const adminLinks = [

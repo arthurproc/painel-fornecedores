@@ -57,11 +57,9 @@ The platform has **three distinct user modules**:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Member list | `mockup-missing` | See all users in the organization |
-| Invite/remove members | `mockup-missing` | Email invite + role assignment |
-| Member permissions | `mockup-missing` | Read-only vs manager, etc. |
-
-**Routes to create:** `/empresa/configuracoes/membros`, `/fornecedor/configuracoes/membros`
+| Member list | `mockup-done` | `/empresa/configuracoes/membros`, `/fornecedor/configuracoes/membros` |
+| Invite/remove members | `mockup-done` | Invite dialog (email + role) + remove with confirmation |
+| Member permissions | `mockup-done` | Gestor vs Visualizador roles, badge-coded |
 
 ---
 
@@ -218,7 +216,7 @@ Ordered by impact/dependency:
 2. **Close demand flow** — modal within `empresa/projeto/[id]`. Needed to demo the full company lifecycle.
 3. **Client company profile** — `/fornecedor/empresa/[id]`. Completes the supplier's view of a demand.
 4. ~~**Admin platform panel**~~ — done (`/admin/dashboard`, `/admin/organizacoes`, `/admin/usuarios`).
-5. **Organization member management** — settings pages for both empresa and fornecedor.
+5. ~~**Organization member management**~~ — done (`/empresa/configuracoes/membros`, `/fornecedor/configuracoes/membros`).
 6. **Installed technical capacity form** — part of supplier registration, critical for matching.
 7. **Demand edit screen** — needs business rules first (align with Celso).
 
