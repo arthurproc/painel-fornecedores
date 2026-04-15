@@ -1,206 +1,182 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  Search,
-  MapPin,
-  Calendar,
-  DollarSign,
-  Users,
-  Filter,
-  SlidersHorizontal,
-} from "lucide-react";
+import { Calendar, DollarSign, MapPin } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  FILTROS_INICIAIS,
+  FiltrosProjeto,
+  type FiltrosProjetoValue,
+  filtroCorrespondeOrcamento,
+  filtroCorrespondePrazo,
+  orcamentoMaxNumerico,
+} from "@/components/handshake/filtros-projeto";
+import { FitScoreBadge } from "@/components/handshake/fit-score-badge";
 import {
-  projetos,
+  MEMBRO_LOGADO_ID,
   categorias,
-  regioes,
-  statusLabels,
-  statusColors,
-  nomeEmpresa,
+  empresas,
+  getFornecedorByOrganizacao,
+  getMembroById,
   logoEmpresa,
-  candidaturasCountByProjeto,
+  nomeEmpresa,
+  projetos,
+  regioes,
+  statusColors,
+  statusLabels,
 } from "@/lib/mock-data";
+import { computeFitScore } from "@/lib/fit-score";
 
-export default function BuscarProjetosPage() {
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState("todas");
-  const [regiaoSelecionada, setRegiaoSelecionada] = useState("todas");
-  const [busca, setBusca] = useState("");
+const HOJE = new Date("2026-04-15T12:00:00");
 
-  const projetosFiltrados = projetos.filter((p) => {
-    if (
-      categoriaSelecionada !== "todas" &&
-      p.categoria !== categoriaSelecionada
-    )
-      return false;
-    if (regiaoSelecionada !== "todas" && p.regiao !== regiaoSelecionada)
-      return false;
-    if (
-      busca &&
-      !p.titulo.toLowerCase().includes(busca.toLowerCase()) &&
-      !p.descricao.toLowerCase().includes(busca.toLowerCase())
-    )
-      return false;
-    return true;
-  });
+export default function DescobrirProjetosPage() {
+  const [filtros, setFiltros] = useState<FiltrosProjetoValue>(FILTROS_INICIAIS);
+
+  const membroLogado = getMembroById(MEMBRO_LOGADO_ID);
+  const fornecedor = getFornecedorByOrganizacao(membroLogado?.organizacao_id ?? "");
+
+  const projetosAbertos = useMemo(
+    () => projetos.filter((p) => p.status === "publicado" || p.status === "em_triagem"),
+    []
+  );
+
+  const filtrados = useMemo(() => {
+    return projetosAbertos
+      .filter((projeto) => {
+        if (
+          filtros.busca &&
+          !projeto.titulo.toLowerCase().includes(filtros.busca.toLowerCase()) &&
+          !projeto.descricao.toLowerCase().includes(filtros.busca.toLowerCase())
+        ) {
+          return false;
+        }
+        if (filtros.categoria !== "todas" && projeto.categoria !== filtros.categoria) {
+          return false;
+        }
+        if (filtros.regiao !== "todas" && projeto.regiao !== filtros.regiao) {
+          return false;
+        }
+        if (!filtroCorrespondeOrcamento(orcamentoMaxNumerico(projeto), filtros.faixaValor)) {
+          return false;
+        }
+        if (!filtroCorrespondePrazo(projeto.prazo, filtros.prazo, HOJE)) {
+          return false;
+        }
+        return true;
+      })
+      .map((projeto) => {
+        const empresa = empresas.find((e) => e.id === projeto.empresa_id);
+        const breakdown = computeFitScore(projeto, fornecedor);
+        return { projeto, empresa, breakdown };
+      })
+      .sort((a, b) => b.breakdown.total - a.breakdown.total);
+  }, [filtros, projetosAbertos, fornecedor]);
 
   return (
-    <AppShell tipo="fornecedor" titulo="Buscar Projetos">
+    <AppShell tipo="fornecedor" titulo="Descobrir projetos">
       <div className="space-y-6">
-        {/* Filters */}
-        <Card>
+        <Card className="rounded-xl">
           <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar projetos por titulo ou descricao..."
-                  className="pl-9"
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                />
-              </div>
-              <Select
-                value={categoriaSelecionada}
-                onValueChange={(v) => v && setCategoriaSelecionada(v)}
-              >
-                <SelectTrigger className="w-52">
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todas">Todas Categorias</SelectItem>
-                  {categorias.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select
-                value={regiaoSelecionada}
-                onValueChange={(v) => v && setRegiaoSelecionada(v)}
-              >
-                <SelectTrigger className="w-52">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Regiao" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todas">Todas Regioes</SelectItem>
-                  {regioes.map((r) => (
-                    <SelectItem key={r} value={r}>
-                      {r}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <FiltrosProjeto
+              value={filtros}
+              onChange={setFiltros}
+              categorias={categorias}
+              regioes={regioes}
+            />
           </CardContent>
         </Card>
 
-        {/* Results count */}
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            <strong className="text-foreground">
-              {projetosFiltrados.length}
-            </strong>{" "}
-            projetos encontrados
+            <strong className="text-foreground">{filtrados.length}</strong> projeto(s) aberto(s)
+            para candidatura — ordenados por fit score.
           </p>
-          <Select defaultValue="recentes">
-            <SelectTrigger className="w-44">
-              <SlidersHorizontal className="w-4 h-4 mr-2" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="recentes">Mais Recentes</SelectItem>
-              <SelectItem value="orcamento">Maior Orcamento</SelectItem>
-              <SelectItem value="prazo">Prazo Mais Proximo</SelectItem>
-            </SelectContent>
-          </Select>
+          {filtros !== FILTROS_INICIAIS && (
+            <Button variant="ghost" size="sm" onClick={() => setFiltros(FILTROS_INICIAIS)}>
+              Limpar filtros
+            </Button>
+          )}
         </div>
 
-        {/* Project Cards */}
-        <div className="grid grid-cols-2 gap-4">
-          {projetosFiltrados.map((projeto) => (
-            <Link
-              key={projeto.id}
-              href={`/fornecedor/projeto/${projeto.id}`}
-              className="block"
-            >
-              <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-sm font-bold">
-                        {logoEmpresa(projeto)}
+        {filtrados.length === 0 ? (
+          <Card className="rounded-xl border-dashed">
+            <CardContent className="p-10 text-center">
+              <p className="font-medium">Nenhum projeto encontrado</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Tente ajustar filtros ou ampliar categorias/regiões atendidas pelo seu perfil.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {filtrados.map(({ projeto, empresa, breakdown }) => (
+              <Link
+                key={projeto.id}
+                href={`/fornecedor/projeto/${projeto.id}`}
+                className="block"
+              >
+                <Card className="h-full cursor-pointer rounded-xl transition-shadow hover:shadow-md">
+                  <CardContent className="space-y-4 p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-muted text-sm font-bold">
+                          {logoEmpresa(projeto)}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">{nomeEmpresa(projeto)}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Publicado em {projeto.dataPublicacao}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-sm">
-                          {nomeEmpresa(projeto)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Publicado em {projeto.dataPublicacao}
-                        </p>
+                      <div className="flex flex-col items-end gap-2">
+                        <Badge variant="secondary" className={statusColors[projeto.status]}>
+                          {statusLabels[projeto.status]}
+                        </Badge>
+                        <FitScoreBadge breakdown={breakdown} />
                       </div>
                     </div>
-                    <Badge
-                      variant="secondary"
-                      className={statusColors[projeto.status]}
-                    >
-                      {statusLabels[projeto.status]}
-                    </Badge>
-                  </div>
 
-                  <h3 className="font-semibold mb-2">{projeto.titulo}</h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                    {projeto.descricao}
-                  </p>
+                    <div>
+                      <h3 className="font-semibold leading-snug">{projeto.titulo}</h3>
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                        {projeto.descricao}
+                      </p>
+                    </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
-                      <DollarSign className="w-3.5 h-3.5" />
-                      <span className="text-xs">{projeto.orcamento}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5" />
-                      <span className="text-xs">{projeto.regiao}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span className="text-xs">
-                        Prazo: {projeto.prazo}
+                    <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <DollarSign className="h-3.5 w-3.5" /> {projeto.orcamento}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5" /> {projeto.cidade}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5" /> Prazo {projeto.prazo}
+                      </span>
+                      <span className="truncate">
+                        {empresa?.setor ?? "Indústria"}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5" />
-                      <span className="text-xs">
-                        {candidaturasCountByProjeto(projeto.id)} candidaturas
-                      </span>
-                    </div>
-                  </div>
 
-                  <div className="flex flex-wrap gap-1.5 mt-3">
-                    <Badge variant="outline" className="text-xs">
-                      {projeto.categoria}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        {projeto.categoria}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {projeto.regiao}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </AppShell>
   );

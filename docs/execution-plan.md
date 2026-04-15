@@ -4,8 +4,8 @@
 >
 > **Regra de ouro:** quando o código atual conflita com o design, o design ganha. O código em `src/` é ponto de partida visual e deve ser refatorado/deletado agressivamente ao longo das unidades.
 
-**Última atualização:** 2026-04-15
-**Total de unidades:** 42, distribuídas em 7 fases
+**Última atualização:** 2026-04-15 (Fase 4 concluída; Fase 4.5 saneamento inserida; Diretório → U5.5)
+**Total de unidades:** 50, distribuídas em 8 fases
 **Bootstrap de sessão:** `docs/session-bootstrap.md`
 
 ---
@@ -52,16 +52,28 @@
 
 | ID | Unidade | Status | Notas |
 | --- | --- | --- | --- |
-| U4.1 | Descobrir projetos + filtros | 📋 | — |
-| U4.2 | Página do projeto (fornecedor) | 📋 | — |
-| U4.3 | Formulário de candidatura + CTA 1 | 📋 | — |
-| U4.4 | Listas "Minhas candidaturas" + "Recebidas" | 📋 | — |
-| U4.5 | Tela de triagem + modal descarte | 📋 | — |
-| U4.6 | Conversa/Mensagens híbridas | 📋 | — |
-| U4.7 | Formulário de proposta formal + CTA 2 | 📋 | — |
-| U4.8 | Comparação de propostas + seleção | 📋 | — |
-| U4.9 | Contratos + encerramento | 📋 | — |
-| U4.10 | Reviews + feedback pós-descarte + CTA 3 | 📋 | — |
+| U4.1 | Descobrir projetos + filtros | ✅ | `FiltrosProjeto` + `FitScoreBadge`; ordenação por fit score; filtros de categoria/região/faixa/prazo |
+| U4.2 | Página do projeto (fornecedor) | ✅ | `HeaderProjeto`, `BlocoCriterios`, `BlocoDocumentos`, hook fit, CTA 1 no rodapé; links de perfil apontam a `/organizacao/empresa/[id]` (entra em U5.2) |
+| U4.3 | Formulário de candidatura + CTA 1 | ✅ | 5 campos + nudge de faixa de preço + CTA 1 placeholder; submissão mock redireciona para Minhas candidaturas |
+| U4.4 | Listas "Minhas candidaturas" + "Recebidas" | ✅ | Fornecedor por abas de status; empresa agrupada por projeto colapsável com link para triagem |
+| U4.5 | Tela de triagem + modal descarte | ✅ | Cards com 5 elementos, shortlist/descarte client-side; modal enforça motivo; shortlist mostra banner de conversa criada |
+| U4.6 | Conversa/Mensagens híbridas | ✅ | `MensagensView` compartilhada (empresa+fornecedor); drawer de templates + respostas inline; envio livre in-memory |
+| U4.7 | Formulário de proposta formal + CTA 2 | ✅ | `/fornecedor/proposta/[candidaturaId]` com cronograma repetidor, docs mock, CTA 2; guard para status `shortlistada` |
+| U4.8 | Comparação de propostas + seleção | ✅ | Tabela horizontal em `/empresa/projeto/[id]/propostas` com seleção → vencedora/perdedora client-side e banner de contrato criado |
+| U4.9 | Contratos + encerramento | ✅ | 4 rotas (execução+histórico por contexto) + detalhe compartilhado `[id]`; encerrar exibido só em `em_execucao` para owner/admin; CTA "Avaliar parceiro" aparece após encerrar |
+| U4.10 | Reviews + feedback pós-descarte + CTA 3 | ✅ | `/reviews` (abas pendentes/dadas/recebidas), `/reviews/novo/[ct]`, `/reviews/[id]`; feedback estruturado pós-descarte com CTA 3 exposto na aba Descartadas do fornecedor; rotas legadas `/empresa/reviews` e `/fornecedor/reviews` viraram redirects |
+
+### Fase 4.5 — Saneamento pré-perfis
+
+| ID | Unidade | Status | Notas |
+| --- | --- | --- | --- |
+| U4.5.1 | Form `/empresa/novo-projeto` alinhado ao schema novo | 📋 | — |
+| U4.5.2 | Lista `/empresa/projetos` + detalhe `/empresa/projeto/[id]` pós-handshake | 📋 | — |
+| U4.5.3 | `/fornecedor/perfil` ligado ao fornecedor logado + dados reais | 📋 | — |
+| U4.5.4 | Páginas legadas `/empresa/fornecedor/[id]` e `/fornecedor/empresa/[id]` | 📋 | — |
+| U4.5.5 | `/empresa/perfil-publico` stub coerente até Fase 5 | 📋 | — |
+| U4.5.6 | Admin `/admin/usuarios` migrado para `Membro` | 📋 | — |
+| U4.5.7 | Admin `/admin/organizacoes` ancorado em `Organizacao` canônica | 📋 | — |
 
 ### Fase 5 — Perfis públicos
 
@@ -71,6 +83,7 @@
 | U5.2 | Perfil público de Empresa | 📋 | — |
 | U5.3 | Perfil público de Fornecedor | 📋 | — |
 | U5.4 | Página completa de reviews | 📋 | — |
+| U5.5 | Diretório de fornecedores (empresa) | 📋 | — |
 
 ### Fase 6 — Camada Consultoria
 
@@ -576,6 +589,118 @@ Quando uma unidade precisar de uma decisão de produto nova (não prevista pelos
 
 ---
 
+## FASE 4.5 — Saneamento pré-perfis
+
+> **Por que existe:** a Fase 1 modularizou o schema e renomeou/dividiu entidades; a Fase 4 reconstruiu todo o handshake por cima do schema novo. Restaram telas legadas que ainda lêem `projeto.empresa` como string, `fornecedor.avaliacao` numérico, dados chumbados de fornecedor ou que duplicam fluxos agora cobertos por rotas da Fase 4. Esta fase limpa essa dívida antes da Fase 5 (perfis públicos) para evitar conflitos visuais e de rota.
+>
+> **Princípio:** cada unidade é pequena e não introduz funcionalidade nova — apenas realinha código existente ao schema canônico ou transforma pedaços obsoletos em stubs coerentes apontando para a fase correta. Se algum item puder ser *deletado* em vez de refatorado, prefira deletar.
+>
+> **Fonte cruzada:** achados derivados de auditoria automática no fim da Fase 4 + confronto com `design/data-model.md §9 (mudanças no mock)` e plano original.
+
+### U4.5.1 — Form `/empresa/novo-projeto` alinhado ao schema `Projeto`
+- **Fase:** 4.5
+- **Fonte:** `design/data-model.md §2 (Projeto)` + `design/handshake-flow.md §"Fase 0 — Descoberta"`
+- **Escopo — dentro:** reescrever `src/app/empresa/novo-projeto/page.tsx` para coletar os campos canônicos. Em um único formulário (desktop-first): `titulo`, `descricao`, `categoria` (select de `platform-data.ts`), `regiao` + `cidade` (cidade texto livre ou dependente da região), `orcamento_min/orcamento_max` (dois inputs de valor + preview da string `orcamento` derivada), `prazo` (DD/MM/YYYY), `criterios_selecao` (lista editável tipo "tags + input"), `documentos_exigidos` (repeater com `nome`, toggle `obrigatorio`, `observacao`), `requisitos` (lista livre). `autor_membro_id` vem do membro logado; `empresa_id` vem da empresa ativa; `status` inicial = `rascunho` com ação secundária "Publicar" → `publicado`.
+- **Fora:** persistência real (continua mock); fluxo de edição (`/empresa/projeto/[id]/editar` fora desta unidade); upload real de documentos.
+- **Entregáveis:**
+  - Reescrita da rota `src/app/empresa/novo-projeto/page.tsx`
+  - Componente `src/components/empresa/formulario-projeto.tsx` reaproveitável (será pivô de uma futura edição)
+  - Reaproveitar `FiltrosProjeto` tokens/OKLCH — sem novo design
+- **DoD:**
+  - [ ] Form preenche todos os campos de `Projeto` novos (listados acima) sem usar `empresa` string ou `empresaLogo`
+  - [ ] Submissão exibe toast "Projeto publicado em rascunho (mock)" e redireciona para `/empresa/projetos`
+  - [ ] Nenhuma menção a "interessados" ou `avaliacao` numérica
+  - [ ] `npm run build` passa
+- **Dependências:** —
+- **Riscos:** baixo. Decisão aberta: onde exibir `cidade` vs `regiao` (sugestão: dois campos independentes, região select + cidade input livre).
+
+### U4.5.2 — `/empresa/projetos` + `/empresa/projeto/[id]` pós-handshake
+- **Fase:** 4.5
+- **Fonte:** `handshake-flow.md` + Fase 4 recém-concluída
+- **Escopo — dentro:**
+  - `/empresa/projetos`: substituir `const empresaId = "vale"` hardcoded por `MEMBRO_LOGADO_ID` + `getEmpresaByOrganizacao(organizacao_id)`. Mostrar estado vazio coerente quando a empresa logada (ex.: Metalúrgica XYZ) não tem projetos.
+  - `/empresa/projeto/[id]`: simplificar para **detalhe + navegação**. Header do projeto (reusar `HeaderProjeto` de `src/components/handshake/`), blocos de descrição/critérios/documentos, e ações contextuais baseadas em `status`: CTA "Ver triagem" (publicado/em_triagem), "Comparar propostas" (em_propostas), "Ver contrato" (fechado com `contrato_id`), "Editar rascunho" (rascunho). Remover: modal de "Selecionar fornecedor", `StarRating` inline, modal de "Fechar contrato" com visibilidade+avaliação (fluxo agora vive em U4.8 e U4.9).
+- **Fora:** página de edição de projeto (backlog fora do MVP).
+- **Entregáveis:**
+  - Reescrita de `src/app/empresa/projetos/page.tsx`
+  - Reescrita enxuta de `src/app/empresa/projeto/[id]/page.tsx`
+- **DoD:**
+  - [ ] Dashboard mostra projetos da empresa logada (sem `empresaId` chumbado)
+  - [ ] Detalhe do projeto não contém mais modal de fechamento de contrato ou StarRating
+  - [ ] Ações do detalhe vão para as rotas corretas da Fase 4
+- **Dependências:** U4.5, U4.8, U4.9
+- **Riscos:** baixo — código removido > código adicionado.
+
+### U4.5.3 — `/fornecedor/perfil` lendo fornecedor logado + sem dados chumbados
+- **Fase:** 4.5
+- **Fonte:** `design/data-model.md §1` + decisão futura de U5.3 (perfil próprio vs público)
+- **Escopo — dentro:** substituir `const fornecedor = fornecedores[0]` por `getFornecedorByOrganizacao(membroLogado.organizacao_id)`; remover array hardcoded `projetosRealizados`; se houver reputação, usar `fornecedor.reputacao_agregada`. Manter página como **"meu perfil do fornecedor" em modo leitura + link "Editar em Configurações"** (U2.4 já tem abas de perfil em `/configuracoes`). Estado vazio explícito se organização logada não tem perfil fornecedor ativo.
+- **Fora:** perfil público (entra em U5.3); edição (já coberta em Configurações).
+- **Entregáveis:** reescrita de `src/app/fornecedor/perfil/page.tsx`
+- **DoD:**
+  - [ ] Nenhum `fornecedores[0]` ou `projetosRealizados` literal na página
+  - [ ] Página mostra dados do fornecedor da organização logada (ou estado vazio coerente)
+  - [ ] Link "Editar" aponta para `/configuracoes` aba Perfil Fornecedor
+- **Dependências:** U2.4
+- **Riscos:** baixo.
+
+### U4.5.4 — Páginas legadas `/empresa/fornecedor/[id]` e `/fornecedor/empresa/[id]` viram stubs de redirect
+- **Fase:** 4.5
+- **Fonte:** decisão registrada em U5.3 (rotas serão substituídas por `/organizacao/...`)
+- **Escopo — dentro:** transformar as duas rotas em stubs mínimos que:
+  1. Redirecionam para a rota equivalente de perfil público se ela já existir (graceful futura).
+  2. Até lá, renderizam `<EmConstrucao />` apontando explicitamente "Esta página será substituída por `/organizacao/{empresa|fornecedor}/[id]` na Fase 5". Remover os mapas hardcoded `projetosPorFornecedor`, `taxaSucessoPorFornecedor`.
+- **Fora:** o perfil público em si (U5.2/U5.3).
+- **Entregáveis:**
+  - `src/app/empresa/fornecedor/[id]/page.tsx` → stub curto
+  - `src/app/fornecedor/empresa/[id]/page.tsx` → stub curto (se também desalinhado; validar na execução)
+- **DoD:**
+  - [ ] Zero dados chumbados nessas duas rotas
+  - [ ] Nenhum import de array mockado fora dos helpers canônicos
+  - [ ] Links internos do app que hoje apontam para essas rotas seguem funcionando (mostram stub) até U5.2/U5.3 assumirem
+- **Dependências:** —
+- **Riscos:** baixo. Cuidar de não quebrar `Link`s existentes (triagem, empresa/projeto etc.) — manter as rotas responsivas.
+
+### U4.5.5 — `/empresa/perfil-publico` stub coerente e linkado
+- **Fase:** 4.5
+- **Fonte:** U5.2 (perfil público de Empresa)
+- **Escopo — dentro:** a página já é stub de "Em construção" — apenas ajustar a mensagem para citar explicitamente que o perfil público será construído em `/organizacao/empresa/[id]` na Fase 5 e inserir um link "Ver esqueleto" apontando para essa URL (mesmo que 404 hoje — documentar). Garantir que não haja nenhum import legado "quebrável".
+- **Fora:** implementação real (U5.2).
+- **Entregáveis:** ajuste cosmético em `src/app/empresa/perfil-publico/page.tsx`.
+- **DoD:**
+  - [ ] Stub menciona rota futura
+  - [ ] Nenhum import desnecessário
+- **Dependências:** —
+- **Riscos:** trivial.
+
+### U4.5.6 — `/admin/usuarios` migrado para `Membro`
+- **Fase:** 4.5
+- **Fonte:** `design/data-model.md §1 (Organizacao + Membro)`
+- **Escopo — dentro:** página hoje usa um tipo `Usuario` inventado com roles `admin_plataforma/gestor/visualizador` — conflitante com `Membro.role ∈ {owner, admin, operador}` + `Advisor.role ∈ {owner, advisor}`. Reescrever para listar `membros` da plataforma toda, agrupados por `Organizacao`, mostrando role canônica. Advisors aparecem em seção à parte (dataset `advisors` já existe). Sem edição — apenas leitura.
+- **Fora:** convites, auditoria, bloqueio — fora do MVP.
+- **Entregáveis:** reescrita de `src/app/admin/usuarios/page.tsx`.
+- **DoD:**
+  - [ ] Zero referências a `admin_plataforma/gestor/visualizador`
+  - [ ] Tabela/lista agrupa por `Organizacao` usando o nome canônico
+  - [ ] Filtros simples por role e por tenant
+- **Dependências:** U1.2
+- **Riscos:** baixo.
+
+### U4.5.7 — `/admin/organizacoes` ancorado em `Organizacao`
+- **Fase:** 4.5
+- **Fonte:** `design/data-model.md §1` + `§8 invariantes`
+- **Escopo — dentro:** hoje a página lista `empresas` e `fornecedores` via Tabs — mas a verdade canônica agora é `organizacoes`, com perfis *empresa* e *fornecedor* como flags. Reescrever para listar `Organizacao` com chips mostrando `perfil_empresa_ativo`/`perfil_fornecedor_ativo`, `linkage_publica`, contagem de membros e status `ativo`. Mostrar casos dual-role (ex.: Metalúrgica XYZ) de forma explícita.
+- **Fora:** ativar/desativar perfis (operação de owner); edição.
+- **Entregáveis:** reescrita de `src/app/admin/organizacoes/page.tsx`.
+- **DoD:**
+  - [ ] Lista vem de `organizacoes`, não de `empresas`/`fornecedores` diretamente
+  - [ ] Dual-role visível
+  - [ ] Contagens de projetos/contratos por organização usam helpers canônicos
+- **Dependências:** U1.2
+- **Riscos:** baixo.
+
+---
+
 ## FASE 5 — Perfis públicos
 
 > Fonte: `design/public-profiles.md`. Dependência-chave: entidades da Fase 1 + componentes da Fase 3.
@@ -636,6 +761,22 @@ Quando uma unidade precisar de uma decisão de produto nova (não prevista pelos
   - [ ] Fallback "desde sempre" sinalizado quando filtro de 12m vazio
 - **Dependências:** U5.1, U5.2, U5.3
 - **Riscos:** baixo.
+
+### U5.5 — Diretório de fornecedores (contexto empresa)
+- **Fase:** 5
+- **Fonte:** `design/info-architecture.md §"Sidebar empresa"` (item Diretório) + `public-profiles.md` (destino dos cards)
+- **Escopo — dentro:** reescrever `src/app/empresa/diretorio/page.tsx` como discovery read-only de fornecedores. Grid de cards (reusa `FiltrosProjeto` patterns: busca, categoria, região, certificação). Card mostra logo, nome, cidade, categorias principais, `reputacao_agregada.media_geral` (`<ReputacaoAgregada compact />` de U5.1), contagem de contratos encerrados; clique leva a `/organizacao/fornecedor/[id]`. Estado vazio "Nenhum fornecedor encontrado".
+- **Fora:** pedidos de contato direto, favoritar, comparar lado-a-lado (fora do MVP).
+- **Entregáveis:**
+  - Reescrita de `src/app/empresa/diretorio/page.tsx`
+  - Componente `src/components/diretorio/filtros-fornecedor.tsx` (espelha `FiltrosProjeto` mas com dimensões apropriadas: categoria, região atendida, certificação, busca textual)
+- **DoD:**
+  - [ ] Lista vem de `fornecedores` com filtros aplicados client-side
+  - [ ] Cards usam `ReputacaoAgregada` (compact) e apontam para `/organizacao/fornecedor/[id]`
+  - [ ] Estado vazio funcional
+  - [ ] Nenhum dado hardcoded
+- **Dependências:** U5.1, U5.3
+- **Riscos:** baixo. Volume atual de fornecedores é pequeno (6) — paginação não requerida no MVP.
 
 ---
 

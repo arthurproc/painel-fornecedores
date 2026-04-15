@@ -1,11 +1,32 @@
-import { EmConstrucao } from "@/components/layout/em-construcao";
+"use client";
 
-export default function EmpresaMensagensPage() {
+import { useMemo } from "react";
+import { AppShell } from "@/components/layout/app-shell";
+import { MensagensView } from "@/components/handshake/mensagens-view";
+import {
+  MEMBRO_LOGADO_ID,
+  getMembroById,
+  membros,
+} from "@/lib/mock-data";
+
+export default function MensagensEmpresaPage() {
+  const membroLogado = getMembroById(MEMBRO_LOGADO_ID);
+  const orgId = membroLogado?.organizacao_id ?? "";
+
+  const membrosEmpresa = useMemo(
+    () => new Set(membros.filter((m) => m.organizacao_id === orgId).map((m) => m.id)),
+    [orgId]
+  );
+
   return (
-    <EmConstrucao
-      tipo="empresa"
-      titulo="Mensagens"
-      descricao="O módulo de conversas será implementado na Fase 4.6 com fluxo híbrido de templates e mensagens livres."
-    />
+    <AppShell tipo="empresa" titulo="Mensagens">
+      <MensagensView
+        lado="empresa"
+        membrosPertencemAoLado={(id) => membrosEmpresa.has(id)}
+        filtrarConversa={(conversa) =>
+          conversa.empresa_membros_ids.some((id) => membrosEmpresa.has(id))
+        }
+      />
+    </AppShell>
   );
 }

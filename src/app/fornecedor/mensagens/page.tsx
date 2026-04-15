@@ -1,11 +1,31 @@
-import { EmConstrucao } from "@/components/layout/em-construcao";
+"use client";
 
-export default function FornecedorMensagensPage() {
+import { useMemo } from "react";
+import { AppShell } from "@/components/layout/app-shell";
+import { MensagensView } from "@/components/handshake/mensagens-view";
+import {
+  MEMBRO_LOGADO_ID,
+  getMembroById,
+  membros,
+} from "@/lib/mock-data";
+
+export default function MensagensFornecedorPage() {
+  const membroLogado = getMembroById(MEMBRO_LOGADO_ID);
+  const orgId = membroLogado?.organizacao_id ?? "";
+  const membrosFornecedor = useMemo(
+    () => new Set(membros.filter((m) => m.organizacao_id === orgId).map((m) => m.id)),
+    [orgId]
+  );
+
   return (
-    <EmConstrucao
-      tipo="fornecedor"
-      titulo="Mensagens"
-      descricao="A experiência de conversa fornecedor-empresa será implementada na unidade U4.6."
-    />
+    <AppShell tipo="fornecedor" titulo="Mensagens">
+      <MensagensView
+        lado="fornecedor"
+        membrosPertencemAoLado={(id) => membrosFornecedor.has(id)}
+        filtrarConversa={(conversa) =>
+          conversa.fornecedor_membros_ids.some((id) => membrosFornecedor.has(id))
+        }
+      />
+    </AppShell>
   );
 }

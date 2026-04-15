@@ -1,11 +1,5 @@
-import { EmConstrucao } from "@/components/layout/em-construcao";
+import { redirect } from "next/navigation";
 
-export default function FornecedorReviewsPage() {
-  return (
-    <EmConstrucao
-      tipo="fornecedor"
-      titulo="Reviews"
-      descricao="A visualização completa de reviews aparecerá na Fase 5.4."
-    />
-  );
+export default function FornecedorReviewsRedirect() {
+  redirect("/reviews");
 }

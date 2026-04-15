@@ -1,41 +1,28 @@
 "use client";
 
-import { use, useState } from "react";
+import { use } from "react";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Calendar,
-  MapPin,
-  DollarSign,
-  Users,
-  Briefcase,
-  Building2,
-  Send,
-  CheckCircle2,
-  Archive,
-} from "lucide-react";
+import { ArrowLeft, Calendar, DollarSign, ExternalLink, Send } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { HeaderProjeto } from "@/components/handshake/header-projeto";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  BlocoCriterios,
+  BlocoDocumentos,
+  BlocoRequisitos,
+} from "@/components/handshake/blocos-projeto";
+import { CTAConsultoria } from "@/components/handshake/cta-consultoria";
 import {
-  projetos,
+  MEMBRO_LOGADO_ID,
   empresas,
-  statusLabels,
-  statusColors,
-  candidaturasCountByProjeto,
-  getContratoByProjeto,
+  getFornecedorByOrganizacao,
+  getMembroById,
+  projetos,
+  candidaturas,
 } from "@/lib/mock-data";
+import { computeFitScore } from "@/lib/fit-score";
 
 export default function ProjetoFornecedorPage({
   params,
@@ -43,249 +30,159 @@ export default function ProjetoFornecedorPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const projeto = projetos.find((p) => p.id === id) || projetos[0];
+  const projeto = projetos.find((p) => p.id === id);
+
+  if (!projeto) {
+    return (
+      <AppShell tipo="fornecedor" titulo="Projeto não encontrado">
+        <Card className="rounded-xl">
+          <CardContent className="p-8 text-center">
+            <p>Projeto não encontrado.</p>
+            <Button asChild variant="outline" className="mt-4">
+              <Link href="/fornecedor/projetos">Voltar</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </AppShell>
+    );
+  }
+
   const empresa = empresas.find((e) => e.id === projeto.empresa_id);
-  const empresaNome = empresa?.nome ?? "Empresa";
-  const empresaLogo = empresa?.logo ?? "?";
-  const contrato = getContratoByProjeto(projeto.id);
-  const [showForm, setShowForm] = useState(false);
-  const [enviado, setEnviado] = useState(false);
+  const membroLogado = getMembroById(MEMBRO_LOGADO_ID);
+  const fornecedor = getFornecedorByOrganizacao(membroLogado?.organizacao_id ?? "");
+  const breakdown = computeFitScore(projeto, fornecedor);
+
+  const candidaturaExistente = candidaturas.find(
+    (c) => c.projeto_id === projeto.id && c.fornecedor_id === fornecedor?.id
+  );
+
+  const podeCandidatar =
+    (projeto.status === "publicado" || projeto.status === "em_triagem") &&
+    !candidaturaExistente;
 
   return (
-    <AppShell tipo="fornecedor" titulo="Detalhes do Projeto">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <AppShell tipo="fornecedor" titulo="Detalhes do projeto">
+      <div className="mx-auto max-w-4xl space-y-6">
         <Link
           href="/fornecedor/projetos"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="w-4 h-4" /> Voltar aos Projetos
+          <ArrowLeft className="h-4 w-4" /> Voltar para descobrir projetos
         </Link>
 
-        {/* Contrato fechado — notificação ao fornecedor selecionado */}
-        {projeto.status === "fechado" && contrato && (
-          <Card className="border-amber-200 bg-amber-50">
-            <CardContent className="p-4 flex items-start gap-3">
-              <Archive className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-amber-800">
-                  Você foi selecionado para este contrato!
-                </p>
-                <p className="text-sm text-amber-700 mt-0.5">
-                  Contrato fechado em {contrato.data_fechamento}. Entre
-                  em contato com {empresaNome} para dar início ao projeto.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        <HeaderProjeto
+          projeto={projeto}
+          empresa={empresa}
+          breakdown={breakdown}
+          empresaHref={empresa ? `/organizacao/empresa/${empresa.id}` : undefined}
+        />
 
-        {/* Success message */}
-        {enviado && (
-          <Card className="border-emerald-200 bg-emerald-50">
-            <CardContent className="p-4 flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-              <div>
-                <p className="font-medium text-emerald-800">
-                  Proposta enviada com sucesso!
-                </p>
-                <p className="text-sm text-emerald-700">
-                  A empresa sera notificada e voce pode acompanhar o status no
-                  seu dashboard.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Company Info */}
-        <Link href={empresa ? `/fornecedor/empresa/${empresa.id}` : "#"}>
-          <Card className="hover:shadow-sm transition-shadow cursor-pointer">
-            <CardContent className="p-5 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center text-lg font-bold">
-                  {empresaLogo}
-                </div>
-                <div>
-                  <p className="font-semibold text-lg">{empresaNome}</p>
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Building2 className="w-3.5 h-3.5" />
-                      {empresa?.setor ?? "Indústria"}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5" /> {projeto.regiao}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <span className="text-xs text-muted-foreground">Ver perfil →</span>
-            </CardContent>
-          </Card>
-        </Link>
-
-        {/* Project Details */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-2xl font-bold">{projeto.titulo}</h1>
-                  <Badge
-                    variant="secondary"
-                    className={statusColors[projeto.status]}
-                  >
-                    {statusLabels[projeto.status]}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Publicado em {projeto.dataPublicacao}
-                </p>
-              </div>
-            </div>
-
-            <p className="text-muted-foreground leading-relaxed mb-6">
-              {projeto.descricao}
-            </p>
-
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <DollarSign className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Orcamento</p>
-                  <p className="font-medium text-sm">{projeto.orcamento}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <Calendar className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    Prazo para Propostas
-                  </p>
-                  <p className="font-medium text-sm">{projeto.prazo}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <Briefcase className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Categoria</p>
-                  <p className="font-medium text-sm">{projeto.categoria}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <Users className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Candidaturas</p>
-                  <p className="font-medium text-sm">
-                    {candidaturasCountByProjeto(projeto.id)} fornecedores
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <Separator className="my-5" />
-
+        <Card className="rounded-xl">
+          <CardContent className="space-y-4 p-6">
             <div>
-              <h3 className="font-semibold mb-3">
-                Requisitos do Fornecedor
-              </h3>
-              <div className="space-y-2">
-                {projeto.requisitos.map((req) => (
-                  <div
-                    key={req}
-                    className="flex items-center gap-2 text-sm text-muted-foreground"
-                  >
-                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                    {req}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <Separator className="my-5" />
-
-            {/* CTA */}
-            {!enviado && (
-              <div className="flex justify-center">
-                <Button
-                  size="lg"
-                  className="gap-2"
-                  onClick={() => setShowForm(true)}
-                >
-                  <Send className="w-4 h-4" /> Manifestar Interesse
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Manifest Interest Dialog */}
-      <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Manifestar Interesse</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="p-3 rounded-lg bg-muted/50">
-              <p className="text-sm font-medium">{projeto.titulo}</p>
-              <p className="text-xs text-muted-foreground">
-                {empresaNome} &bull; Orcamento: {projeto.orcamento}
+              <h2 className="text-base font-semibold">Descrição do escopo</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {projeto.descricao}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>
-                  Valor da Proposta{" "}
-                  <span className="text-muted-foreground font-normal">(opcional)</span>
-                </Label>
-                <Input placeholder="R$ 0,00" />
-              </div>
-              <div className="space-y-2">
-                <Label>Prazo de Entrega</Label>
-                <Input
-                  placeholder="Ex: 45 dias"
-                  defaultValue="45 dias"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Mensagem para a Empresa</Label>
-              <Textarea
-                rows={4}
-                placeholder="Descreva sua experiencia, diferenciais e como pode atender a demanda..."
-                defaultValue="Nossa equipe possui ampla experiencia na area e podemos iniciar os trabalhos em ate 7 dias apos a aprovacao. Dispomos de todos os equipamentos necessarios e equipe certificada."
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <InfoCelula
+                icone={<DollarSign className="h-4 w-4 text-primary" />}
+                label="Orçamento"
+                value={projeto.orcamento}
               />
+              <InfoCelula
+                icone={<Calendar className="h-4 w-4 text-primary" />}
+                label="Prazo para propostas"
+                value={projeto.prazo}
+              />
+              <InfoCelula label="Categoria" value={projeto.categoria} />
+              <InfoCelula label="Cidade" value={projeto.cidade} />
             </div>
+          </CardContent>
+        </Card>
 
-            <div className="space-y-2">
-              <Label>Certificacoes Relevantes</Label>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">ISO 9001</Badge>
-                <Badge variant="secondary">NR-22</Badge>
-                <Badge variant="secondary">NR-10</Badge>
-                <Badge variant="secondary">NR-35</Badge>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <BlocoCriterios criterios={projeto.criterios_selecao} />
+          <BlocoDocumentos documentos={projeto.documentos_exigidos} />
+        </div>
 
-            <div className="flex gap-3 justify-end pt-2">
-              <Button variant="outline" onClick={() => setShowForm(false)}>
-                Cancelar
-              </Button>
-              <Button
-                className="gap-2"
-                onClick={() => {
-                  setShowForm(false);
-                  setEnviado(true);
-                }}
-              >
-                <Send className="w-4 h-4" /> Enviar Proposta
-              </Button>
+        <BlocoRequisitos requisitos={projeto.requisitos} />
+
+        <Card className="rounded-xl bg-muted/40">
+          <CardContent className="flex flex-col items-start justify-between gap-4 p-6 lg:flex-row lg:items-center">
+            <div className="flex-1">
+              <h3 className="text-base font-semibold">Pronto para se candidatar?</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                A candidatura é leve e serve como manifestação de interesse. Se for
+                shortlisted, você será convidado a enviar a proposta formal.
+              </p>
+              {candidaturaExistente && (
+                <Badge variant="secondary" className="mt-2">
+                  Você já enviou uma candidatura
+                </Badge>
+              )}
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+            <div className="flex flex-wrap items-center gap-3">
+              {empresa && (
+                <Button asChild variant="outline" size="sm" className="gap-1.5">
+                  <Link href={`/organizacao/empresa/${empresa.id}`}>
+                    <ExternalLink className="h-3.5 w-3.5" /> Ver perfil da empresa
+                  </Link>
+                </Button>
+              )}
+              {podeCandidatar ? (
+                <Button asChild className="gap-2">
+                  <Link href={`/fornecedor/projeto/${projeto.id}/candidatar`}>
+                    <Send className="h-4 w-4" /> Candidatar-se
+                  </Link>
+                </Button>
+              ) : (
+                <Button disabled className="gap-2">
+                  <Send className="h-4 w-4" />{" "}
+                  {candidaturaExistente ? "Candidatura enviada" : "Projeto fechado"}
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl border-amber-200 bg-amber-50/50">
+          <CardContent className="flex flex-col items-start justify-between gap-3 p-5 lg:flex-row lg:items-center">
+            <div>
+              <p className="text-sm font-medium text-amber-900">
+                Quer um especialista revisando antes de enviar?
+              </p>
+              <p className="mt-1 text-xs text-amber-800">
+                Revisão de candidatura da Consultoria, com foco em aumentar sua chance de
+                shortlist.
+              </p>
+            </div>
+            <CTAConsultoria variante={1} size="sm" />
+          </CardContent>
+        </Card>
+      </div>
     </AppShell>
+  );
+}
+
+function InfoCelula({
+  icone,
+  label,
+  value,
+}: {
+  icone?: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
+      {icone}
+      <div className="min-w-0">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="truncate text-sm font-medium">{value}</p>
+      </div>
+    </div>
   );
 }
