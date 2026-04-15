@@ -4,7 +4,7 @@
 >
 > **Regra de ouro:** quando o código atual conflita com o design, o design ganha. O código em `src/` é ponto de partida visual e deve ser refatorado/deletado agressivamente ao longo das unidades.
 
-**Última atualização:** 2026-04-15 (Fase 5 concluída; próxima fase = Consultoria)
+**Última atualização:** 2026-04-15 (Fase 6 concluída; próxima fase = Notificações)
 **Total de unidades:** 50, distribuídas em 8 fases
 **Bootstrap de sessão:** `docs/session-bootstrap.md`
 
@@ -89,14 +89,14 @@
 
 | ID | Unidade | Status | Notas |
 | --- | --- | --- | --- |
-| U6.1 | Catálogo Consultoria (fornecedor) | 📋 | — |
-| U6.2 | Página de produto + modal contratação | 📋 | — |
-| U6.3 | Minhas sessões + entregáveis + avaliar | 📋 | — |
-| U6.4 | Admin: fila de sessões + atribuição | 📋 | — |
-| U6.5 | Workspace de sessão (advisor) | 📋 | — |
-| U6.6 | Páginas owner (advisors/catálogo/templates) | 📋 | — |
-| U6.7 | Estudos de caso (browser/leitura/wizard) | 📋 | — |
-| U6.8 | Outreach proativo | 📋 | — |
+| U6.1 | Catálogo Consultoria (fornecedor) | ✅ | `/fornecedor/consultoria/catalogo` com 4 cards + bloco de estudos destacados; `CardServicoConsultoria` + `CardEstudoCaso` reutilizáveis |
+| U6.2 | Página de produto + modal contratação | ✅ | `/fornecedor/consultoria/[tipo]` (SSG) com O-que-recebe/quando/casos/FAQ + `ModalContratacaoSessao` + `BotaoContratar`; CTA 1/2/3 no handshake abrem o modal pré-selecionado |
+| U6.3 | Minhas sessões + entregáveis + avaliar | ✅ | Lista `/minhas-sessoes` por status + detalhe `[id]` com `CardSessao`, `MarkdownSimples`, comentários, marcar-útil, `ModalAvaliarAtendimento`, cancelamento |
+| U6.4 | Admin: fila de sessões + atribuição | ✅ | `/admin/sessoes/solicitadas` com `CardSessaoAdmin` (sugestão por especialização+carga) + `ModalAtribuirAdvisor`; listas `minhas`/`em-andamento`/`entregues` reaproveitando `CardSessao` |
+| U6.5 | Workspace de sessão (advisor) | ✅ | `/admin/sessoes/[id]` split contexto+workspace; `EditorNotas` com autosave fake + preview; estudos sugeridos por categoria/região; tipo/fase de entregável; "Marcar como entregue" habilita só com ≥1 entregável |
+| U6.6 | Páginas owner (advisors/catálogo/templates) | ✅ | 3 rotas + helper `garantirOwner`; `?advisor=adv-ana` redireciona para `/admin/dashboard` (smoke 307); `/admin/templates-outreach` criada do zero (sem sidebar, linkado via outreach) |
+| U6.7 | Estudos de caso (browser/leitura/wizard) | ✅ | `/consultoria/estudos` (browser com filtros) + `[id]` (leitura com anonimização); lista admin; wizard 4 passos em `/admin/estudos-de-caso/novo`; helper `criarEstudoDeCaso` |
+| U6.8 | Outreach proativo | ✅ | `/admin/inteligencia/outreach-proativo` owner-only com leads computados (candidaturas descartadas ou shortlist pendente) + `CardLeadOutreach` + `ModalOfertaPersonalizada`; histórico de ofertas recentes |
 
 ### Fase 7 — Notificações
 
