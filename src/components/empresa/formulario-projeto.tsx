@@ -15,6 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { StringCombobox } from "@/components/empresa/string-combobox";
+import {
+  criteriosSelecaoSugeridos,
+  documentosProjetoSugeridos,
+  requisitosTecnicosSugeridos,
+} from "@/lib/project-form-options";
 import { cn } from "@/lib/utils";
 import { categorias, regioes } from "@/lib/platform-data";
 import type { DocumentoExigido, Projeto, ProjetoStatus } from "@/lib/mock-data";
@@ -134,21 +140,21 @@ export function FormularioProjeto({
 
   function addRequisito() {
     const v = novoRequisito.trim();
-    if (!v) return;
+    if (!v || requisitos.includes(v)) return;
     setRequisitos((prev) => [...prev, v]);
     setNovoRequisito("");
   }
 
   function addCriterio() {
     const v = novoCriterio.trim();
-    if (!v) return;
+    if (!v || criterios.includes(v)) return;
     setCriterios((prev) => [...prev, v]);
     setNovoCriterio("");
   }
 
   function addDocumento() {
     const nome = novoDocNome.trim();
-    if (!nome) return;
+    if (!nome || documentos.some((doc) => doc.nome === nome)) return;
     const obs = novoDocObs.trim();
     setDocumentos((prev) => [
       ...prev,
@@ -336,16 +342,12 @@ export function FormularioProjeto({
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex gap-2">
-            <Input
+            <StringCombobox
+              options={requisitosTecnicosSugeridos}
               value={novoRequisito}
-              onChange={(e) => setNovoRequisito(e.target.value)}
+              onValueChange={setNovoRequisito}
+              onEnter={addRequisito}
               placeholder="Ex.: Certificação NR-22"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addRequisito();
-                }
-              }}
             />
             <Button type="button" variant="outline" size="icon" onClick={addRequisito}>
               <Plus className="h-4 w-4" />
@@ -382,16 +384,12 @@ export function FormularioProjeto({
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex gap-2">
-            <Input
+            <StringCombobox
+              options={criteriosSelecaoSugeridos}
               value={novoCriterio}
-              onChange={(e) => setNovoCriterio(e.target.value)}
+              onValueChange={setNovoCriterio}
+              onEnter={addCriterio}
               placeholder="Ex.: Preço competitivo"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addCriterio();
-                }
-              }}
             />
             <Button type="button" variant="outline" size="icon" onClick={addCriterio}>
               <Plus className="h-4 w-4" />
@@ -433,12 +431,15 @@ export function FormularioProjeto({
                 <Label htmlFor="doc-nome" className="text-xs">
                   Nome do documento
                 </Label>
-                <Input
-                  id="doc-nome"
-                  value={novoDocNome}
-                  onChange={(e) => setNovoDocNome(e.target.value)}
-                  placeholder="Ex.: Certificado NR-22"
-                />
+                <div id="doc-nome">
+                  <StringCombobox
+                    options={documentosProjetoSugeridos}
+                    value={novoDocNome}
+                    onValueChange={setNovoDocNome}
+                    onEnter={addDocumento}
+                    placeholder="Ex.: Certificado NR-22"
+                  />
+                </div>
               </div>
               <div className="space-y-1">
                 <Label htmlFor="doc-obs" className="text-xs">

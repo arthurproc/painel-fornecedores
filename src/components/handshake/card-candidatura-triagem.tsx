@@ -105,7 +105,7 @@ export function CardCandidaturaTriagem({
             <XCircle className="h-3.5 w-3.5" /> Descartar
           </Button>
           <Button size="sm" className="gap-1" disabled={!acoesAtivas} onClick={onShortlist}>
-            <CheckCircle2 className="h-3.5 w-3.5" /> Shortlist
+            <CheckCircle2 className="h-3.5 w-3.5" /> Selecionar para proposta
           </Button>
         </div>
       </CardContent>

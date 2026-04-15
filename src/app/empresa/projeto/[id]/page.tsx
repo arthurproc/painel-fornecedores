@@ -63,7 +63,7 @@ function acoesPorStatus(projeto: Projeto, contratoId?: string): AcaoContextual[]
           label: "Ver triagem",
           href: `/empresa/projeto/${projeto.id}/triagem`,
           icon: Users,
-          descricao: "Revisitar candidaturas shortlistadas.",
+          descricao: "Revisitar candidaturas selecionadas para proposta.",
           variant: "outline",
         },
       ];
@@ -139,7 +139,7 @@ export default function ProjetoEmpresaPage({
                 <Users className="h-4 w-4 text-muted-foreground" />
                 <span>
                   {contagens.candidaturas} candidaturas · {contagens.shortlist}{" "}
-                  shortlist · {contagens.propostas} propostas
+                  selecionadas para proposta · {contagens.propostas} propostas
                 </span>
               </div>
             </div>

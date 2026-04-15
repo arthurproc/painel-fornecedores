@@ -121,7 +121,7 @@ export default function TriagemPage({
               Pendentes ({pendentes.length})
             </TabsTrigger>
             <TabsTrigger value="shortlist" className="flex-1">
-              Shortlist ({shortlist.length})
+              Selecionadas para proposta ({shortlist.length})
             </TabsTrigger>
             <TabsTrigger value="descartadas" className="flex-1">
               Descartadas ({descartadas.length})
@@ -144,14 +144,14 @@ export default function TriagemPage({
 
           <TabsContent value="shortlist" className="mt-4 space-y-3">
             {shortlist.length === 0 ? (
-              <Vazio mensagem="Nenhuma candidatura na shortlist ainda." />
+              <Vazio mensagem="Nenhuma candidatura selecionada para proposta ainda." />
             ) : (
               <>
                 <Card className="rounded-xl border-emerald-200 bg-emerald-50">
                   <CardContent className="flex items-center gap-3 p-4 text-sm text-emerald-900">
                     <CheckCircle2 className="h-4 w-4" />
-                    Conversa foi aberta automaticamente com cada candidatura shortlistada. Os
-                    fornecedores foram notificados a submeter proposta formal.
+                    A conversa foi aberta automaticamente com cada candidatura selecionada para
+                    proposta. Os fornecedores foram notificados a submeter proposta formal.
                   </CardContent>
                 </Card>
                 {shortlist.map((candidatura) =>
