@@ -44,9 +44,9 @@
 
 | ID | Unidade | Status | Notas |
 | --- | --- | --- | --- |
-| U3.1 | Dashboard empresa | 📋 | — |
-| U3.2 | Dashboard fornecedor | 📋 | — |
-| U3.3 | Dashboard admin Consultoria | 📋 | — |
+| U3.1 | Dashboard empresa | ✅ | Reescrito com 5 blocos fixos, saudação do membro logado e estados vazios por bloco |
+| U3.2 | Dashboard fornecedor | ✅ | Reescrito com 6 blocos + `BannerConsultoria` contextual (`descarte_recente` / `projeto_alto_fit` / `default`) |
+| U3.3 | Dashboard admin Consultoria | ✅ | Dashboard condicional owner/advisor + helper `isOwnerAdvisor` em `session.ts` + preview advisor em `/admin/dashboard?advisor=adv-ana` |
 
 ### Fase 4 — Handshake
 

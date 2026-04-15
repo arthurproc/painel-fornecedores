@@ -20,7 +20,7 @@ import {
   advisors,
   notificacoes,
 } from "@/lib/mock-data";
-import { useSessaoMock } from "@/lib/session";
+import { isMembroAdvisor, isOwnerAdvisor, useSessaoMock } from "@/lib/session";
 
 interface TopbarProps {
   tipo: AppShellTipo;
@@ -37,6 +37,9 @@ function iniciaisDoNome(nome: string) {
 export function Topbar({ tipo }: TopbarProps) {
   const { membroLogado, organizacaoAtiva, contextosTenantDisponiveis } = useSessaoMock();
   const advisorLogado = advisors.find((advisor) => advisor.id === ADVISOR_LOGADO_ID);
+  const possuiAcessoAdmin = isMembroAdvisor(membroLogado);
+  const totalContextosDisponiveis =
+    contextosTenantDisponiveis.length + (possuiAcessoAdmin ? 1 : 0);
 
   const perfilUnicoLabel =
     contextosTenantDisponiveis[0] === "empresa"
@@ -64,7 +67,11 @@ export function Topbar({ tipo }: TopbarProps) {
 
   const nomeExibicao = tipo === "admin" ? (advisorLogado?.nome ?? "Celso Marinho") : membroLogado.nome;
   const cargoExibicao =
-    tipo === "admin" ? "Owner da Consultoria" : membroLogado.cargo;
+    tipo === "admin"
+      ? isOwnerAdvisor(advisorLogado)
+        ? "Owner da Consultoria"
+        : "Advisor da Consultoria"
+      : membroLogado.cargo;
   const avatarFallback = iniciaisDoNome(nomeExibicao);
   const rotaMeuPerfil =
     tipo === "admin"
@@ -88,7 +95,7 @@ export function Topbar({ tipo }: TopbarProps) {
           </div>
         </Link>
 
-        {tipo === "admin" || contextosTenantDisponiveis.length > 1 ? (
+        {tipo === "admin" || totalContextosDisponiveis > 1 ? (
           <ContextSwitcher tipoAtual={tipo} />
         ) : perfilUnicoLabel ? (
           <Badge variant="secondary" className="rounded-full px-3">

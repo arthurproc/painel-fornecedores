@@ -2,9 +2,12 @@
 
 import { useSyncExternalStore } from "react";
 import {
+  ADVISOR_LOGADO_ID,
+  advisors,
   MEMBRO_LOGADO_ID,
   getMembroById,
   getOrganizacaoById,
+  type Advisor,
   type Membro,
   type Organizacao,
 } from "@/lib/mock-data";
@@ -18,6 +21,28 @@ interface SessaoSnapshot {
   organizacaoAtiva: Organizacao;
   contextosTenantDisponiveis: ContextoTenant[];
   contextoAtivo: ContextoAtivo;
+}
+
+function normalizarEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+export function getAdvisorByMembro(membroLogado: Membro): Advisor | undefined {
+  return advisors.find(
+    (advisor) => advisor.ativo && normalizarEmail(advisor.email) === normalizarEmail(membroLogado.email)
+  );
+}
+
+export function isMembroAdvisor(membroLogado: Membro): boolean {
+  return Boolean(getAdvisorByMembro(membroLogado));
+}
+
+export function getAdvisorLogado(): Advisor | undefined {
+  return advisors.find((advisor) => advisor.id === ADVISOR_LOGADO_ID && advisor.ativo);
+}
+
+export function isOwnerAdvisor(membroLogado: Pick<Advisor, "role"> | undefined | null): boolean {
+  return membroLogado?.role === "owner";
 }
 
 const fallbackMembro: Membro = {

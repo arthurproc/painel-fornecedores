@@ -11,7 +11,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { setContextoAtivo, useContextoAtivo, useSessaoMock, type ContextoAtivo } from "@/lib/session";
+import {
+  isMembroAdvisor,
+  setContextoAtivo,
+  useContextoAtivo,
+  useSessaoMock,
+  type ContextoAtivo,
+} from "@/lib/session";
 
 interface ContextSwitcherProps {
   tipoAtual: ContextoAtivo;
@@ -25,19 +31,25 @@ const contextoConfig = {
 
 export function ContextSwitcher({ tipoAtual }: ContextSwitcherProps) {
   const router = useRouter();
-  const { contextosTenantDisponiveis, organizacaoAtiva } = useSessaoMock();
+  const { contextosTenantDisponiveis, organizacaoAtiva, membroLogado } = useSessaoMock();
   const contextoAtivo = useContextoAtivo();
+  const possuiAcessoAdmin = isMembroAdvisor(membroLogado);
+  const totalContextos = contextosTenantDisponiveis.length + (possuiAcessoAdmin ? 1 : 0);
 
-  if (tipoAtual !== "admin" && contextosTenantDisponiveis.length < 2) {
+  if (tipoAtual !== "admin" && totalContextos < 2) {
     return null;
   }
 
-  const contextos =
+  const contextos: ContextoAtivo[] =
     tipoAtual === "admin"
-      ? (["admin"] as ContextoAtivo[])
-      : (contextosTenantDisponiveis as ContextoAtivo[]);
+      ? ["admin"]
+      : [
+          ...(contextosTenantDisponiveis as ContextoAtivo[]),
+          ...(possuiAcessoAdmin ? (["admin"] as ContextoAtivo[]) : []),
+        ];
 
-  const atual = contextoConfig[contextoAtivo];
+  const contextoSelecionado = tipoAtual === "admin" ? "admin" : contextoAtivo;
+  const atual = contextoConfig[contextoSelecionado];
   const IconAtual = atual.icon;
 
   function trocarContexto(contexto: ContextoAtivo) {
@@ -70,7 +82,7 @@ export function ContextSwitcher({ tipoAtual }: ContextSwitcherProps) {
                 </div>
                 <Icon className="w-4 h-4" />
                 <span className="font-medium">{item.label}</span>
-                {tipoAtual !== "admin" ? (
+                {tipoAtual !== "admin" && contexto !== "admin" ? (
                   <span className="text-muted-foreground">— {organizacaoAtiva.razao_social}</span>
                 ) : null}
               </div>
