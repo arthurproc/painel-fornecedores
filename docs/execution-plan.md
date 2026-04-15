@@ -4,7 +4,7 @@
 >
 > **Regra de ouro:** quando o código atual conflita com o design, o design ganha. O código em `src/` é ponto de partida visual e deve ser refatorado/deletado agressivamente ao longo das unidades.
 
-**Última atualização:** 2026-04-15 (Fase 4.5 concluída; Diretório → U5.5)
+**Última atualização:** 2026-04-15 (Fase 5 concluída; próxima fase = Consultoria)
 **Total de unidades:** 50, distribuídas em 8 fases
 **Bootstrap de sessão:** `docs/session-bootstrap.md`
 
@@ -53,7 +53,7 @@
 | ID | Unidade | Status | Notas |
 | --- | --- | --- | --- |
 | U4.1 | Descobrir projetos + filtros | ✅ | `FiltrosProjeto` + `FitScoreBadge`; ordenação por fit score; filtros de categoria/região/faixa/prazo |
-| U4.2 | Página do projeto (fornecedor) | ✅ | `HeaderProjeto`, `BlocoCriterios`, `BlocoDocumentos`, hook fit, CTA 1 no rodapé; links de perfil apontam a `/organizacao/empresa/[id]` (entra em U5.2) |
+| U4.2 | Página do projeto (fornecedor) | ✅ | `HeaderProjeto`, `BlocoCriterios`, `BlocoDocumentos`, hook fit, CTA 1 no rodapé; links de perfil apontam a `/perfil/empresa/[id]` (entra em U5.2) |
 | U4.3 | Formulário de candidatura + CTA 1 | ✅ | 5 campos + nudge de faixa de preço + CTA 1 placeholder; submissão mock redireciona para Minhas candidaturas |
 | U4.4 | Listas "Minhas candidaturas" + "Recebidas" | ✅ | Fornecedor por abas de status; empresa agrupada por projeto colapsável com link para triagem |
 | U4.5 | Tela de triagem + modal descarte | ✅ | Cards com 5 elementos, shortlist/descarte client-side; modal enforça motivo; shortlist mostra banner de conversa criada |
@@ -70,8 +70,8 @@
 | U4.5.1 | Form `/empresa/novo-projeto` alinhado ao schema novo | ✅ | Single-form desktop; componente `FormularioProjeto` reaproveitável; ações "Salvar rascunho" + "Publicar projeto"; toast substituído por card de confirmação + redirect |
 | U4.5.2 | Lista `/empresa/projetos` + detalhe `/empresa/projeto/[id]` pós-handshake | ✅ | Lista usa empresa da organização logada (sem `empresaId` chumbado); detalhe usa `HeaderProjeto`+blocos, CTAs contextuais por status (triagem/propostas/contrato); modal de fechamento e StarRating removidos |
 | U4.5.3 | `/fornecedor/perfil` ligado ao fornecedor logado + dados reais | ✅ | Lê `getFornecedorByOrganizacao(membroLogado.organizacao_id)`; `projetosRealizados` literal removido; reputação agregada exibe por dimensão; link "Editar" → `/configuracoes` |
-| U4.5.4 | Páginas legadas `/empresa/fornecedor/[id]` e `/fornecedor/empresa/[id]` | ✅ | **Rotas deletadas** em vez de stubbed — auditoria pós-execução confirmou que nenhum link interno apontava para elas desde o fim da Fase 4 (todos os "Ver perfil" já vão para `/organizacao/...`). Decisão registrada em `docs/post-execution-review.md §1`. Se a revisão futura optar por voltar a perfis contextuais, recriar do zero |
-| U4.5.5 | `/empresa/perfil-publico` stub coerente até Fase 5 | ✅ | Mensagem cita rota canônica futura `/organizacao/empresa/[organizacao_id]`; botão "Ver esqueleto" pode 404 até U5.2 |
+| U4.5.4 | Páginas legadas `/empresa/fornecedor/[id]` e `/fornecedor/empresa/[id]` | ✅ | **Rotas deletadas** em vez de stubbed — auditoria pós-execução confirmou que nenhum link interno apontava para elas desde o fim da Fase 4 (todos os "Ver perfil" já vão para `/perfil/...`). Decisão registrada em `docs/post-execution-review.md §1`. Se a revisão futura optar por voltar a perfis contextuais, recriar do zero |
+| U4.5.5 | `/empresa/perfil-publico` stub coerente até Fase 5 | ✅ | Mensagem cita rota canônica futura `/perfil/empresa/[organizacao_id]`; botão "Ver esqueleto" pode 404 até U5.2 |
 | U4.5.6 | Admin `/admin/usuarios` migrado para `Membro` | ✅ | Lista membros agrupados por `Organizacao` com roles canônicas (owner/admin/operador); seção separada para advisors (owner/advisor); filtros por role e tenant |
 | U4.5.7 | Admin `/admin/organizacoes` ancorado em `Organizacao` canônica | ✅ | Lista vem de `organizacoes`; chips `perfil_empresa_ativo`/`perfil_fornecedor_ativo`/`linkage_publica`; dual-role explícito (ex.: Metalúrgica XYZ); contagens via `getContratosPorOrg` + `projetos.filter` |
 
@@ -79,11 +79,11 @@
 
 | ID | Unidade | Status | Notas |
 | --- | --- | --- | --- |
-| U5.1 | Componentes reutilizáveis de perfil | 📋 | — |
-| U5.2 | Perfil público de Empresa | 📋 | — |
-| U5.3 | Perfil público de Fornecedor | 📋 | — |
-| U5.4 | Página completa de reviews | 📋 | — |
-| U5.5 | Diretório de fornecedores (empresa) | 📋 | — |
+| U5.1 | Componentes reutilizáveis de perfil | ✅ | 4 componentes em `src/components/profile/` — `ReputacaoAgregadaBloco` (full + compact + estado vazio), `ReviewCard`, `LinkageCruzada`, `MembroPopover`. `shadcn/popover` instalado |
+| U5.2 | Perfil público de Empresa | ✅ | Rota `/perfil/empresa/[id]` pública (layout próprio sem AppShell) com header, sobre, reputação, estatísticas (publicados/encerrados/em execução/tempo médio pagamento), projetos ativos, histórico de contratos respeitando visibilidade por item, reviews recebidas, linkage cruzada. Seção "Equipe" **removida** na revisão de 2026-04-15 (risco LGPD/phishing sem payoff B2B) — `design/public-profiles.md` atualizado |
+| U5.3 | Perfil público de Fornecedor | ✅ | Rota `/perfil/fornecedor/[id]` com atuação, certificações, estatísticas, contratos destacáveis (fallback para 4 encerrados quando `contratos_destacaveis_ids` vazio), reviews, linkage. Sem seção "Equipe" nem contagem de membros no header (mesma decisão de U5.2) |
+| U5.4 | Página completa de reviews | ✅ | 2 rotas compartilhando `ReviewsPaginada` (client) — filtros dimensão/nota/período com fallback "desde sempre" sinalizado por badge; paginação client-side (5/pag) |
+| U5.5 | Diretório de fornecedores (empresa) | ✅ | Reescrita de `src/app/empresa/diretorio/page.tsx` com `FiltrosFornecedor` (busca/categoria/região/certificação); grid de cards 3 colunas com `ReputacaoAgregada compact`; navega para `/perfil/fornecedor/[id]` |
 
 ### Fase 6 — Camada Consultoria
 
@@ -646,10 +646,10 @@ Quando uma unidade precisar de uma decisão de produto nova (não prevista pelos
 
 ### U4.5.4 — Páginas legadas `/empresa/fornecedor/[id]` e `/fornecedor/empresa/[id]` viram stubs de redirect
 - **Fase:** 4.5
-- **Fonte:** decisão registrada em U5.3 (rotas serão substituídas por `/organizacao/...`)
+- **Fonte:** decisão registrada em U5.3 (rotas serão substituídas por `/perfil/...`)
 - **Escopo — dentro:** transformar as duas rotas em stubs mínimos que:
   1. Redirecionam para a rota equivalente de perfil público se ela já existir (graceful futura).
-  2. Até lá, renderizam `<EmConstrucao />` apontando explicitamente "Esta página será substituída por `/organizacao/{empresa|fornecedor}/[id]` na Fase 5". Remover os mapas hardcoded `projetosPorFornecedor`, `taxaSucessoPorFornecedor`.
+  2. Até lá, renderizam `<EmConstrucao />` apontando explicitamente "Esta página será substituída por `/perfil/{empresa|fornecedor}/[id]` na Fase 5". Remover os mapas hardcoded `projetosPorFornecedor`, `taxaSucessoPorFornecedor`.
 - **Fora:** o perfil público em si (U5.2/U5.3).
 - **Entregáveis:**
   - `src/app/empresa/fornecedor/[id]/page.tsx` → stub curto
@@ -664,7 +664,7 @@ Quando uma unidade precisar de uma decisão de produto nova (não prevista pelos
 ### U4.5.5 — `/empresa/perfil-publico` stub coerente e linkado
 - **Fase:** 4.5
 - **Fonte:** U5.2 (perfil público de Empresa)
-- **Escopo — dentro:** a página já é stub de "Em construção" — apenas ajustar a mensagem para citar explicitamente que o perfil público será construído em `/organizacao/empresa/[id]` na Fase 5 e inserir um link "Ver esqueleto" apontando para essa URL (mesmo que 404 hoje — documentar). Garantir que não haja nenhum import legado "quebrável".
+- **Escopo — dentro:** a página já é stub de "Em construção" — apenas ajustar a mensagem para citar explicitamente que o perfil público será construído em `/perfil/empresa/[id]` na Fase 5 e inserir um link "Ver esqueleto" apontando para essa URL (mesmo que 404 hoje — documentar). Garantir que não haja nenhum import legado "quebrável".
 - **Fora:** implementação real (U5.2).
 - **Entregáveis:** ajuste cosmético em `src/app/empresa/perfil-publico/page.tsx`.
 - **DoD:**
@@ -727,18 +727,18 @@ Quando uma unidade precisar de uma decisão de produto nova (não prevista pelos
 - **Escopo — dentro:** rota `/empresa/[id]` pública (não-interna) com header, sobre, reputação (rubrica empresa), estatísticas, projetos ativos, histórico de contratos respeitando visibilidade, reviews recebidas, equipe, linkage cruzada.
 - **Fora:** página completa de reviews (U5.4).
 - **Entregáveis:**
-  - Reescrever `/empresa/[id]` — atenção: hoje existe `/empresa/fornecedor/[id]` (perfil de fornecedor visto por empresa); o perfil público da empresa precisa de rota dedicada. **Decisão:** usar `/organizacao/empresa/[id]` para o perfil público para evitar colisão com as rotas internas. Alternativa: `/perfil/empresa/[id]`. Validar com Arthur antes de implementar.
+  - Reescrever `/empresa/[id]` — atenção: hoje existe `/empresa/fornecedor/[id]` (perfil de fornecedor visto por empresa); o perfil público da empresa precisa de rota dedicada. **Decisão:** usar `/perfil/empresa/[id]` para o perfil público, evitando colisão com as rotas internas `/empresa/*`. Convenção inicial da Fase 5 foi `/organizacao/empresa/[id]`; renomeada para `/perfil/empresa/[id]` em 2026-04-15 após revisão com o Arthur (ver `docs/post-execution-review.md §2`) porque "perfil" é semanticamente mais claro para o visitante externo.
 - **DoD:**
   - [ ] Todas as seções do design presentes
   - [ ] Visibilidade respeitada item a item em "Histórico de contratos"
   - [ ] Rota acessível por fornecedor logado
 - **Dependências:** U5.1
-- **Riscos:** baixo. Convenção `/organizacao/empresa/[id]` confirmada (decisão #2).
+- **Riscos:** baixo. Convenção `/perfil/empresa/[id]` confirmada (decisão #2).
 
 ### U5.3 — Perfil público de Fornecedor
 - **Fase:** 5
 - **Fonte:** `public-profiles.md §"Perfil público de Fornecedor"`
-- **Escopo — dentro:** rota `/organizacao/fornecedor/[id]` (ou padrão escolhido em U5.2) com header, sobre, reputação (rubrica fornecedor), atuação (categorias + regiões + capacidade), certificações, estatísticas, contratos destacáveis, reviews recebidas, equipe, linkage cruzada.
+- **Escopo — dentro:** rota `/perfil/fornecedor/[id]` (ou padrão escolhido em U5.2) com header, sobre, reputação (rubrica fornecedor), atuação (categorias + regiões + capacidade), certificações, estatísticas, contratos destacáveis, reviews recebidas, equipe, linkage cruzada.
 - **Fora:** página completa de reviews (U5.4).
 - **Entregáveis:**
   - Rota nova; a `/fornecedor/perfil` atual (perfil próprio em edição) vira uma tela distinta, possivelmente em Configurações → Perfil Fornecedor (U2.4 já cobre).
@@ -753,7 +753,7 @@ Quando uma unidade precisar de uma decisão de produto nova (não prevista pelos
 ### U5.4 — Página completa de reviews com filtros
 - **Fase:** 5
 - **Fonte:** `public-profiles.md §"Reviews recebidas"` + decisão #4 (ordenação)
-- **Escopo — dentro:** rota `/organizacao/empresa/[id]/reviews` e `/organizacao/fornecedor/[id]/reviews` listando todas as reviews liberadas com filtros (dimensão, nota, período) + paginação simples.
+- **Escopo — dentro:** rota `/perfil/empresa/[id]/reviews` e `/perfil/fornecedor/[id]/reviews` listando todas as reviews liberadas com filtros (dimensão, nota, período) + paginação simples.
 - **Fora:** denúncia / right-of-reply (perguntas em aberto do design).
 - **Entregáveis:** 2 rotas (ou 1 compartilhada) + `FiltrosReviews`.
 - **DoD:**
@@ -765,14 +765,14 @@ Quando uma unidade precisar de uma decisão de produto nova (não prevista pelos
 ### U5.5 — Diretório de fornecedores (contexto empresa)
 - **Fase:** 5
 - **Fonte:** `design/info-architecture.md §"Sidebar empresa"` (item Diretório) + `public-profiles.md` (destino dos cards)
-- **Escopo — dentro:** reescrever `src/app/empresa/diretorio/page.tsx` como discovery read-only de fornecedores. Grid de cards (reusa `FiltrosProjeto` patterns: busca, categoria, região, certificação). Card mostra logo, nome, cidade, categorias principais, `reputacao_agregada.media_geral` (`<ReputacaoAgregada compact />` de U5.1), contagem de contratos encerrados; clique leva a `/organizacao/fornecedor/[id]`. Estado vazio "Nenhum fornecedor encontrado".
+- **Escopo — dentro:** reescrever `src/app/empresa/diretorio/page.tsx` como discovery read-only de fornecedores. Grid de cards (reusa `FiltrosProjeto` patterns: busca, categoria, região, certificação). Card mostra logo, nome, cidade, categorias principais, `reputacao_agregada.media_geral` (`<ReputacaoAgregada compact />` de U5.1), contagem de contratos encerrados; clique leva a `/perfil/fornecedor/[id]`. Estado vazio "Nenhum fornecedor encontrado".
 - **Fora:** pedidos de contato direto, favoritar, comparar lado-a-lado (fora do MVP).
 - **Entregáveis:**
   - Reescrita de `src/app/empresa/diretorio/page.tsx`
   - Componente `src/components/diretorio/filtros-fornecedor.tsx` (espelha `FiltrosProjeto` mas com dimensões apropriadas: categoria, região atendida, certificação, busca textual)
 - **DoD:**
   - [ ] Lista vem de `fornecedores` com filtros aplicados client-side
-  - [ ] Cards usam `ReputacaoAgregada` (compact) e apontam para `/organizacao/fornecedor/[id]`
+  - [ ] Cards usam `ReputacaoAgregada` (compact) e apontam para `/perfil/fornecedor/[id]`
   - [ ] Estado vazio funcional
   - [ ] Nenhum dado hardcoded
 - **Dependências:** U5.1, U5.3
@@ -970,10 +970,10 @@ Referência rápida para validação (não exaustivo — componentes internos om
 /reviews (lista), /reviews/[id], /reviews/novo/[contratoId]
 
 # Perfis públicos
-/organizacao/empresa/[id]                (padrão de URL a confirmar em U5.2)
-/organizacao/fornecedor/[id]
-/organizacao/empresa/[id]/reviews
-/organizacao/fornecedor/[id]/reviews
+/perfil/empresa/[id]                (padrão de URL a confirmar em U5.2)
+/perfil/fornecedor/[id]
+/perfil/empresa/[id]/reviews
+/perfil/fornecedor/[id]/reviews
 
 # Diretório (empresa)
 /empresa/diretorio
@@ -1010,7 +1010,7 @@ Referência rápida para validação (não exaustivo — componentes internos om
 Seis decisões confirmadas com Arthur antes de iniciar U1.1. Não são redecisões — todas as unidades devem respeitá-las.
 
 1. **Nome da organização dual-role no seed** (U1.2) → **"Metalúrgica XYZ"**. Já citada em `design/data-model.md` e `design/info-architecture.md` como exemplo.
-2. **Convenção de URL para perfis públicos** (U5.2, U5.3) → **`/organizacao/empresa/[id]`** e **`/organizacao/fornecedor/[id]`**. Explícito, evita colisão com rotas internas `/empresa/*` e `/fornecedor/*`.
+2. **Convenção de URL para perfis públicos** (U5.2, U5.3) → **`/perfil/empresa/[id]`** e **`/perfil/fornecedor/[id]`**. Explícito, evita colisão com rotas internas `/empresa/*` e `/fornecedor/*`. Convenção inicial foi `/organizacao/...`, renomeada para `/perfil/...` em 2026-04-15 após a Fase 5 (ver `docs/post-execution-review.md §2`).
 3. **Editor markdown para Consultoria** (U6.3, U6.5, U6.7) → **MDXEditor** (WYSIWYG puro). Advisor digita e vê negrito/listas renderizados, nunca vê sintaxe crua. Mesmo lib em modo read-only cobre exibição ao fornecedor. Única dep nova adicionada ao projeto.
 4. **Persistência das mutações mockadas** (várias) → **in-memory only** (`useState`). Mutações zeram ao recarregar — aceitável no mockup, mantém código simples.
 5. **Sessão mockada** (U2.1, U2.2) → **`MEMBRO_LOGADO_ID` fixo = Maria Silva, Vale, owner**. Sem toggle de troca no topbar. Constante em `src/lib/session.ts`.

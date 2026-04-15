@@ -41,7 +41,7 @@ export function CardCandidaturaTriagem({
       <CardContent className="space-y-4 p-5">
         <div className="flex items-start justify-between gap-3">
           <Link
-            href={`/organizacao/fornecedor/${fornecedor.id}`}
+            href={`/perfil/fornecedor/${fornecedor.id}`}
             className="flex min-w-0 items-center gap-3 hover:underline"
           >
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">

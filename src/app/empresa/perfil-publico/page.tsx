@@ -16,8 +16,8 @@ export default function EmpresaPerfilPublicoPage() {
     membroLogado?.organizacao_id ?? ""
   );
   const rotaFutura = empresaAtiva
-    ? `/organizacao/empresa/${empresaAtiva.organizacao_id}`
-    : "/organizacao/empresa/[id]";
+    ? `/perfil/empresa/${empresaAtiva.id}`
+    : "/perfil/empresa/[id]";
 
   return (
     <AppShell tipo="empresa" titulo="Perfil público da empresa">

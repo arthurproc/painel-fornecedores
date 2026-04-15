@@ -215,7 +215,7 @@ export function DetalheContrato({ contrato, lado, podeEncerrar }: DetalheContrat
           )}
           {lado === "empresa" && fornecedor && (
             <Link
-              href={`/organizacao/fornecedor/${fornecedor.id}`}
+              href={`/perfil/fornecedor/${fornecedor.id}`}
               className="text-primary hover:underline"
             >
               Ver perfil público do fornecedor →
@@ -223,7 +223,7 @@ export function DetalheContrato({ contrato, lado, podeEncerrar }: DetalheContrat
           )}
           {lado === "fornecedor" && empresa && (
             <Link
-              href={`/organizacao/empresa/${empresa.id}`}
+              href={`/perfil/empresa/${empresa.id}`}
               className="text-primary hover:underline"
             >
               Ver perfil público da empresa →

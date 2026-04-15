@@ -84,20 +84,14 @@ Visão do perfil ao ser clicado por um visitante (fornecedor logado, ou visitant
 │ ┌─ Reviews recebidas ────────────────────────────────────────────┐  │
 │ │ [Review card × N — ver §"Componente: Review individual"]       │  │
 │ └────────────────────────────────────────────────────────────────┘  │
-│                                                                      │
-│ ┌─ Equipe ───────────────────────────────────────────────────────┐  │
-│ │ [Avatar] Maria Silva — Gerente de Compras                       │  │
-│ │ [Avatar] Carlos Dias — Diretor de Operações                     │  │
-│ │                                                                 │  │
-│ │ Apenas membros `owner` e `admin` aparecem. Fornecedores não     │  │
-│ │ são listados publicamente.                                      │  │
-│ └────────────────────────────────────────────────────────────────┘  │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
+> **Decisão 2026-04-15 (Fase 5):** removida a seção "Equipe" do perfil público, bem como qualquer contagem agregada de membros no header. O produto é B2B industrial — a confiança é construída com reviews, contratos encerrados e certificações; expor nome/cargo/foto de `owner` e `admin` publicamente adicionaria risco (LGPD, phishing, engenharia social) sem payoff de conversão. A identidade individual continua exposta pontualmente no `ReviewCard` (autor de uma review é parte integral da credibilidade dela, decisão #5). `MembroPopover` segue existindo como componente reutilizável para essa situação.
+
 ### Seções detalhadas
 
-**Header.** Logo (letter avatar no mock atual), nome de display em destaque, setor abaixo, cidade + região, ano desde. Abaixo disso, em tipografia menor, razão social (campo da `Organizacao`). À direita do nome, badge "✓ CNPJ verificado" (MVP: todos mockados como verificados). Se `Organizacao.linkage_publica = true` e o outro perfil está ativo, badge/card clicável "Também atua como fornecedor →".
+**Header.** Logo (letter avatar no mock atual), nome de display em destaque, setor abaixo, cidade + região, ano desde. Abaixo disso, em tipografia menor, razão social (campo da `Organizacao`). À direita do nome, badge "✓ CNPJ verificado" (MVP: todos mockados como verificados). Se `Organizacao.linkage_publica = true` e o outro perfil está ativo, badge/card clicável "Também atua como fornecedor →". Sem contagem de membros.
 
 **Sobre.** Texto livre do campo `Empresa.descricao`. Até ~400 caracteres em exibição normal, com "Ler mais" se for maior.
 
@@ -113,8 +107,6 @@ Visão do perfil ao ser clicado por um visitante (fornecedor logado, ou visitant
 - `privado` — aparece como "(contrato privado)" com mensagem neutra; sem detalhes
 
 **Reviews recebidas.** Listagem cronológica das Reviews do tipo `avaliado_org_tipo = empresa` e `status = liberada`. Ver §"Componente: Review individual". Até 5 na página principal + link "Ver todas".
-
-**Equipe.** Lista de Membros `owner` e `admin` da `Organizacao`, com foto + nome + cargo. Membros `operador` não aparecem publicamente por padrão.
 
 ---
 
@@ -175,17 +167,14 @@ Visão do perfil ao ser clicado por um visitante (fornecedor logado, ou visitant
 │ ┌─ Reviews recebidas ────────────────────────────────────────────┐  │
 │ │ [Review card × N — ver §"Componente: Review individual"]       │  │
 │ └────────────────────────────────────────────────────────────────┘  │
-│                                                                      │
-│ ┌─ Equipe ───────────────────────────────────────────────────────┐  │
-│ │ [Avatar] Pedro Costa — Diretor Técnico                          │  │
-│ │ [Avatar] Ana Mendes — Gerente Comercial                         │  │
-│ └────────────────────────────────────────────────────────────────┘  │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
+> Vale a mesma decisão do perfil empresa: a seção "Equipe" foi removida, e não há contagem de membros no header.
+
 ### Seções detalhadas
 
-**Header.** Mesma estrutura do perfil empresa. Sem campo "setor" (fornecedor tem categorias, não setor); a área de display mostra cidade + região + desde.
+**Header.** Mesma estrutura do perfil empresa. Sem campo "setor" (fornecedor tem categorias, não setor); a área de display mostra cidade + região + desde. Sem contagem de membros.
 
 **Sobre.** Campo `Fornecedor.descricao`.
 
@@ -200,8 +189,6 @@ Visão do perfil ao ser clicado por um visitante (fornecedor logado, ou visitant
 **Contratos destacáveis.** Lista curada pelo próprio fornecedor (via admin do seu perfil) dos contratos que ele quer destacar — só entra se `visibilidade ≠ privado`. Cada item com título, valor (se público), data, contratante clicável, nota agregada recebida.
 
 **Reviews recebidas.** Listagem cronológica das Reviews do tipo `avaliado_org_tipo = fornecedor` e `status = liberada`. Mesma estrutura.
-
-**Equipe.** Mesmo tratamento do perfil empresa (owner + admin visíveis).
 
 ---
 
@@ -337,7 +324,6 @@ Aparece nos dois perfis quando a `Organizacao` tem ambos `perfil_empresa_ativo` 
 | Histórico de contratos | Sem contratos fechados | "Ainda não há contratos fechados nesta organização." |
 | Contratos destacáveis | (fornecedor) sem destacáveis | "Este fornecedor ainda não destacou nenhum contrato." |
 | Reviews recebidas | Sem reviews liberadas | Reutiliza a mensagem da reputação |
-| Equipe | Sem membros owner/admin visíveis | Não mostra a seção (omite) |
 | Certificações | (fornecedor) vazias | "Nenhuma certificação cadastrada." |
 
 ---
@@ -348,7 +334,7 @@ Resumo das regras aplicáveis aos componentes do perfil público:
 
 | Elemento | Publica quando |
 | --- | --- |
-| Header, Sobre, Estatísticas operacionais, Atuação, Certificações, Equipe (owner/admin) | Sempre |
+| Header, Sobre, Estatísticas operacionais, Atuação, Certificações | Sempre |
 | Reputação agregada | Sempre (calculada só de reviews liberadas) |
 | Histórico de contratos | Respeita `Contrato.visibilidade` individualmente |
 | Contratos destacáveis | Só entram se `Contrato.visibilidade ≠ privado` E foram curados pelo fornecedor |
@@ -360,14 +346,14 @@ Regras específicas:
 - **Contratos privados** aparecem no histórico como "(contrato privado)" sem detalhes, preservando a contagem total mas ocultando nomes e valores.
 - **Contratos restritos a fornecedores** (`visibilidade = fornecedores`) só mostram detalhes se o visitante está logado com perfil fornecedor ativo; caso contrário, mostram placeholder neutro.
 - **CNPJ no header** é exibido sempre (é público por natureza na Receita Federal). Endereço fiscal da `Organizacao` não aparece no perfil público.
-- **Email e telefone dos membros** nunca aparecem publicamente — apenas nome, cargo, foto.
+- **Membros** (nome, cargo, foto, email, telefone) não são listados no perfil público. Apenas o autor de uma review aparece individualmente, via `ReviewCard` + `MembroPopover`.
 - **Contato da organização** (email/telefone do `Fornecedor.contato`) aparece apenas para visitantes logados.
 
 ---
 
 ## Comportamentos / interações
 
-- **Clicar no nome de um membro** → popover leve com nome, foto, cargo. Sem página dedicada de membro no MVP.
+- **Clicar no nome de um membro** (só acontece em `ReviewCard`, já que o perfil não lista equipe) → popover leve com nome, foto, cargo. Sem página dedicada de membro no MVP.
 - **Clicar no autor de uma review** → navega pro perfil público da org autora.
 - **Clicar em "Contrato: ..." na review** → página pública do contrato (se visibilidade permite) ou modal read-only.
 - **Clicar em contrato do histórico** → mesmo comportamento.
@@ -383,7 +369,7 @@ Regras específicas:
 
 1. **Período padrão de reputação agregada** — últimos 12 meses. Cai pra "desde sempre" com sinalização se não houver reviews no período. Página completa de reviews permite filtros de período.
 2. **Valor total contratado no perfil** — não mostra. Apenas contagens (publicados, encerrados, em execução). Sensibilidade comercial supera utilidade.
-3. **Membros visíveis no perfil** — só `owner` e `admin`. Membros `operador` ficam privados. Sem opt-out individual no MVP.
+3. **Membros no perfil público** — nenhum. B2B industrial não precisa expor equipe (risco LGPD/phishing sem payoff). Autor de review continua identificado individualmente no próprio card de review. Decisão revisada em 2026-04-15 (originalmente: "só owner e admin visíveis").
 4. **Ordenação de reviews** — mais recentes primeiro por padrão. Filtro por dimensão e por nota na página completa.
 5. **Anonimato de autor de review** — não permitido no MVP. Autor sempre identificado (individual + org).
 6. **Reviews de contrato privado** — não aparecem publicamente. Segue visibilidade do contrato.
@@ -444,7 +430,6 @@ Telas e componentes:
 - [ ] Bloco "Contratos destacáveis" (fornecedor)
 - [ ] Bloco "Reviews recebidas" com 5 cards + link
 - [ ] Componente `ReviewCard` individual — avatar, autor, cargo, org, linha de verificação, notas por dimensão, comentário, data, contrato
-- [ ] Bloco "Equipe" com avatares + nome + cargo (owner + admin)
 - [ ] Popover de membro (não página dedicada)
 - [ ] Card `LinkageCruzada` — nos dois perfis quando aplicável
 - [ ] Página completa de reviews (rota dedicada, paginada, filtros por dimensão e nota)

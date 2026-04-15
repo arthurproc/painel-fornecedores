@@ -74,7 +74,7 @@ export default function ProjetoFornecedorPage({
           projeto={projeto}
           empresa={empresa}
           breakdown={breakdown}
-          empresaHref={empresa ? `/organizacao/empresa/${empresa.id}` : undefined}
+          empresaHref={empresa ? `/perfil/empresa/${empresa.id}` : undefined}
         />
 
         <Card className="rounded-xl">
@@ -127,7 +127,7 @@ export default function ProjetoFornecedorPage({
             <div className="flex flex-wrap items-center gap-3">
               {empresa && (
                 <Button asChild variant="outline" size="sm" className="gap-1.5">
-                  <Link href={`/organizacao/empresa/${empresa.id}`}>
+                  <Link href={`/perfil/empresa/${empresa.id}`}>
                     <ExternalLink className="h-3.5 w-3.5" /> Ver perfil da empresa
                   </Link>
                 </Button>
