@@ -16,9 +16,12 @@ import {
   projetos,
   fornecedores,
   empresas,
-  propostas,
+  candidaturas,
+  contratos,
   statusLabels,
   statusColors,
+  nomeEmpresa,
+  logoEmpresa,
 } from "@/lib/mock-data";
 
 function parseData(d: string) {
@@ -29,21 +32,19 @@ function parseData(d: string) {
 export default function AdminDashboard() {
   const demandasAtivas = projetos.filter(
     (p) =>
-      p.status === "aberto" ||
-      p.status === "em_analise" ||
-      p.status === "em_andamento"
+      p.status === "publicado" ||
+      p.status === "em_triagem" ||
+      p.status === "em_propostas"
   );
-  const contratosFechados = projetos.filter((p) => p.status === "arquivado");
+  const contratosEncerrados = contratos.filter((c) => c.status === "encerrado");
 
-  const volumeTotal = contratosFechados
-    .filter((p) => p.fechamento?.valorFinal)
-    .reduce((acc, p) => {
-      const raw = p.fechamento!.valorFinal!
-        .replace("R$ ", "")
-        .replace(/\./g, "")
-        .replace(",", ".");
-      return acc + parseFloat(raw);
-    }, 0);
+  const volumeTotal = contratosEncerrados.reduce((acc, c) => {
+    const raw = c.valor_final
+      .replace("R$ ", "")
+      .replace(/\./g, "")
+      .replace(",", ".");
+    return acc + parseFloat(raw);
+  }, 0);
 
   const volumeFormatado = new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -61,12 +62,12 @@ export default function AdminDashboard() {
     {
       titulo: "Demandas Ativas",
       valor: String(demandasAtivas.length),
-      detalhe: `${propostas.length} propostas em aberto`,
+      detalhe: `${candidaturas.filter((c) => c.status === "enviada").length} candidaturas em aberto`,
       icon: FileText,
     },
     {
-      titulo: "Contratos Fechados",
-      valor: String(contratosFechados.length),
+      titulo: "Contratos Encerrados",
+      valor: String(contratosEncerrados.length),
       detalhe: "desde o início da plataforma",
       icon: Archive,
     },
@@ -121,12 +122,12 @@ export default function AdminDashboard() {
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-                        {projeto.empresaLogo}
+                        {logoEmpresa(projeto)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">{projeto.titulo}</p>
                         <p className="text-xs text-muted-foreground">
-                          {projeto.empresa} · {projeto.categoria} · {projeto.regiao}
+                          {nomeEmpresa(projeto)} · {projeto.categoria} · {projeto.regiao}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
@@ -173,7 +174,11 @@ export default function AdminDashboard() {
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
                         <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                        <span className="text-sm font-medium">{f.avaliacao}</span>
+                        <span className="text-sm font-medium">
+                          {f.reputacao_agregada.total_reviews > 0
+                            ? f.reputacao_agregada.media_geral.toFixed(1)
+                            : "—"}
+                        </span>
                       </div>
                     </div>
                   </CardContent>

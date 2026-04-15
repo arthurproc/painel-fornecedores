@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { fornecedores, projetos } from "@/lib/mock-data";
+import { fornecedores, projetos, empresas } from "@/lib/mock-data";
 
 function formatarMesAno(data: string): string {
   const [, mes, ano] = data.split("/");
@@ -71,16 +71,17 @@ export default function PerfilFornecedorEmpresaPage({
   const fornecedor = fornecedores.find((f) => f.id === id) ?? fornecedores[0];
   const projetosHistorico = projetosPorFornecedor[fornecedor.id] ?? [];
 
-  const reviews = projetos
-    .filter((p) => p.fechamento?.fornecedorId === fornecedor.id)
-    .map((p) => ({
-      empresa: p.empresa,
-      logo: p.empresaLogo,
-      qualidade: p.fechamento!.avaliacao.qualidade,
-      prazo: p.fechamento!.avaliacao.prazo,
-      comentario: p.fechamento!.avaliacao.comentario,
-      data: formatarMesAno(p.fechamento!.dataFechamento),
-    }));
+  const reviews: Array<{
+    empresa: string;
+    logo: string;
+    qualidade: number;
+    prazo: number;
+    comentario: string;
+    data: string;
+  }> = [];
+  void formatarMesAno;
+  void projetos;
+  void empresas;
 
   const avgQualidade =
     reviews.length > 0
@@ -116,7 +117,9 @@ export default function PerfilFornecedorEmpresaPage({
                 <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    {fornecedor.avaliacao} ({fornecedor.projetosRealizados} avaliações)
+                    {fornecedor.reputacao_agregada.total_reviews > 0
+                      ? `${fornecedor.reputacao_agregada.media_geral.toFixed(1)} (${fornecedor.reputacao_agregada.total_reviews} avaliações)`
+                      : "Sem avaliações ainda"}
                   </span>
                   <span className="flex items-center gap-1">
                     <MapPin className="w-4 h-4" />

@@ -28,7 +28,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { projetos, empresas, statusLabels, statusColors } from "@/lib/mock-data";
+import {
+  projetos,
+  empresas,
+  statusLabels,
+  statusColors,
+  candidaturasCountByProjeto,
+  getContratoByProjeto,
+} from "@/lib/mock-data";
 
 export default function ProjetoFornecedorPage({
   params,
@@ -37,7 +44,10 @@ export default function ProjetoFornecedorPage({
 }) {
   const { id } = use(params);
   const projeto = projetos.find((p) => p.id === id) || projetos[0];
-  const empresa = empresas.find((e) => e.nome === projeto.empresa);
+  const empresa = empresas.find((e) => e.id === projeto.empresa_id);
+  const empresaNome = empresa?.nome ?? "Empresa";
+  const empresaLogo = empresa?.logo ?? "?";
+  const contrato = getContratoByProjeto(projeto.id);
   const [showForm, setShowForm] = useState(false);
   const [enviado, setEnviado] = useState(false);
 
@@ -52,7 +62,7 @@ export default function ProjetoFornecedorPage({
         </Link>
 
         {/* Contrato fechado — notificação ao fornecedor selecionado */}
-        {projeto.status === "arquivado" && projeto.fechamento && (
+        {projeto.status === "fechado" && contrato && (
           <Card className="border-amber-200 bg-amber-50">
             <CardContent className="p-4 flex items-start gap-3">
               <Archive className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
@@ -61,8 +71,8 @@ export default function ProjetoFornecedorPage({
                   Você foi selecionado para este contrato!
                 </p>
                 <p className="text-sm text-amber-700 mt-0.5">
-                  Contrato fechado em {projeto.fechamento.dataFechamento}. Entre
-                  em contato com {projeto.empresa} para dar início ao projeto.
+                  Contrato fechado em {contrato.data_fechamento}. Entre
+                  em contato com {empresaNome} para dar início ao projeto.
                 </p>
               </div>
             </CardContent>
@@ -93,10 +103,10 @@ export default function ProjetoFornecedorPage({
             <CardContent className="p-5 flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center text-lg font-bold">
-                  {projeto.empresaLogo}
+                  {empresaLogo}
                 </div>
                 <div>
-                  <p className="font-semibold text-lg">{projeto.empresa}</p>
+                  <p className="font-semibold text-lg">{empresaNome}</p>
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Building2 className="w-3.5 h-3.5" />
@@ -164,9 +174,9 @@ export default function ProjetoFornecedorPage({
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <Users className="w-5 h-5 text-primary" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Interessados</p>
+                  <p className="text-xs text-muted-foreground">Candidaturas</p>
                   <p className="font-medium text-sm">
-                    {projeto.interessados} fornecedores
+                    {candidaturasCountByProjeto(projeto.id)} fornecedores
                   </p>
                 </div>
               </div>
@@ -219,7 +229,7 @@ export default function ProjetoFornecedorPage({
             <div className="p-3 rounded-lg bg-muted/50">
               <p className="text-sm font-medium">{projeto.titulo}</p>
               <p className="text-xs text-muted-foreground">
-                {projeto.empresa} &bull; Orcamento: {projeto.orcamento}
+                {empresaNome} &bull; Orcamento: {projeto.orcamento}
               </p>
             </div>
 

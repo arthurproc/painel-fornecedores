@@ -4,25 +4,30 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { projetos, statusColors, statusLabels } from "@/lib/mock-data";
+import {
+  projetos,
+  statusColors,
+  statusLabels,
+  candidaturasCountByProjeto,
+} from "@/lib/mock-data";
 
-const companyName = "Vale S.A.";
+const empresaId = "vale";
 
 export default function EmpresaProjetosPage() {
-  const meusProjetos = projetos.filter((projeto) => projeto.empresa === companyName);
+  const meusProjetos = projetos.filter((projeto) => projeto.empresa_id === empresaId);
 
   const totalInteressados = meusProjetos.reduce(
-    (acc, projeto) => acc + projeto.interessados,
+    (acc, projeto) => acc + candidaturasCountByProjeto(projeto.id),
     0
   );
 
-  const emAberto = meusProjetos.filter((projeto) => projeto.status === "aberto").length;
-  const emAnalise = meusProjetos.filter((projeto) => projeto.status === "em_analise").length;
-  const emAndamento = meusProjetos.filter(
-    (projeto) => projeto.status === "em_andamento"
+  const publicados = meusProjetos.filter((projeto) => projeto.status === "publicado").length;
+  const emTriagem = meusProjetos.filter((projeto) => projeto.status === "em_triagem").length;
+  const emPropostas = meusProjetos.filter(
+    (projeto) => projeto.status === "em_propostas"
   ).length;
-  const arquivados = meusProjetos.filter(
-    (projeto) => projeto.status === "arquivado"
+  const fechados = meusProjetos.filter(
+    (projeto) => projeto.status === "fechado"
   ).length;
 
   const statsCards = [
@@ -33,19 +38,19 @@ export default function EmpresaProjetosPage() {
       icon: Briefcase,
     },
     {
-      titulo: "Projetos Abertos",
-      valor: String(emAberto),
-      descricao: "Recebendo novas propostas",
+      titulo: "Publicados",
+      valor: String(publicados),
+      descricao: "Recebendo candidaturas",
       icon: Clock,
     },
     {
-      titulo: "Em Análise",
-      valor: String(emAnalise),
-      descricao: "Comparação de fornecedores",
+      titulo: "Em triagem",
+      valor: String(emTriagem),
+      descricao: "Avaliando candidaturas",
       icon: TrendingUp,
     },
     {
-      titulo: "Interessados",
+      titulo: "Candidaturas",
       valor: String(totalInteressados),
       descricao: "Total de fornecedores",
       icon: Users,
@@ -110,7 +115,7 @@ export default function EmpresaProjetosPage() {
                         <div className="flex items-center gap-3 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Users className="w-3.5 h-3.5" />
-                            {projeto.interessados}
+                            {candidaturasCountByProjeto(projeto.id)}
                           </span>
                           <Eye className="w-4 h-4" />
                         </div>
@@ -127,20 +132,20 @@ export default function EmpresaProjetosPage() {
             <Card>
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Abertos</span>
-                  <span className="text-sm font-semibold">{emAberto}</span>
+                  <span className="text-sm text-muted-foreground">Publicados</span>
+                  <span className="text-sm font-semibold">{publicados}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Em análise</span>
-                  <span className="text-sm font-semibold">{emAnalise}</span>
+                  <span className="text-sm text-muted-foreground">Em triagem</span>
+                  <span className="text-sm font-semibold">{emTriagem}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Em andamento</span>
-                  <span className="text-sm font-semibold">{emAndamento}</span>
+                  <span className="text-sm text-muted-foreground">Em propostas</span>
+                  <span className="text-sm font-semibold">{emPropostas}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Arquivados</span>
-                  <span className="text-sm font-semibold">{arquivados}</span>
+                  <span className="text-sm text-muted-foreground">Fechados</span>
+                  <span className="text-sm font-semibold">{fechados}</span>
                 </div>
               </CardContent>
             </Card>

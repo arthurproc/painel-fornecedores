@@ -21,6 +21,8 @@ import {
   fornecedores,
   statusLabels,
   statusColors,
+  candidaturasCountByProjeto,
+  getContratosByEmpresa,
 } from "@/lib/mock-data";
 
 export default function PerfilEmpresaPage({
@@ -32,16 +34,18 @@ export default function PerfilEmpresaPage({
   const empresa = empresas.find((e) => e.id === id) ?? empresas[0];
 
   const demandasAbertas = projetos.filter(
-    (p) => p.empresa === empresa.nome && p.status !== "arquivado"
+    (p) => p.empresa_id === empresa.id && p.status !== "fechado"
   );
 
-  const contratosFechados = projetos.filter(
-    (p) =>
-      p.empresa === empresa.nome &&
-      p.status === "arquivado" &&
-      p.fechamento &&
-      p.fechamento.visibilidade !== "privado"
+  const contratosEmpresa = getContratosByEmpresa(empresa.id).filter(
+    (c) => c.visibilidade !== "privado" && c.status === "encerrado"
   );
+  const contratosFechados = contratosEmpresa
+    .map((c) => ({
+      contrato: c,
+      projeto: projetos.find((p) => p.id === c.projeto_id),
+    }))
+    .filter((x): x is { contrato: typeof x.contrato; projeto: NonNullable<typeof x.projeto> } => !!x.projeto);
 
   return (
     <AppShell tipo="fornecedor" titulo="Perfil da Empresa">
@@ -104,7 +108,7 @@ export default function PerfilEmpresaPage({
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-primary">
-                  {new Set(contratosFechados.map((p) => p.fechamento!.fornecedorId)).size}
+                  {new Set(contratosFechados.map((x) => x.contrato.fornecedor_id)).size}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Fornecedores contratados
@@ -174,7 +178,7 @@ export default function PerfilEmpresaPage({
                         </div>
                         <div className="flex items-center gap-1.5">
                           <Users className="w-3.5 h-3.5 shrink-0" />
-                          <span>{projeto.interessados} interessados</span>
+                          <span>{candidaturasCountByProjeto(projeto.id)} candidaturas</span>
                         </div>
                       </div>
 
@@ -205,14 +209,13 @@ export default function PerfilEmpresaPage({
             <Card>
               <CardContent className="p-0">
                 <div className="divide-y divide-border">
-                  {contratosFechados.map((projeto) => {
-                    const f = projeto.fechamento!;
+                  {contratosFechados.map(({ contrato, projeto }) => {
                     const fornecedor = fornecedores.find(
-                      (fn) => fn.id === f.fornecedorId
+                      (fn) => fn.id === contrato.fornecedor_id
                     );
                     return (
                       <div
-                        key={projeto.id}
+                        key={contrato.id}
                         className="flex items-center gap-4 px-5 py-4"
                       >
                         <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
@@ -225,11 +228,11 @@ export default function PerfilEmpresaPage({
                           </p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className={`text-sm ${f.valorFinal ? "font-semibold text-primary" : "text-muted-foreground"}`}>
-                            {f.valorFinal ?? "Valor não informado"}
+                          <p className="text-sm font-semibold text-primary">
+                            {contrato.valor_final}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {f.dataFechamento}
+                            {contrato.data_fechamento}
                           </p>
                         </div>
                       </div>

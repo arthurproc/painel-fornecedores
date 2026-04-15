@@ -14,10 +14,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   projetos,
-  propostas,
+  candidaturas,
   fornecedores,
   statusLabels,
   statusColors,
+  candidaturasCountByProjeto,
+  getContratoByProjeto,
+  candidaturaView,
 } from "@/lib/mock-data";
 
 const visibilidadeLabels: Record<string, string> = {
@@ -61,12 +64,15 @@ const statsCards = [
 
 export default function EmpresaDashboard() {
   const meusProjetos = projetos.filter(
-    (p) => ["Vale S.A."].includes(p.empresa) && p.status !== "arquivado"
+    (p) => p.empresa_id === "vale" && p.status !== "fechado"
   );
   const projetosFechados = projetos.filter(
-    (p) => ["Vale S.A."].includes(p.empresa) && p.status === "arquivado"
+    (p) => p.empresa_id === "vale" && p.status === "fechado"
   );
-  const propostasRecentes = propostas.filter((p) => p.status === "pendente").slice(0, 3);
+  const candidaturasRecentes = candidaturas
+    .filter((c) => c.status === "enviada")
+    .slice(0, 3)
+    .map(candidaturaView);
 
   return (
     <AppShell tipo="empresa" titulo="Dashboard">
@@ -132,7 +138,7 @@ export default function EmpresaDashboard() {
                         <div className="flex items-center gap-3 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Users className="w-3.5 h-3.5" />
-                            {projeto.interessados}
+                            {candidaturasCountByProjeto(projeto.id)}
                           </span>
                           <Eye className="w-4 h-4" />
                         </div>
@@ -144,35 +150,35 @@ export default function EmpresaDashboard() {
             </div>
           </div>
 
-          {/* Propostas Recentes */}
+          {/* Candidaturas Recentes */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Propostas Recentes</h2>
+            <h2 className="text-lg font-semibold">Candidaturas Recentes</h2>
             <div className="space-y-3">
-              {propostasRecentes.map((proposta) => (
-                <Card key={proposta.id}>
+              {candidaturasRecentes.map(({ candidatura, fornecedor, projeto }) => (
+                <Card key={candidatura.id}>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                        {proposta.fornecedor.logo}
+                        {fornecedor?.logo ?? "?"}
                       </div>
                       <div>
                         <p className="font-medium text-sm">
-                          {proposta.fornecedor.nome}
+                          {fornecedor?.nome ?? "Fornecedor"}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {proposta.dataEnvio}
+                          {candidatura.enviada_em ?? candidatura.criada_em}
                         </p>
                       </div>
                     </div>
                     <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                      {proposta.projeto.titulo}
+                      {projeto?.titulo ?? "—"}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className={`text-sm ${proposta.valor ? "font-semibold text-primary" : "text-muted-foreground"}`}>
-                        {proposta.valor ?? "Valor não informado"}
+                      <span className="text-sm text-muted-foreground">
+                        {candidatura.faixa_preco_preliminar ?? "Sem faixa"}
                       </span>
-                      <Badge variant="secondary" className={statusColors[proposta.status]}>
-                        {statusLabels[proposta.status]}
+                      <Badge variant="secondary" className={statusColors[candidatura.status]}>
+                        {statusLabels[candidatura.status]}
                       </Badge>
                     </div>
                   </CardContent>
@@ -199,10 +205,10 @@ export default function EmpresaDashboard() {
               <CardContent className="p-0">
                 <div className="divide-y divide-border">
                   {projetosFechados.map((projeto) => {
-                    const f = projeto.fechamento!;
-                    const fornecedor = fornecedores.find(
-                      (fn) => fn.id === f.fornecedorId
-                    );
+                    const contrato = getContratoByProjeto(projeto.id);
+                    const fornecedor = contrato
+                      ? fornecedores.find((fn) => fn.id === contrato.fornecedor_id)
+                      : undefined;
                     return (
                       <div
                         key={projeto.id}
@@ -217,19 +223,21 @@ export default function EmpresaDashboard() {
                           </p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className={`text-sm ${f.valorFinal ? "font-semibold text-primary" : "text-muted-foreground"}`}>
-                            {f.valorFinal ?? "Valor não informado"}
+                          <p className="text-sm font-semibold text-primary">
+                            {contrato?.valor_final ?? "—"}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {f.dataFechamento}
+                            {contrato?.data_fechamento ?? "—"}
                           </p>
                         </div>
-                        <Badge
-                          variant="secondary"
-                          className={visibilidadeColors[f.visibilidade]}
-                        >
-                          {visibilidadeLabels[f.visibilidade]}
-                        </Badge>
+                        {contrato && (
+                          <Badge
+                            variant="secondary"
+                            className={visibilidadeColors[contrato.visibilidade]}
+                          >
+                            {visibilidadeLabels[contrato.visibilidade]}
+                          </Badge>
+                        )}
                         <Link href={`/empresa/projeto/${projeto.id}`}>
                           <Button size="sm" variant="outline" className="gap-1">
                             <Eye className="w-3.5 h-3.5" /> Ver

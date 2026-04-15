@@ -29,6 +29,9 @@ import {
   regioes,
   statusLabels,
   statusColors,
+  nomeEmpresa,
+  logoEmpresa,
+  candidaturasCountByProjeto,
 } from "@/lib/mock-data";
 
 export default function BuscarProjetosPage() {
@@ -141,11 +144,11 @@ export default function BuscarProjetosPage() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-sm font-bold">
-                        {projeto.empresaLogo}
+                        {logoEmpresa(projeto)}
                       </div>
                       <div>
                         <p className="font-medium text-sm">
-                          {projeto.empresa}
+                          {nomeEmpresa(projeto)}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           Publicado em {projeto.dataPublicacao}
@@ -183,7 +186,7 @@ export default function BuscarProjetosPage() {
                     <div className="flex items-center gap-1.5">
                       <Users className="w-3.5 h-3.5" />
                       <span className="text-xs">
-                        {projeto.interessados} interessados
+                        {candidaturasCountByProjeto(projeto.id)} candidaturas
                       </span>
                     </div>
                   </div>

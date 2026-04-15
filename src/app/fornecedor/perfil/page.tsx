@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { fornecedores, projetos } from "@/lib/mock-data";
+import { fornecedores, projetos, empresas } from "@/lib/mock-data";
 
 function formatarMesAno(data: string): string {
   const [, mes, ano] = data.split("/");
@@ -52,16 +52,18 @@ const projetosRealizados = [
 export default function PerfilFornecedorPage() {
   const fornecedor = fornecedores[0]; // TechMinas
 
-  const reviews = projetos
-    .filter((p) => p.fechamento?.fornecedorId === fornecedor.id)
-    .map((p) => ({
-      empresa: p.empresa,
-      logo: p.empresaLogo,
-      qualidade: p.fechamento!.avaliacao.qualidade,
-      prazo: p.fechamento!.avaliacao.prazo,
-      comentario: p.fechamento!.avaliacao.comentario,
-      data: formatarMesAno(p.fechamento!.dataFechamento),
-    }));
+  const reviews: Array<{
+    empresa: string;
+    logo: string;
+    qualidade: number;
+    prazo: number;
+    comentario: string;
+    data: string;
+  }> = [];
+  // Reviews concretas serão populadas em U1.7. Por ora o bloco aparece vazio.
+  void formatarMesAno;
+  void projetos;
+  void empresas;
 
   const avgQualidade =
     reviews.length > 0
@@ -90,8 +92,9 @@ export default function PerfilFornecedorPage() {
                   <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      {fornecedor.avaliacao} ({fornecedor.projetosRealizados}{" "}
-                      avaliações)
+                      {fornecedor.reputacao_agregada.total_reviews > 0
+                        ? `${fornecedor.reputacao_agregada.media_geral.toFixed(1)} (${fornecedor.reputacao_agregada.total_reviews} avaliações)`
+                        : "Sem avaliações ainda"}
                     </span>
                     <span className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" />

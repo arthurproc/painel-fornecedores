@@ -1,0 +1,20 @@
+export * from "./_shared";
+export * from "./reputacao";
+export * from "./organizacoes";
+export * from "./membros";
+export * from "./empresas";
+export * from "./fornecedores";
+export * from "./projetos";
+export * from "./candidaturas";
+export * from "./propostas";
+export * from "./contratos";
+export * from "./conversas";
+export * from "./mensagens";
+export * from "./reviews";
+export * from "./consultoria";
+export * from "./notificacoes";
+export * from "./catalogos";
+export * from "./status";
+export * from "./helpers";
+
+export { categorias, regioes } from "@/lib/platform-data";

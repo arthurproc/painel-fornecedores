@@ -14,7 +14,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { projetos, propostas, statusLabels, statusColors } from "@/lib/mock-data";
+import {
+  projetos,
+  candidaturas,
+  statusLabels,
+  statusColors,
+  nomeEmpresa,
+  logoEmpresa,
+  candidaturaView,
+} from "@/lib/mock-data";
 
 const statsCards = [
   {
@@ -44,10 +52,13 @@ const statsCards = [
 ];
 
 const projetosRecomendados = projetos
-  .filter((p) => p.status === "aberto")
+  .filter((p) => p.status === "publicado")
   .slice(0, 3);
 
-const minhasPropostas = propostas.slice(0, 3);
+const minhasCandidaturas = candidaturas
+  .filter((c) => c.fornecedor_id === "1")
+  .slice(0, 3)
+  .map(candidaturaView);
 
 export default function FornecedorDashboard() {
   return (
@@ -126,14 +137,14 @@ export default function FornecedorDashboard() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <div className="w-7 h-7 rounded-md bg-muted flex items-center justify-center text-xs font-bold">
-                              {projeto.empresaLogo}
+                              {logoEmpresa(projeto)}
                             </div>
                             <div>
                               <h3 className="font-medium text-sm">
                                 {projeto.titulo}
                               </h3>
                               <p className="text-xs text-muted-foreground">
-                                {projeto.empresa}
+                                {nomeEmpresa(projeto)}
                               </p>
                             </div>
                           </div>
@@ -161,29 +172,29 @@ export default function FornecedorDashboard() {
             </div>
           </div>
 
-          {/* Minhas Propostas */}
+          {/* Minhas Candidaturas */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Minhas Propostas</h2>
+            <h2 className="text-lg font-semibold">Minhas Candidaturas</h2>
             <div className="space-y-3">
-              {minhasPropostas.map((proposta) => (
-                <Card key={proposta.id}>
+              {minhasCandidaturas.map(({ candidatura, projeto }) => (
+                <Card key={candidatura.id}>
                   <CardContent className="p-4">
                     <p className="font-medium text-sm line-clamp-1 mb-1">
-                      {proposta.projeto.titulo}
+                      {projeto?.titulo ?? "—"}
                     </p>
                     <p className="text-xs text-muted-foreground mb-2">
-                      {proposta.projeto.empresa} &bull; Enviada em{" "}
-                      {proposta.dataEnvio}
+                      {projeto ? nomeEmpresa(projeto) : "—"} &bull; Enviada em{" "}
+                      {candidatura.enviada_em ?? "—"}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className={`text-sm ${proposta.valor ? "font-semibold text-primary" : "text-muted-foreground"}`}>
-                        {proposta.valor ?? "Valor não informado"}
+                      <span className="text-sm text-muted-foreground">
+                        {candidatura.faixa_preco_preliminar ?? "Sem faixa informada"}
                       </span>
                       <Badge
                         variant="secondary"
-                        className={statusColors[proposta.status]}
+                        className={statusColors[candidatura.status]}
                       >
-                        {statusLabels[proposta.status]}
+                        {statusLabels[candidatura.status]}
                       </Badge>
                     </div>
                   </CardContent>

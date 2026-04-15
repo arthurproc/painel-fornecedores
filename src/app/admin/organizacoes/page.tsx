@@ -6,7 +6,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { empresas, fornecedores, projetos, propostas } from "@/lib/mock-data";
+import {
+  empresas,
+  fornecedores,
+  projetos,
+  candidaturas,
+} from "@/lib/mock-data";
 
 export default function AdminOrganizacoes() {
   return (
@@ -29,13 +34,13 @@ export default function AdminOrganizacoes() {
           <TabsContent value="empresas" className="mt-4 space-y-3">
             {empresas.map((empresa) => {
               const demandasEmpresa = projetos.filter(
-                (p) => p.empresa === empresa.nome
+                (p) => p.empresa_id === empresa.id
               );
               const ativas = demandasEmpresa.filter(
-                (p) => p.status !== "arquivado"
+                (p) => p.status !== "fechado"
               ).length;
               const fechadas = demandasEmpresa.filter(
-                (p) => p.status === "arquivado"
+                (p) => p.status === "fechado"
               ).length;
 
               return (
@@ -85,8 +90,8 @@ export default function AdminOrganizacoes() {
 
           <TabsContent value="fornecedores" className="mt-4 space-y-3">
             {fornecedores.map((fornecedor) => {
-              const propostasFornecedor = propostas.filter(
-                (p) => p.fornecedor.id === fornecedor.id
+              const candidaturasFornecedor = candidaturas.filter(
+                (c) => c.fornecedor_id === fornecedor.id
               );
 
               return (
@@ -120,12 +125,16 @@ export default function AdminOrganizacoes() {
                           <p className="text-xs text-muted-foreground">contratos</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-xs text-muted-foreground mb-0.5">propostas</p>
-                          <p className="text-xl font-bold">{propostasFornecedor.length}</p>
+                          <p className="text-xs text-muted-foreground mb-0.5">candidaturas</p>
+                          <p className="text-xl font-bold">{candidaturasFornecedor.length}</p>
                         </div>
                         <div className="flex items-center gap-1">
                           <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                          <span className="text-xl font-bold">{fornecedor.avaliacao}</span>
+                          <span className="text-xl font-bold">
+                            {fornecedor.reputacao_agregada.total_reviews > 0
+                              ? fornecedor.reputacao_agregada.media_geral.toFixed(1)
+                              : "—"}
+                          </span>
                         </div>
                       </div>
                       <Button variant="ghost" size="icon">

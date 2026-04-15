@@ -35,10 +35,13 @@ import {
 import { cn } from "@/lib/utils";
 import {
   projetos,
-  propostas,
+  candidaturas,
+  fornecedores,
   statusLabels,
   statusColors,
-  Proposta,
+  type Candidatura,
+  type Fornecedor,
+  getContratoByProjeto,
 } from "@/lib/mock-data";
 
 function StarRating({
@@ -99,11 +102,20 @@ export default function ProjetoEmpresaPage({
 }) {
   const { id } = use(params);
   const projeto = projetos.find((p) => p.id === id) || projetos[0];
-  const propostasProjeto = propostas.filter((p) => p.projeto.id === projeto.id);
+  const candidaturasProjeto = candidaturas
+    .filter((c) => c.projeto_id === projeto.id)
+    .map((candidatura) => ({
+      candidatura,
+      fornecedor: fornecedores.find((f) => f.id === candidatura.fornecedor_id),
+    }))
+    .filter(
+      (x): x is { candidatura: Candidatura; fornecedor: Fornecedor } =>
+        !!x.fornecedor
+    );
+  const contrato = getContratoByProjeto(projeto.id);
 
-  const [selectedProposta, setSelectedProposta] = useState<Proposta | null>(
-    null
-  );
+  const [selectedCandidatura, setSelectedCandidatura] =
+    useState<{ candidatura: Candidatura; fornecedor: Fornecedor } | null>(null);
   const [confirmDialog, setConfirmDialog] = useState(false);
   const [fornecedorSelecionado, setFornecedorSelecionado] = useState<
     string | null
@@ -120,19 +132,23 @@ export default function ProjetoEmpresaPage({
   const [avaliacaoPrazo, setAvaliacaoPrazo] = useState(0);
   const [comentario, setComentario] = useState("");
 
-  const propostaSelecionada = propostasProjeto.find(
-    (p) => p.fornecedor.id === fornecedorSelecionado
+  const candidaturaSelecionada = candidaturasProjeto.find(
+    (x) => x.fornecedor.id === fornecedorSelecionado
   );
 
-  const handleSelecionar = (proposta: Proposta) => {
-    setSelectedProposta(proposta);
+  const handleSelecionar = (
+    item: { candidatura: Candidatura; fornecedor: Fornecedor }
+  ) => {
+    setSelectedCandidatura(item);
     setConfirmDialog(true);
   };
 
   const confirmarSelecao = () => {
-    if (selectedProposta) {
-      setFornecedorSelecionado(selectedProposta.fornecedor.id);
-      setContatoVisivel((prev) => new Set(prev).add(selectedProposta.id));
+    if (selectedCandidatura) {
+      setFornecedorSelecionado(selectedCandidatura.fornecedor.id);
+      setContatoVisivel((prev) =>
+        new Set(prev).add(selectedCandidatura.candidatura.id)
+      );
     }
     setConfirmDialog(false);
   };
@@ -155,11 +171,11 @@ export default function ProjetoEmpresaPage({
   };
 
   const podeFechar = avaliacaoQualidade > 0 && avaliacaoPrazo > 0;
-  const isArquivado = projeto.status === "arquivado" || contratoFechado;
+  const isArquivado = projeto.status === "fechado" || contratoFechado;
   const statusAtual = isArquivado
-    ? "arquivado"
+    ? "fechado"
     : fornecedorSelecionado
-    ? "em_andamento"
+    ? "em_propostas"
     : projeto.status;
 
   return (
@@ -237,19 +253,20 @@ export default function ProjetoEmpresaPage({
                 <p className="text-sm font-medium text-gray-800">
                   Esta demanda foi arquivada.
                 </p>
-                {propostaSelecionada && (
+                {candidaturaSelecionada && (
                   <p className="text-xs text-gray-600 mt-0.5">
                     Contrato fechado com{" "}
                     <span className="font-medium">
-                      {propostaSelecionada.fornecedor.nome}
+                      {candidaturaSelecionada.fornecedor.nome}
                     </span>{" "}
-                    — {propostaSelecionada.valor ?? "valor não informado"}
+                    —{" "}
+                    {candidaturaSelecionada.candidatura.faixa_preco_preliminar ??
+                      "valor não informado"}
                   </p>
                 )}
-                {projeto.fechamento && !propostaSelecionada && (
+                {contrato && !candidaturaSelecionada && (
                   <p className="text-xs text-gray-600 mt-0.5">
-                    Fechado em {projeto.fechamento.dataFechamento} —{" "}
-                    {projeto.fechamento.valorFinal ?? "valor não informado"}
+                    Fechado em {contrato.data_fechamento} — {contrato.valor_final}
                   </p>
                 )}
               </div>
@@ -263,7 +280,7 @@ export default function ProjetoEmpresaPage({
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <Users className="w-5 h-5" />
-                Fornecedores Interessados ({propostasProjeto.length})
+                Fornecedores Interessados ({candidaturasProjeto.length})
               </h2>
               {fornecedorSelecionado && (
                 <Button
@@ -290,16 +307,14 @@ export default function ProjetoEmpresaPage({
             )}
 
             <div className="space-y-4">
-              {propostasProjeto.map((proposta) => {
-                const isSelected =
-                  fornecedorSelecionado === proposta.fornecedor.id;
+              {candidaturasProjeto.map(({ candidatura, fornecedor }) => {
+                const isSelected = fornecedorSelecionado === fornecedor.id;
                 const isRejected =
-                  fornecedorSelecionado &&
-                  fornecedorSelecionado !== proposta.fornecedor.id;
+                  fornecedorSelecionado && fornecedorSelecionado !== fornecedor.id;
 
                 return (
                   <Card
-                    key={proposta.id}
+                    key={candidatura.id}
                     className={
                       isSelected
                         ? "border-emerald-300 bg-emerald-50/50"
@@ -311,49 +326,54 @@ export default function ProjetoEmpresaPage({
                     <CardContent className="p-5">
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0">
-                          {proposta.fornecedor.logo}
+                          {fornecedor.logo}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-start justify-between">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-semibold">
-                                  {proposta.fornecedor.nome}
-                                </h3>
+                                <h3 className="font-semibold">{fornecedor.nome}</h3>
                                 {isSelected && (
                                   <Badge className="bg-emerald-100 text-emerald-800">
                                     Selecionado
                                   </Badge>
                                 )}
+                                <Badge
+                                  variant="secondary"
+                                  className={statusColors[candidatura.status]}
+                                >
+                                  {statusLabels[candidatura.status]}
+                                </Badge>
                               </div>
                               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                   <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                                  {proposta.fornecedor.avaliacao}
+                                  {fornecedor.reputacao_agregada.total_reviews > 0
+                                    ? fornecedor.reputacao_agregada.media_geral.toFixed(1)
+                                    : "—"}
                                 </span>
                                 <span>
-                                  {proposta.fornecedor.projetosRealizados}{" "}
-                                  projetos
+                                  {fornecedor.projetosRealizados} projetos
                                 </span>
-                                <span>{proposta.fornecedor.regiao}</span>
+                                <span>{fornecedor.regiao}</span>
                               </div>
                             </div>
                             <div className="text-right">
-                              <p className={`text-lg font-bold ${proposta.valor ? "text-primary" : "text-muted-foreground font-normal text-sm"}`}>
-                                {proposta.valor ?? "Valor não informado"}
+                              <p className="text-lg font-bold text-primary">
+                                {candidatura.faixa_preco_preliminar ?? "Sem faixa"}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                Prazo: {proposta.prazoEntrega}
+                                {candidatura.capacidade_declarada}
                               </p>
                             </div>
                           </div>
 
                           <p className="text-sm text-muted-foreground mt-3">
-                            {proposta.mensagem}
+                            {candidatura.pitch}
                           </p>
 
                           <div className="flex flex-wrap gap-2 mt-3">
-                            {proposta.fornecedor.certificacoes.map((cert) => (
+                            {fornecedor.certificacoes.map((cert) => (
                               <Badge
                                 key={cert}
                                 variant="outline"
@@ -368,23 +388,23 @@ export default function ProjetoEmpresaPage({
                             {!fornecedorSelecionado && (
                               <Button
                                 size="sm"
-                                onClick={() => handleSelecionar(proposta)}
+                                onClick={() =>
+                                  handleSelecionar({ candidatura, fornecedor })
+                                }
                                 className="gap-1"
                               >
-                                <CheckCircle2 className="w-3.5 h-3.5" />{" "}
-                                Selecionar
+                                <CheckCircle2 className="w-3.5 h-3.5" /> Selecionar
                               </Button>
                             )}
                             <Button
                               size="sm"
                               variant="outline"
                               className="gap-1"
-                              onClick={() => toggleContato(proposta.id)}
+                              onClick={() => toggleContato(candidatura.id)}
                             >
-                              {contatoVisivel.has(proposta.id) ? (
+                              {contatoVisivel.has(candidatura.id) ? (
                                 <>
-                                  <ChevronUp className="w-3.5 h-3.5" /> Ocultar
-                                  contato
+                                  <ChevronUp className="w-3.5 h-3.5" /> Ocultar contato
                                 </>
                               ) : (
                                 <>
@@ -392,38 +412,31 @@ export default function ProjetoEmpresaPage({
                                 </>
                               )}
                             </Button>
-                            <Link
-                              href={`/empresa/fornecedor/${proposta.fornecedor.id}`}
-                            >
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="gap-1"
-                              >
-                                <ExternalLink className="w-3.5 h-3.5" /> Ver
-                                perfil
+                            <Link href={`/empresa/fornecedor/${fornecedor.id}`}>
+                              <Button size="sm" variant="outline" className="gap-1">
+                                <ExternalLink className="w-3.5 h-3.5" /> Ver perfil
                               </Button>
                             </Link>
                           </div>
 
-                          {contatoVisivel.has(proposta.id) && (
+                          {contatoVisivel.has(candidatura.id) && (
                             <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15 flex flex-col gap-2">
                               <p className="text-xs font-medium text-primary mb-1">
                                 Dados para contato
                               </p>
                               <a
-                                href={`mailto:${proposta.fornecedor.contato.email}`}
+                                href={`mailto:${fornecedor.contato.email}`}
                                 className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors"
                               >
                                 <Mail className="w-4 h-4 text-primary shrink-0" />
-                                {proposta.fornecedor.contato.email}
+                                {fornecedor.contato.email}
                               </a>
                               <a
-                                href={`tel:${proposta.fornecedor.contato.telefone}`}
+                                href={`tel:${fornecedor.contato.telefone}`}
                                 className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors"
                               >
                                 <Phone className="w-4 h-4 text-primary shrink-0" />
-                                {proposta.fornecedor.contato.telefone}
+                                {fornecedor.contato.telefone}
                               </a>
                             </div>
                           )}
@@ -445,13 +458,18 @@ export default function ProjetoEmpresaPage({
             <DialogTitle>Confirmar Seleção de Fornecedor</DialogTitle>
             <DialogDescription>
               Você está selecionando o fornecedor{" "}
-              <strong>{selectedProposta?.fornecedor.nome}</strong>
-              {selectedProposta?.valor ? (
-                <> com proposta de <strong>{selectedProposta.valor}</strong></>
+              <strong>{selectedCandidatura?.fornecedor.nome}</strong>
+              {selectedCandidatura?.candidatura.faixa_preco_preliminar ? (
+                <>
+                  {" "}com faixa preliminar de{" "}
+                  <strong>
+                    {selectedCandidatura.candidatura.faixa_preco_preliminar}
+                  </strong>
+                </>
               ) : (
-                <> (valor não informado)</>
-              )}{" "}
-              e prazo de <strong>{selectedProposta?.prazoEntrega}</strong>.
+                <> (faixa não informada)</>
+              )}
+              . Proposta formal será solicitada em sequência.
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-3 justify-end mt-4">
@@ -480,25 +498,26 @@ export default function ProjetoEmpresaPage({
             {/* Summary */}
             <div className="rounded-lg bg-muted/50 p-4 space-y-2">
               <p className="text-sm font-medium">{projeto.titulo}</p>
-              {propostaSelecionada && (
+              {candidaturaSelecionada && (
                 <>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
-                      {propostaSelecionada.fornecedor.logo}
+                      {candidaturaSelecionada.fornecedor.logo}
                     </div>
-                    {propostaSelecionada.fornecedor.nome}
+                    {candidaturaSelecionada.fornecedor.nome}
                   </div>
                   <div className="flex gap-6 text-sm">
                     <span className="text-muted-foreground">
-                      Valor:{" "}
-                      <span className={propostaSelecionada.valor ? "font-medium text-foreground" : ""}>
-                        {propostaSelecionada.valor ?? "não informado"}
+                      Faixa preliminar:{" "}
+                      <span className="font-medium text-foreground">
+                        {candidaturaSelecionada.candidatura.faixa_preco_preliminar ??
+                          "não informada"}
                       </span>
                     </span>
                     <span className="text-muted-foreground">
-                      Prazo:{" "}
+                      Capacidade:{" "}
                       <span className="font-medium text-foreground">
-                        {propostaSelecionada.prazoEntrega}
+                        {candidaturaSelecionada.candidatura.capacidade_declarada}
                       </span>
                     </span>
                   </div>
