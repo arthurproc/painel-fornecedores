@@ -35,10 +35,10 @@
 
 | ID | Unidade | Status | Notas |
 | --- | --- | --- | --- |
-| U2.1 | Topbar redesenhada | 📋 | — |
-| U2.2 | Switcher de contexto condicional | 📋 | — |
-| U2.3 | Sidebars por contexto (empresa/fornecedor/admin) | 📋 | — |
-| U2.4 | Configurações da organização + pessoais | 📋 | — |
+| U2.1 | Topbar redesenhada | ✅ | Topbar com tenant ativo, switcher/label condicional, sino com badge mockado e dropdown de avatar |
+| U2.2 | Switcher de contexto condicional | ✅ | `ContextSwitcher` criado com navegação para dashboards por contexto e persistência em memória do `ultimo_contexto_usado` |
+| U2.3 | Sidebars por contexto (empresa/fornecedor/admin) | ✅ | Sidebars separadas com submenus colapsáveis e rotas stub "Em construção" para todos os links novos |
+| U2.4 | Configurações da organização + pessoais | ✅ | Nova rota `/configuracoes` com abas contextuais + `/configuracoes/pessoal`; rotas legadas de membros redirecionam |
 
 ### Fase 3 — Dashboards
 

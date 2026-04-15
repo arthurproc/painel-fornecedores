@@ -1,4 +1,5 @@
 export * from "./_shared";
+export * from "./_session";
 export * from "./reputacao";
 export * from "./organizacoes";
 export * from "./membros";
