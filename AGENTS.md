@@ -10,6 +10,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 B2B platform that connects large companies in the Itabira/MG region (Vale, Usiminas, ArcelorMittal, and peers) to local suppliers of industrial services (maintenance, logistics, occupational safety, etc.).
 
+See `docs/project-context.md` for business model, monetization, strategic moat, and scope history.
+
+## Stakeholders
+
+- **Arthur** — developer building the product. Organizes the project, maps client meetings into structured planning, and constructs the mockup based on artifacts in `design/`.
+- **Celso** — client and product owner. Defines business rules, validates direction at strategic meetings (see `meetings/`), and will sell consulting through the platform once live. Decisions on pricing, review dimensions, advisor team, and product naming are his to make.
+
 ## Current state
 
 **UI mockup.** All data comes from `src/lib/mock-data.ts`. The project has no:
@@ -82,6 +89,7 @@ Internal pages (empresa/fornecedor) are wrapped by `<AppShell tipo="empresa|forn
 
 ### Language rules
 
+- **Conversation with the developer** during product, domain, and strategy discussions: **respond in Brazilian Portuguese**. The domain is Brazilian — Vale/Usiminas/ArcelorMittal, suppliers in Itabira-MG, vocabulary like `candidatura`, `proposta`, `triagem`, `fornecedor`. The rules below apply to file content, not to chat responses.
 - **Application UI strings are written in Brazilian Portuguese following full standard grammar** (proper diacritics, punctuation, agreement). Examples: `região`, `serviço`, `manutenção`, `três`, `conexão`, `negócios`.
 - **Agent-facing content (this file, skills under `.claude/`, code comments, commit messages) is written in English.**
 - **Source-code identifiers** (component, hook, type, and prop names) stay in English.
