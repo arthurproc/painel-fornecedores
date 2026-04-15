@@ -10,12 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FormularioProposta } from "@/components/handshake/formulario-proposta";
 import {
+  MEMBRO_LOGADO_ID,
   candidaturas,
   empresas,
   fornecedores,
   projetos,
   propostas,
 } from "@/lib/mock-data";
+import { useAutoResolucaoNotificacao } from "@/lib/notifications";
 
 export default function PropostaFormalPage({
   params,
@@ -35,6 +37,13 @@ export default function PropostaFormalPage({
     : undefined;
 
   const [enviada, setEnviada] = useState(false);
+
+  useAutoResolucaoNotificacao({
+    memberId: MEMBRO_LOGADO_ID,
+    types: ["F3"],
+    contextEntity: "candidatura",
+    contextId: id,
+  });
 
   if (!candidatura || !projeto) {
     return (

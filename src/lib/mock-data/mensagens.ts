@@ -121,6 +121,38 @@ export const mensagens: Mensagem[] = [
     conteudo: "Equipe mobilizada. Relatório de progresso sexta-feira.",
     enviada_em: "2026-04-08T09:45:00",
   },
+  {
+    id: "msg-5d-1",
+    conversa_id: "conv-5d",
+    autor_membro_id: "mem-arcelormittal-owner",
+    tipo: "livre",
+    conteudo: "Metalúrgica XYZ, a shortlist foi confirmada. Precisamos da proposta formal com cronograma até quinta.",
+    enviada_em: "2026-04-15T09:10:00",
+  },
+  {
+    id: "msg-29-a-1",
+    conversa_id: "conv-29-a",
+    autor_membro_id: "mem-techminas-owner",
+    tipo: "livre",
+    conteudo: "Isabela, anexamos a revisão do escopo com a parada concentrada em 2 dias. Posso detalhar o cronograma ainda hoje.",
+    enviada_em: "2026-04-15T08:40:00",
+  },
+  {
+    id: "msg-29-a-2",
+    conversa_id: "conv-29-a",
+    autor_membro_id: "mem-techminas-owner",
+    tipo: "livre",
+    conteudo: "Também conseguimos antecipar a fabricação dos dutos críticos se a janela de acesso for confirmada até amanhã.",
+    enviada_em: "2026-04-15T09:35:00",
+  },
+  {
+    id: "msg-29-a-3",
+    conversa_id: "conv-29-a",
+    autor_membro_id: "mem-techminas-owner",
+    tipo: "livre",
+    conteudo: "Acabei de compartilhar o plano de comissionamento. Se fizer sentido, marcamos uma visita técnica curta ainda hoje.",
+    enviada_em: "2026-04-15T10:10:00",
+  },
 ];
 
 export function getMensagensByConversa(conversa_id: string): Mensagem[] {

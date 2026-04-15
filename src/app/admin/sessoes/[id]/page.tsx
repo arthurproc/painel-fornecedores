@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EditorNotas } from "@/components/consultoria/editor-notas";
 import { MarkdownSimples } from "@/components/consultoria/markdown-simples";
 import {
+  ADVISOR_LOGADO_ID,
   adicionarEntregavel,
   advisors,
   candidaturas,
@@ -34,6 +35,7 @@ import {
   type EstudoDeCaso,
   type SessaoConsultoria,
 } from "@/lib/mock-data";
+import { useAutoResolucaoNotificacao } from "@/lib/notifications";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -44,23 +46,31 @@ type FaseEntregavel = "candidatura" | "proposta";
 
 export default function WorkspaceSessaoPage({ params }: Props) {
   const { id } = use(params);
-  const sessaoOpt = getSessaoById(id);
-  if (!sessaoOpt) return notFound();
-  const sessao = sessaoOpt;
+  useAutoResolucaoNotificacao({
+    memberId: ADVISOR_LOGADO_ID,
+    types: ["C1"],
+    contextEntity: "sessao_consultoria",
+    contextId: id,
+  });
+
+  const sessao = getSessaoById(id);
 
   const [, rerender] = useState(0);
   const [tipo, setTipo] = useState<TipoEntregavel>("notas");
   const [fase, setFase] = useState<FaseEntregavel>("candidatura");
   const [sucessoEntrega, setSucessoEntrega] = useState(false);
 
-  const catalogo = getCatalogoById(sessao.catalogo_id);
-  const advisor = advisors.find((a) => a.id === sessao.advisor_id);
-  const fornecedor = fornecedores.find((f) => f.id === sessao.fornecedor_id);
-  const candidatura = candidaturas.find((c) => c.id === sessao.candidatura_id);
+  if (!sessao) return notFound();
+  const sessaoAtual = sessao;
+
+  const catalogo = getCatalogoById(sessaoAtual.catalogo_id);
+  const advisor = advisors.find((a) => a.id === sessaoAtual.advisor_id);
+  const fornecedor = fornecedores.find((f) => f.id === sessaoAtual.fornecedor_id);
+  const candidatura = candidaturas.find((c) => c.id === sessaoAtual.candidatura_id);
   const projeto = candidatura ? projetos.find((p) => p.id === candidatura.projeto_id) : undefined;
   const empresa = projeto ? empresas.find((e) => e.id === projeto.empresa_id) : undefined;
-  const proposta = sessao.proposta_id
-    ? propostas.find((p) => p.id === sessao.proposta_id)
+  const proposta = sessaoAtual.proposta_id
+    ? propostas.find((p) => p.id === sessaoAtual.proposta_id)
     : undefined;
 
   const estudosSugeridos: EstudoDeCaso[] = estudosDeCaso.filter((e) => {
@@ -75,8 +85,8 @@ export default function WorkspaceSessaoPage({ params }: Props) {
   }
 
   function handlePublicar(conteudo: string) {
-    iniciarSessao(sessao.id);
-    adicionarEntregavel(sessao.id, {
+    iniciarSessao(sessaoAtual.id);
+    adicionarEntregavel(sessaoAtual.id, {
       tipo,
       fase,
       conteudo,
@@ -86,8 +96,8 @@ export default function WorkspaceSessaoPage({ params }: Props) {
   }
 
   function handleAnexarEstudo(estudo: EstudoDeCaso) {
-    iniciarSessao(sessao.id);
-    adicionarEntregavel(sessao.id, {
+    iniciarSessao(sessaoAtual.id);
+    adicionarEntregavel(sessaoAtual.id, {
       tipo: "estudo_caso",
       fase,
       conteudo: `Estudo de caso anexado: **${estudo.titulo}** — ${estudo.resumo} [${estudo.id}](/consultoria/estudos/${estudo.id})`,
@@ -97,13 +107,13 @@ export default function WorkspaceSessaoPage({ params }: Props) {
   }
 
   function handleMarcarEntregue() {
-    if (sessao.entregaveis.length === 0) return;
-    marcarSessaoEntregue(sessao.id);
+    if (sessaoAtual.entregaveis.length === 0) return;
+    marcarSessaoEntregue(sessaoAtual.id);
     setSucessoEntrega(true);
     forcarRerender();
   }
 
-  const podeEntregar = sessao.status !== "entregue" && sessao.entregaveis.length > 0;
+  const podeEntregar = sessaoAtual.status !== "entregue" && sessaoAtual.entregaveis.length > 0;
 
   return (
     <AppShell tipo="admin" titulo={`Workspace — ${catalogo?.nome ?? "Sessão"}`}>

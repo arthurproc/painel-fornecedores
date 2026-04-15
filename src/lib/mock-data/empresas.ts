@@ -77,8 +77,8 @@ export const empresas: Empresa[] = [
     regiao: "João Monlevade - MG",
     desde: "1998",
     reputacao_agregada: computeReputacao("org-metalurgica-xyz", "empresa"),
-    contratos_publicados: 3,
-    contratos_fechados: 0,
+    contratos_publicados: 6,
+    contratos_fechados: 2,
   },
 ];
 

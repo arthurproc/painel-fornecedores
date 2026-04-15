@@ -15,6 +15,7 @@ import {
   projetos,
   reviews,
 } from "@/lib/mock-data";
+import { useAutoResolucaoNotificacao } from "@/lib/notifications";
 
 export default function NovoReviewPage({
   params,
@@ -29,6 +30,13 @@ export default function NovoReviewPage({
   const membroLogado = getMembroById(MEMBRO_LOGADO_ID);
 
   const [submetida, setSubmetida] = useState(false);
+
+  useAutoResolucaoNotificacao({
+    memberId: MEMBRO_LOGADO_ID,
+    types: ["E8", "F7"],
+    contextEntity: "contrato",
+    contextId: contratoId,
+  });
 
   if (!contrato) {
     return (

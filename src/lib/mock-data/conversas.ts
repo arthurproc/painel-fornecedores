@@ -62,6 +62,26 @@ export const conversas: Conversa[] = [
     ultima_mensagem_em: "2026-04-08T09:45:00",
     criada_em: "2026-01-05T11:00:00",
   },
+  {
+    id: "conv-5d",
+    projeto_id: "5",
+    candidatura_id: "cand-5d",
+    empresa_membros_ids: ["mem-arcelormittal-owner"],
+    fornecedor_membros_ids: ["mem-metalurgica-xyz-admin", "mem-metalurgica-xyz-operador"],
+    status: "ativa",
+    ultima_mensagem_em: "2026-04-15T09:10:00",
+    criada_em: "2026-04-09T14:00:00",
+  },
+  {
+    id: "conv-29-a",
+    projeto_id: "29",
+    candidatura_id: "cand-29-a",
+    empresa_membros_ids: ["mem-metalurgica-xyz-admin", "mem-metalurgica-xyz-owner"],
+    fornecedor_membros_ids: ["mem-techminas-owner"],
+    status: "ativa",
+    ultima_mensagem_em: "2026-04-15T08:40:00",
+    criada_em: "2026-04-10T09:20:00",
+  },
 ];
 
 export function getConversaById(id: string): Conversa | undefined {

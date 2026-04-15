@@ -4,7 +4,7 @@
 >
 > **Regra de ouro:** quando o código atual conflita com o design, o design ganha. O código em `src/` é ponto de partida visual e deve ser refatorado/deletado agressivamente ao longo das unidades.
 
-**Última atualização:** 2026-04-15 (Fase 6 concluída; próxima fase = Notificações)
+**Última atualização:** 2026-04-15 (Fase 7 concluída)
 **Total de unidades:** 50, distribuídas em 8 fases
 **Bootstrap de sessão:** `docs/session-bootstrap.md`
 
@@ -102,9 +102,9 @@
 
 | ID | Unidade | Status | Notas |
 | --- | --- | --- | --- |
-| U7.1 | Drawer de notificações | 📋 | — |
-| U7.2 | Página dedicada + filtros + bulk | 📋 | — |
-| U7.3 | Preferências + auto-resolução | 📋 | — |
+| U7.1 | Drawer de notificações | ✅ | `DrawerNotificacoes` no topbar com badge real, agrupamento por chave e bulk "Marcar todas como lidas" |
+| U7.2 | Página dedicada + filtros + bulk | ✅ | `/notificacoes` criada com abas Ativas/Arquivadas, busca, filtros por severidade/contexto/período e ações de leitura/arquivamento |
+| U7.3 | Preferências + auto-resolução | ✅ | Sub-aba "Notificações" em `/configuracoes/pessoal`; auto-resolução aplicada em `/reviews/novo/[contratoId]`, `/fornecedor/proposta/[id]` e `/admin/sessoes/[id]` |
 
 ---
 

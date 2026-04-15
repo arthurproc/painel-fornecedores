@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, ChevronDown, LogOut, Settings, UserCircle2 } from "lucide-react";
+import { ChevronDown, LogOut, Settings, UserCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,11 +14,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ContextSwitcher } from "@/components/layout/context-switcher";
+import { DrawerNotificacoes } from "@/components/layout/drawer-notificacoes";
 import { type AppShellTipo } from "@/components/layout/app-shell";
 import {
   ADVISOR_LOGADO_ID,
   advisors,
-  notificacoes,
 } from "@/lib/mock-data";
 import { isMembroAdvisor, isOwnerAdvisor, useSessaoMock } from "@/lib/session";
 
@@ -48,15 +48,7 @@ export function Topbar({ tipo }: TopbarProps) {
         ? "Fornecedor"
         : null;
 
-  const notificacoesNaoLidas = notificacoes.filter((notificacao) => {
-    if (notificacao.lida) {
-      return false;
-    }
-    if (tipo === "admin") {
-      return notificacao.destinatario_membro_id === ADVISOR_LOGADO_ID;
-    }
-    return notificacao.destinatario_membro_id === membroLogado.id;
-  }).length;
+  const notificationMemberId = tipo === "admin" ? ADVISOR_LOGADO_ID : membroLogado.id;
 
   const homeHref =
     tipo === "admin"
@@ -105,14 +97,7 @@ export function Topbar({ tipo }: TopbarProps) {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5" />
-          {notificacoesNaoLidas > 0 ? (
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] rounded-full">
-              {Math.min(notificacoesNaoLidas, 9)}
-            </Badge>
-          ) : null}
-        </Button>
+        <DrawerNotificacoes memberId={notificationMemberId} />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
