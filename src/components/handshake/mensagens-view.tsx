@@ -31,11 +31,17 @@ import {
 
 interface MensagensViewProps {
   lado: "empresa" | "fornecedor";
-  membrosPertencemAoLado: (membroId: string) => boolean;
   filtrarConversa: (conversa: Conversa) => boolean;
 }
 
-export function MensagensView({ lado, membrosPertencemAoLado, filtrarConversa }: MensagensViewProps) {
+let localMessageCounter = 0;
+
+function createLocalMessageId(prefix: string) {
+  localMessageCounter += 1;
+  return `${prefix}-${localMessageCounter}`;
+}
+
+export function MensagensView({ lado, filtrarConversa }: MensagensViewProps) {
   const conversasDisponiveis = useMemo(
     () =>
       conversas
@@ -65,7 +71,7 @@ export function MensagensView({ lado, membrosPertencemAoLado, filtrarConversa }:
   function enviarLivre() {
     if (!conversaAtiva || !rascunho.trim()) return;
     const novaMsg: Mensagem = {
-      id: `local-${Date.now()}`,
+      id: createLocalMessageId("local"),
       conversa_id: conversaAtiva.id,
       autor_membro_id: obterAutorId(lado, conversaAtiva),
       tipo: "livre",
@@ -79,7 +85,7 @@ export function MensagensView({ lado, membrosPertencemAoLado, filtrarConversa }:
   function usarTemplate(template: TemplatePergunta) {
     if (!conversaAtiva) return;
     const novaMsg: Mensagem = {
-      id: `local-tpl-${Date.now()}`,
+      id: createLocalMessageId("local-tpl"),
       conversa_id: conversaAtiva.id,
       autor_membro_id: obterAutorId(lado, conversaAtiva),
       tipo: "template_pergunta",
@@ -94,7 +100,7 @@ export function MensagensView({ lado, membrosPertencemAoLado, filtrarConversa }:
   function responderTemplate(mensagemPergunta: Mensagem, resposta: string) {
     if (!conversaAtiva || !resposta.trim()) return;
     const novaMsg: Mensagem = {
-      id: `local-rep-${Date.now()}`,
+      id: createLocalMessageId("local-rep"),
       conversa_id: conversaAtiva.id,
       autor_membro_id: obterAutorId(lado, conversaAtiva),
       tipo: "template_resposta",
@@ -112,7 +118,7 @@ export function MensagensView({ lado, membrosPertencemAoLado, filtrarConversa }:
         <CardContent className="p-10 text-center">
           <p className="font-medium">Nenhuma conversa ainda</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Conversas são abertas automaticamente quando uma candidatura entra na shortlist.
+            Conversas são abertas automaticamente quando uma candidatura é selecionada para proposta.
           </p>
         </CardContent>
       </Card>

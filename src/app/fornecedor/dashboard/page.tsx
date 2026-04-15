@@ -212,7 +212,7 @@ export default function FornecedorDashboard() {
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  Propostas formais aparecem quando você é shortlisted.
+                  Propostas formais aparecem quando sua candidatura é selecionada para proposta.
                 </p>
               )}
               <Button asChild size="sm" variant="outline">
@@ -288,7 +288,7 @@ export default function FornecedorDashboard() {
                     {empresa?.nome ?? "Empresa"} — {projeto.cidade}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Fit score: <span className="font-medium text-foreground">{fitScore}%</span> — {projeto.orcamento}
+                    Aderência: <span className="font-medium text-foreground">{fitScore}%</span> — {projeto.orcamento}
                   </p>
                 </div>
               ))
@@ -359,7 +359,7 @@ export default function FornecedorDashboard() {
                 </>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  Mensagens com empresas aparecem após shortlist.
+                  Mensagens com empresas aparecem após a seleção para proposta.
                 </p>
               )}
               <Button asChild size="sm" variant="outline">

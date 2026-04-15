@@ -115,8 +115,8 @@ export default function ProjetoFornecedorPage({
             <div className="flex-1">
               <h3 className="text-base font-semibold">Pronto para se candidatar?</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                A candidatura é leve e serve como manifestação de interesse. Se for
-                shortlisted, você será convidado a enviar a proposta formal.
+                A candidatura é leve e serve como manifestação de interesse. Se ela for
+                selecionada para proposta, você será convidado a enviar a proposta formal.
               </p>
               {candidaturaExistente && (
                 <Badge variant="secondary" className="mt-2">
@@ -156,7 +156,7 @@ export default function ProjetoFornecedorPage({
               </p>
               <p className="mt-1 text-xs text-amber-800">
                 Revisão de candidatura da Consultoria, com foco em aumentar sua chance de
-                shortlist.
+                seleção para proposta.
               </p>
             </div>
             <CTAConsultoria variante={1} size="sm" />

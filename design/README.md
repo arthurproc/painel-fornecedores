@@ -13,9 +13,9 @@ Artefatos de design da ConectaFornece. Cada arquivo descreve uma dimensão do pr
 
 | Arquivo | Cobre | Estado |
 | --- | --- | --- |
-| `handshake-flow.md` | Fluxo 3-step entre empresa e fornecedor, pontos de inserção da Consultoria, mecânica de reviews two-way | ✅ |
+| `handshake-flow.md` | Fluxo 3-step entre empresa e fornecedor, pontos de inserção da Consultoria, mecânica de avaliações two-way | ✅ |
 | `data-model.md` | Todas as entidades, relações, máquinas de estado, regras de domínio, migrações | ✅ |
-| `info-architecture.md` | Sidebars por contexto, dashboards, topbar, onboarding, configurações, switcher de tenant dual | ✅ |
+| `info-architecture.md` | Sidebars por contexto, dashboards, topbar, onboarding, configurações, switcher de organização dual | ✅ |
 | `public-profiles.md` | Perfis públicos (empresa visto por fornecedor e vice-versa), reputação agregada, linkage cruzada | ✅ |
 | `consulting-layer.md` | Catálogo Consultoria, booking, sessões, admin do Celso, estudos de caso, outreach proativo | ✅ |
 | `notifications.md` | Sistema de notificações, triggers, conteúdo, canais, destino por contexto | ✅ |
@@ -26,12 +26,12 @@ Cada artefato termina com a seção **"Checklist para mockup"** — uma lista ex
 
 Ordem recomendada de construção:
 
-1. **Data model no `mock-data.ts`** — entidades novas + campos + pelo menos 1 tenant dual-role de teste.
+1. **Data model no `mock-data.ts`** — entidades novas + campos + pelo menos 1 organização dual-role de teste.
 2. **Sidebar e topbar por contexto** — esqueleto de navegação + switcher condicional.
 3. **Dashboards com dados mockados** — blocos de atenção pendente + status em andamento.
-4. **Telas do handshake** — candidatura → triagem → mensagens → proposta → reviews. Construídas direto a partir de `handshake-flow.md` + `data-model.md` + `info-architecture.md` (não há spec dedicada de tela; validações vão inline no data model, microcopy decidida no build).
+4. **Telas do handshake** — candidatura → triagem → mensagens → proposta → avaliações. Construídas direto a partir de `handshake-flow.md` + `data-model.md` + `info-architecture.md` (não há spec dedicada de tela; validações vão inline no data model, microcopy decidida no build).
 5. **Perfis públicos** — empresa e fornecedor.
-6. **Camada Consultoria** — catálogo, fluxo de compra, sessões, workspace de advisor, admin do owner.
+6. **Camada Consultoria** — catálogo, fluxo de compra, sessões, área de trabalho do consultor, admin do gestor.
 7. **Notificações + estados vazios finais**.
 
 ## Decisões em contexto

@@ -43,21 +43,22 @@ interface Props {
 export default function DetalheSessaoFornecedorPage({ params }: Props) {
   useSessaoMock();
   const { id } = use(params);
-  const sessaoOpt = getSessaoById(id);
-  if (!sessaoOpt) return notFound();
-  const sessao = sessaoOpt;
+  const sessao = getSessaoById(id);
 
-  const catalogo = getCatalogoById(sessao.catalogo_id);
-  const advisor = advisors.find((a) => a.id === sessao.advisor_id);
-  const candidatura = candidaturas.find((c) => c.id === sessao.candidatura_id);
+  const [comentario, setComentario] = useState("");
+  const [util, setUtil] = useState(Boolean(sessao?.marcado_util));
+  const [avaliarAberto, setAvaliarAberto] = useState(false);
+  const [, rerender] = useState(0);
+
+  if (!sessao) return notFound();
+  const sessaoAtual = sessao;
+
+  const catalogo = getCatalogoById(sessaoAtual.catalogo_id);
+  const advisor = advisors.find((a) => a.id === sessaoAtual.advisor_id);
+  const candidatura = candidaturas.find((c) => c.id === sessaoAtual.candidatura_id);
   const projeto = candidatura ? projetos.find((p) => p.id === candidatura.projeto_id) : undefined;
   const empresa = projeto ? empresas.find((e) => e.id === projeto.empresa_id) : undefined;
   const membroLogado = getMembroById(MEMBRO_LOGADO_ID);
-
-  const [comentario, setComentario] = useState("");
-  const [util, setUtil] = useState(Boolean(sessao.marcado_util));
-  const [avaliarAberto, setAvaliarAberto] = useState(false);
-  const [, rerender] = useState(0);
 
   function forcarRerender() {
     rerender((x) => x + 1);
@@ -65,25 +66,25 @@ export default function DetalheSessaoFornecedorPage({ params }: Props) {
 
   function handleEnviarComentario() {
     if (!comentario.trim() || !membroLogado) return;
-    adicionarComentarioFornecedor(sessao.id, membroLogado.id, comentario.trim());
+    adicionarComentarioFornecedor(sessaoAtual.id, membroLogado.id, comentario.trim());
     setComentario("");
     forcarRerender();
   }
 
   function handleToggleUtil() {
     const novo = !util;
-    marcarSessaoUtil(sessao.id, novo);
+    marcarSessaoUtil(sessaoAtual.id, novo);
     setUtil(novo);
   }
 
   function handleCancelar() {
     if (!confirm("Cancelar esta sessão? Ação sem custo antes da entrega.")) return;
-    cancelarSessao(sessao.id);
+    cancelarSessao(sessaoAtual.id);
     forcarRerender();
   }
 
-  const podeCancelar = sessao.status !== "entregue" && sessao.status !== "cancelada";
-  const jaAvaliou = Boolean(sessao.avaliacao_atendimento);
+  const podeCancelar = sessaoAtual.status !== "entregue" && sessaoAtual.status !== "cancelada";
+  const jaAvaliou = Boolean(sessaoAtual.avaliacao_atendimento);
 
   return (
     <AppShell tipo="fornecedor" titulo={catalogo?.nome ?? "Sessão"}>
@@ -119,49 +120,49 @@ export default function DetalheSessaoFornecedorPage({ params }: Props) {
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-1 text-sm">
-              <p className="font-medium">Advisor</p>
+              <p className="font-medium">Consultor</p>
               <p className="text-muted-foreground">
                 {advisor?.nome ?? "Aguardando atribuição"}
               </p>
             </div>
             <div className="space-y-1 text-sm">
               <p className="font-medium">Preço</p>
-              <p className="text-muted-foreground">{sessao.preco_snapshot}</p>
+                <p className="text-muted-foreground">{sessaoAtual.preco_snapshot}</p>
             </div>
             <div className="space-y-1 text-sm">
               <p className="font-medium">Solicitada</p>
-              <p className="text-muted-foreground">{sessao.solicitada_em}</p>
+                <p className="text-muted-foreground">{sessaoAtual.solicitada_em}</p>
             </div>
             <div className="space-y-1 text-sm">
               <p className="font-medium">Entregue</p>
-              <p className="text-muted-foreground">{sessao.entregue_em ?? "—"}</p>
+                <p className="text-muted-foreground">{sessaoAtual.entregue_em ?? "—"}</p>
             </div>
           </CardContent>
         </Card>
 
-        {sessao.contexto_extra ? (
+        {sessaoAtual.contexto_extra ? (
           <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Contexto enviado</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">{sessao.contexto_extra}</p>
+                <p className="text-sm text-muted-foreground">{sessaoAtual.contexto_extra}</p>
             </CardContent>
           </Card>
         ) : null}
 
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">Entregáveis</h2>
-          {sessao.entregaveis.length === 0 ? (
+          {sessaoAtual.entregaveis.length === 0 ? (
             <Card className="rounded-xl border-dashed">
               <CardContent className="p-6 text-sm text-muted-foreground">
-                {sessao.status === "cancelada"
+                {sessaoAtual.status === "cancelada"
                   ? "Sessão cancelada — sem entregáveis."
-                  : "Entregáveis aparecem aqui assim que o advisor publicar."}
+                  : "Entregáveis aparecem aqui assim que o consultor publicar."}
               </CardContent>
             </Card>
           ) : (
-            sessao.entregaveis.map((entregavel, idx) => (
+            sessaoAtual.entregaveis.map((entregavel, idx) => (
               <Card key={idx} className="rounded-xl">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -183,7 +184,7 @@ export default function DetalheSessaoFornecedorPage({ params }: Props) {
           )}
         </section>
 
-        {sessao.status === "entregue" ? (
+        {sessaoAtual.status === "entregue" ? (
           <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Feedback</CardTitle>
@@ -205,7 +206,7 @@ export default function DetalheSessaoFornecedorPage({ params }: Props) {
                   onClick={() => setAvaliarAberto(true)}
                 >
                   {jaAvaliou
-                    ? `Avaliação: ${sessao.avaliacao_atendimento?.nota}/5`
+                    ? `Avaliação: ${sessaoAtual.avaliacao_atendimento?.nota}/5`
                     : "Avaliar atendimento"}
                 </Button>
               </div>
@@ -215,12 +216,12 @@ export default function DetalheSessaoFornecedorPage({ params }: Props) {
 
         <Card className="rounded-xl">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Comentários para o advisor</CardTitle>
+            <CardTitle className="text-base">Comentários para o consultor</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {sessao.comentarios_fornecedor && sessao.comentarios_fornecedor.length > 0 ? (
+            {sessaoAtual.comentarios_fornecedor && sessaoAtual.comentarios_fornecedor.length > 0 ? (
               <div className="space-y-2">
-                {sessao.comentarios_fornecedor.map((c, idx) => (
+                {sessaoAtual.comentarios_fornecedor.map((c, idx) => (
                   <div key={idx} className="rounded-lg border border-border p-3 text-sm">
                     <p className="text-muted-foreground">{c.conteudo}</p>
                     <p className="mt-1 text-xs text-muted-foreground/80">
@@ -233,13 +234,13 @@ export default function DetalheSessaoFornecedorPage({ params }: Props) {
               <p className="text-sm text-muted-foreground">Nenhum comentário enviado.</p>
             )}
 
-            {sessao.status !== "cancelada" ? (
+            {sessaoAtual.status !== "cancelada" ? (
               <div className="space-y-2">
                 <Textarea
                   rows={3}
                   value={comentario}
                   onChange={(e) => setComentario(e.target.value)}
-                  placeholder="Escreva uma dúvida ou comentário para o advisor"
+                  placeholder="Escreva uma dúvida ou comentário para o consultor"
                 />
                 <div className="flex justify-end">
                   <Button

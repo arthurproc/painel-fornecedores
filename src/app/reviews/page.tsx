@@ -78,7 +78,7 @@ export default function ReviewsHubPage() {
     <div className="space-y-6">
       <Card className="rounded-xl">
         <CardContent className="p-5">
-          <h1 className="text-lg font-semibold">Reviews</h1>
+          <h1 className="text-lg font-semibold">Avaliações</h1>
           <p className="text-sm text-muted-foreground">
             Pendentes, dadas e recebidas da sua organização
           </p>

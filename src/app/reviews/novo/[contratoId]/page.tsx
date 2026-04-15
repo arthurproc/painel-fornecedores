@@ -68,12 +68,12 @@ export default function NovoReviewPage({
         href="/reviews"
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="h-4 w-4" /> Voltar às reviews
+        <ArrowLeft className="h-4 w-4" /> Voltar às avaliações
       </Link>
 
       <Card className="rounded-xl">
         <CardContent className="p-5">
-          <p className="text-xs text-muted-foreground">Review do contrato</p>
+          <p className="text-xs text-muted-foreground">Avaliação do contrato</p>
           <h1 className="text-xl font-semibold leading-tight">{projeto?.titulo ?? "Projeto"}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Avaliando: {avaliadoLado === "empresa" ? empresa?.nome : fornecedor?.nome} · Contrato{" "}
@@ -81,7 +81,7 @@ export default function NovoReviewPage({
           </p>
           {parJaSubmeteu && (
             <p className="mt-2 text-xs text-emerald-800">
-              O parceiro já submeteu a review dele — assim que você enviar, ambas são liberadas
+              O parceiro já submeteu a avaliação dele — assim que você enviar, ambas são liberadas
               juntas.
             </p>
           )}
@@ -93,9 +93,9 @@ export default function NovoReviewPage({
           <CardContent className="flex items-start gap-3 p-5">
             <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" />
             <div>
-              <p className="font-medium text-emerald-900">Review submetida!</p>
+              <p className="font-medium text-emerald-900">Avaliação enviada!</p>
               <p className="mt-1 text-sm text-emerald-800">
-                Status “aguardando contraparte” — ela aparece na aba Dadas. Reviews são reveladas
+                Status “aguardando contraparte” — ela aparece na aba Dadas. As avaliações são reveladas
                 quando ambos submetem (ou em 14 dias, o que vier primeiro).
               </p>
               <Button asChild className="mt-3" size="sm" variant="outline">

@@ -69,7 +69,7 @@ export function ReputacaoAgregadaBloco({
           </span>
           <span className="text-xs text-muted-foreground">
             ({reputacao.total_reviews}{" "}
-            {reputacao.total_reviews === 1 ? "review" : "reviews"} · {periodoLabel})
+            {reputacao.total_reviews === 1 ? "avaliação" : "avaliações"} · {periodoLabel})
           </span>
         </div>
 
@@ -94,7 +94,7 @@ export function ReputacaoAgregadaBloco({
 
         {verTodasHref ? (
           <Button asChild variant="outline" size="sm" className="w-full">
-            <Link href={verTodasHref}>Ver todas as reviews</Link>
+            <Link href={verTodasHref}>Ver todas as avaliações</Link>
           </Button>
         ) : null}
       </CardContent>

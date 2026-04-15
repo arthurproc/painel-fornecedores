@@ -180,7 +180,7 @@ export default async function PerfilPublicoFornecedorPage({
         </div>
       )}
 
-      <SectionTitle>Reviews recebidas</SectionTitle>
+      <SectionTitle>Avaliações recebidas</SectionTitle>
       {reviewsRecebidas.length === 0 ? (
         <EstadoVazio mensagem="Esta organização ainda não recebeu avaliações." />
       ) : (
@@ -191,7 +191,7 @@ export default async function PerfilPublicoFornecedorPage({
           {fornecedor.reputacao_agregada.total_reviews > reviewsRecebidas.length ? (
             <Button asChild variant="outline" size="sm">
               <Link href={`/perfil/fornecedor/${fornecedor.id}/reviews`}>
-                Ver todas as reviews
+                Ver todas as avaliações
               </Link>
             </Button>
           ) : null}

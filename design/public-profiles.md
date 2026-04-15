@@ -4,15 +4,15 @@
 
 ## Propósito
 
-O perfil público é o **ponto de decisão de confiança** antes de qualquer ação. Quando um fornecedor decide candidatar, ele olha o perfil da empresa. Quando uma empresa decide shortlistar, ela olha o perfil do fornecedor. Quando uma candidatura é descartada, o fornecedor pode olhar o perfil do advisor que vai atendê-lo. Em todos os casos, a pergunta implícita é a mesma: *"posso confiar nisso?"*
+O perfil público é o **ponto de decisão de confiança** antes de qualquer ação. Quando um fornecedor decide candidatar, ele olha o perfil da empresa. Quando uma empresa decide selecionar para proposta, ela olha o perfil do fornecedor. Quando uma candidatura é descartada, o fornecedor pode olhar o perfil do consultor que vai atendê-lo. Em todos os casos, a pergunta implícita é a mesma: *"posso confiar nisso?"*
 
 O objetivo deste artefato é desenhar os dois perfis (Empresa e Fornecedor) com a densidade de informação certa: suficiente pra tomar decisão, sem vazar o que deve ficar privado.
 
 ## Princípios
 
-1. **Confiança via evidência, não via afirmação.** Mais reviews reais e contratos fechados valem mais que claims de marketing. Reputação agregada e histórico de contratos são os blocos mais destacados.
-2. **Mesmo visual, rubricas distintas.** Empresa e fornecedor compartilham layout e componentes (header, reputação, histórico, reviews), mas cada um tem rubrica própria de 5 dimensões. Consistência ajuda leitura cruzada, diferença respeita o papel.
-3. **Visibilidade herdada do contrato.** Um contrato com `visibilidade = privado` não aparece no perfil, e suas reviews também não. A visibilidade do contrato é a unidade de privacidade.
+1. **Confiança via evidência, não via afirmação.** Mais avaliações reais e contratos fechados valem mais que claims de marketing. Reputação agregada e histórico de contratos são os blocos mais destacados.
+2. **Mesmo visual, rubricas distintas.** Empresa e fornecedor compartilham layout e componentes (header, reputação, histórico, avaliações), mas cada um tem rubrica própria de 5 dimensões. Consistência ajuda leitura cruzada, diferença respeita o papel.
+3. **Visibilidade herdada do contrato.** Um contrato com `visibilidade = privado` não aparece no perfil, e suas avaliações também não. A visibilidade do contrato é a unidade de privacidade.
 4. **Linkage cruzada explícita.** Quando uma `Organizacao` tem ambos os perfis ativos e `linkage_publica = true`, cada perfil mostra um card destacado apontando para o outro. Transparência é ativo.
 5. **Identidade legal é lateral.** CNPJ e razão social existem e aparecem, mas não são protagonistas — o "nome de display" manda no header.
 
@@ -40,7 +40,7 @@ Visão do perfil ao ser clicado por um visitante (fornecedor logado, ou visitant
 │                                                                      │
 │ ┌─ Sobre ─────────────────────────┐  ┌─ Reputação ───────────────┐  │
 │ │ Uma das maiores mineradoras do  │  │ ★★★★☆ 4.7                 │  │
-│ │ mundo, com operações no         │  │ 32 reviews (últimos 12m)  │  │
+│ │ mundo, com operações no         │  │ 32 avaliações (últimos 12m) │  │
 │ │ complexo de Itabira...          │  │                           │  │
 │ │                                 │  │ Pagamento           4.8  │  │
 │ │                                 │  │ Clareza de escopo   4.5  │  │
@@ -48,7 +48,7 @@ Visão do perfil ao ser clicado por um visitante (fornecedor logado, ou visitant
 │ │                                 │  │ Comunicação         4.9  │  │
 │ │                                 │  │ Relacionamento      4.7  │  │
 │ │                                 │  │                           │  │
-│ │                                 │  │ [Ver todas as reviews]   │  │
+│ │                                 │  │ [Ver todas as avaliações]│  │
 │ └─────────────────────────────────┘  └───────────────────────────┘  │
 │                                                                      │
 │ ┌─ Estatísticas operacionais ────────────────────────────────────┐  │
@@ -87,7 +87,7 @@ Visão do perfil ao ser clicado por um visitante (fornecedor logado, ou visitant
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-> **Decisão 2026-04-15 (Fase 5):** removida a seção "Equipe" do perfil público, bem como qualquer contagem agregada de membros no header. O produto é B2B industrial — a confiança é construída com reviews, contratos encerrados e certificações; expor nome/cargo/foto de `owner` e `admin` publicamente adicionaria risco (LGPD, phishing, engenharia social) sem payoff de conversão. A identidade individual continua exposta pontualmente no `ReviewCard` (autor de uma review é parte integral da credibilidade dela, decisão #5). `MembroPopover` segue existindo como componente reutilizável para essa situação.
+> **Decisão 2026-04-15 (Fase 5):** removida a seção "Equipe" do perfil público, bem como qualquer contagem agregada de membros no header. O produto é B2B industrial — a confiança é construída com avaliações, contratos encerrados e certificações; expor nome/cargo/foto de `gestor` e `admin` publicamente adicionaria risco (LGPD, phishing, engenharia social) sem payoff de conversão. A identidade individual continua exposta pontualmente no `ReviewCard` (autor de uma avaliação é parte integral da credibilidade dela, decisão #5). `MembroPopover` segue existindo como componente reutilizável para essa situação.
 
 ### Seções detalhadas
 
@@ -106,7 +106,7 @@ Visão do perfil ao ser clicado por um visitante (fornecedor logado, ou visitant
 - `fornecedores` — mostra para fornecedores logados; para visitantes não-autenticados, mostra "(contrato restrito a fornecedores)"
 - `privado` — aparece como "(contrato privado)" com mensagem neutra; sem detalhes
 
-**Reviews recebidas.** Listagem cronológica das Reviews do tipo `avaliado_org_tipo = empresa` e `status = liberada`. Ver §"Componente: Review individual". Até 5 na página principal + link "Ver todas".
+**Avaliações recebidas.** Listagem cronológica das Reviews do tipo `avaliado_org_tipo = empresa` e `status = liberada`. Ver §"Componente: Review individual". Até 5 na página principal + link "Ver todas".
 
 ---
 

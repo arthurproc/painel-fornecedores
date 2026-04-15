@@ -46,22 +46,22 @@
 | --- | --- | --- | --- |
 | U3.1 | Dashboard empresa | ✅ | Reescrito com 5 blocos fixos, saudação do membro logado e estados vazios por bloco |
 | U3.2 | Dashboard fornecedor | ✅ | Reescrito com 6 blocos + `BannerConsultoria` contextual (`descarte_recente` / `projeto_alto_fit` / `default`) |
-| U3.3 | Dashboard admin Consultoria | ✅ | Dashboard condicional owner/advisor + helper `isOwnerAdvisor` em `session.ts` + preview advisor em `/admin/dashboard?advisor=adv-ana` |
+| U3.3 | Dashboard admin Consultoria | ✅ | Dashboard condicional gestor/consultor + helper `isOwnerAdvisor` em `session.ts` + preview advisor em `/admin/dashboard?advisor=adv-ana` |
 
 ### Fase 4 — Handshake
 
 | ID | Unidade | Status | Notas |
 | --- | --- | --- | --- |
-| U4.1 | Descobrir projetos + filtros | ✅ | `FiltrosProjeto` + `FitScoreBadge`; ordenação por fit score; filtros de categoria/região/faixa/prazo |
+| U4.1 | Descobrir projetos + filtros | ✅ | `FiltrosProjeto` + `FitScoreBadge`; ordenação por aderência; filtros de categoria/região/faixa/prazo |
 | U4.2 | Página do projeto (fornecedor) | ✅ | `HeaderProjeto`, `BlocoCriterios`, `BlocoDocumentos`, hook fit, CTA 1 no rodapé; links de perfil apontam a `/perfil/empresa/[id]` (entra em U5.2) |
 | U4.3 | Formulário de candidatura + CTA 1 | ✅ | 5 campos + nudge de faixa de preço + CTA 1 placeholder; submissão mock redireciona para Minhas candidaturas |
 | U4.4 | Listas "Minhas candidaturas" + "Recebidas" | ✅ | Fornecedor por abas de status; empresa agrupada por projeto colapsável com link para triagem |
-| U4.5 | Tela de triagem + modal descarte | ✅ | Cards com 5 elementos, shortlist/descarte client-side; modal enforça motivo; shortlist mostra banner de conversa criada |
+| U4.5 | Tela de triagem + modal descarte | ✅ | Cards com 5 elementos, seleção para proposta/descarte client-side; modal enforça motivo; seleção para proposta mostra banner de conversa criada |
 | U4.6 | Conversa/Mensagens híbridas | ✅ | `MensagensView` compartilhada (empresa+fornecedor); drawer de templates + respostas inline; envio livre in-memory |
-| U4.7 | Formulário de proposta formal + CTA 2 | ✅ | `/fornecedor/proposta/[candidaturaId]` com cronograma repetidor, docs mock, CTA 2; guard para status `shortlistada` |
+| U4.7 | Formulário de proposta formal + CTA 2 | ✅ | `/fornecedor/proposta/[candidaturaId]` com cronograma repetidor, docs mock, CTA 2; guard para status `shortlistada` (UI: "selecionada para proposta") |
 | U4.8 | Comparação de propostas + seleção | ✅ | Tabela horizontal em `/empresa/projeto/[id]/propostas` com seleção → vencedora/perdedora client-side e banner de contrato criado |
 | U4.9 | Contratos + encerramento | ✅ | 4 rotas (execução+histórico por contexto) + detalhe compartilhado `[id]`; encerrar exibido só em `em_execucao` para owner/admin; CTA "Avaliar parceiro" aparece após encerrar |
-| U4.10 | Reviews + feedback pós-descarte + CTA 3 | ✅ | `/reviews` (abas pendentes/dadas/recebidas), `/reviews/novo/[ct]`, `/reviews/[id]`; feedback estruturado pós-descarte com CTA 3 exposto na aba Descartadas do fornecedor; rotas legadas `/empresa/reviews` e `/fornecedor/reviews` viraram redirects |
+| U4.10 | Avaliações + feedback pós-descarte + CTA 3 | ✅ | `/reviews` (abas pendentes/dadas/recebidas), `/reviews/novo/[ct]`, `/reviews/[id]`; feedback estruturado pós-descarte com CTA 3 exposto na aba Descartadas do fornecedor; rotas legadas `/empresa/reviews` e `/fornecedor/reviews` viraram redirects |
 
 ### Fase 4.5 — Saneamento pré-perfis
 
@@ -72,7 +72,7 @@
 | U4.5.3 | `/fornecedor/perfil` ligado ao fornecedor logado + dados reais | ✅ | Lê `getFornecedorByOrganizacao(membroLogado.organizacao_id)`; `projetosRealizados` literal removido; reputação agregada exibe por dimensão; link "Editar" → `/configuracoes` |
 | U4.5.4 | Páginas legadas `/empresa/fornecedor/[id]` e `/fornecedor/empresa/[id]` | ✅ | **Rotas deletadas** em vez de stubbed — auditoria pós-execução confirmou que nenhum link interno apontava para elas desde o fim da Fase 4 (todos os "Ver perfil" já vão para `/perfil/...`). Decisão registrada em `docs/post-execution-review.md §1`. Se a revisão futura optar por voltar a perfis contextuais, recriar do zero |
 | U4.5.5 | `/empresa/perfil-publico` stub coerente até Fase 5 | ✅ | Mensagem cita rota canônica futura `/perfil/empresa/[organizacao_id]`; botão "Ver esqueleto" pode 404 até U5.2 |
-| U4.5.6 | Admin `/admin/usuarios` migrado para `Membro` | ✅ | Lista membros agrupados por `Organizacao` com roles canônicas (owner/admin/operador); seção separada para advisors (owner/advisor); filtros por role e tenant |
+| U4.5.6 | Admin `/admin/usuarios` migrado para `Membro` | ✅ | Lista membros agrupados por `Organizacao` com roles canônicas (owner/admin/operador); seção separada para consultores (`owner/advisor` internamente, gestor/consultor na UI); filtros por role e organização |
 | U4.5.7 | Admin `/admin/organizacoes` ancorado em `Organizacao` canônica | ✅ | Lista vem de `organizacoes`; chips `perfil_empresa_ativo`/`perfil_fornecedor_ativo`/`linkage_publica`; dual-role explícito (ex.: Metalúrgica XYZ); contagens via `getContratosPorOrg` + `projetos.filter` |
 
 ### Fase 5 — Perfis públicos
@@ -82,7 +82,7 @@
 | U5.1 | Componentes reutilizáveis de perfil | ✅ | 4 componentes em `src/components/profile/` — `ReputacaoAgregadaBloco` (full + compact + estado vazio), `ReviewCard`, `LinkageCruzada`, `MembroPopover`. `shadcn/popover` instalado |
 | U5.2 | Perfil público de Empresa | ✅ | Rota `/perfil/empresa/[id]` pública (layout próprio sem AppShell) com header, sobre, reputação, estatísticas (publicados/encerrados/em execução/tempo médio pagamento), projetos ativos, histórico de contratos respeitando visibilidade por item, reviews recebidas, linkage cruzada. Seção "Equipe" **removida** na revisão de 2026-04-15 (risco LGPD/phishing sem payoff B2B) — `design/public-profiles.md` atualizado |
 | U5.3 | Perfil público de Fornecedor | ✅ | Rota `/perfil/fornecedor/[id]` com atuação, certificações, estatísticas, contratos destacáveis (fallback para 4 encerrados quando `contratos_destacaveis_ids` vazio), reviews, linkage. Sem seção "Equipe" nem contagem de membros no header (mesma decisão de U5.2) |
-| U5.4 | Página completa de reviews | ✅ | 2 rotas compartilhando `ReviewsPaginada` (client) — filtros dimensão/nota/período com fallback "desde sempre" sinalizado por badge; paginação client-side (5/pag) |
+| U5.4 | Página completa de avaliações | ✅ | 2 rotas compartilhando `ReviewsPaginada` (client) — filtros dimensão/nota/período com fallback "desde sempre" sinalizado por badge; paginação client-side (5/pag) |
 | U5.5 | Diretório de fornecedores (empresa) | ✅ | Reescrita de `src/app/empresa/diretorio/page.tsx` com `FiltrosFornecedor` (busca/categoria/região/certificação); grid de cards 3 colunas com `ReputacaoAgregada compact`; navega para `/perfil/fornecedor/[id]` |
 
 ### Fase 6 — Camada Consultoria
@@ -93,16 +93,16 @@
 | U6.2 | Página de produto + modal contratação | ✅ | `/fornecedor/consultoria/[tipo]` (SSG) com O-que-recebe/quando/casos/FAQ + `ModalContratacaoSessao` + `BotaoContratar`; CTA 1/2/3 no handshake abrem o modal pré-selecionado |
 | U6.3 | Minhas sessões + entregáveis + avaliar | ✅ | Lista `/minhas-sessoes` por status + detalhe `[id]` com `CardSessao`, `MarkdownSimples`, comentários, marcar-útil, `ModalAvaliarAtendimento`, cancelamento |
 | U6.4 | Admin: fila de sessões + atribuição | ✅ | `/admin/sessoes/solicitadas` com `CardSessaoAdmin` (sugestão por especialização+carga) + `ModalAtribuirAdvisor`; listas `minhas`/`em-andamento`/`entregues` reaproveitando `CardSessao` |
-| U6.5 | Workspace de sessão (advisor) | ✅ | `/admin/sessoes/[id]` split contexto+workspace; `EditorNotas` com autosave fake + preview; estudos sugeridos por categoria/região; tipo/fase de entregável; "Marcar como entregue" habilita só com ≥1 entregável |
-| U6.6 | Páginas owner (advisors/catálogo/templates) | ✅ | 3 rotas + helper `garantirOwner`; `?advisor=adv-ana` redireciona para `/admin/dashboard` (smoke 307); `/admin/templates-outreach` criada do zero (sem sidebar, linkado via outreach) |
+| U6.5 | Área de trabalho da sessão (consultor) | ✅ | `/admin/sessoes/[id]` split contexto+área de trabalho; `EditorNotas` com autosave fake + preview; estudos sugeridos por categoria/região; tipo/fase de entregável; "Marcar como entregue" habilita só com ≥1 entregável |
+| U6.6 | Páginas gestor (consultores/catálogo/templates) | ✅ | 3 rotas + helper `garantirOwner`; `?advisor=adv-ana` redireciona para `/admin/dashboard` (smoke 307); `/admin/templates-outreach` criada do zero (sem sidebar, linkado via outreach) |
 | U6.7 | Estudos de caso (browser/leitura/wizard) | ✅ | `/consultoria/estudos` (browser com filtros) + `[id]` (leitura com anonimização); lista admin; wizard 4 passos em `/admin/estudos-de-caso/novo`; helper `criarEstudoDeCaso` |
-| U6.8 | Outreach proativo | ✅ | `/admin/inteligencia/outreach-proativo` owner-only com leads computados (candidaturas descartadas ou shortlist pendente) + `CardLeadOutreach` + `ModalOfertaPersonalizada`; histórico de ofertas recentes |
+| U6.8 | Outreach proativo | ✅ | `/admin/inteligencia/outreach-proativo` gestor-only com leads computados (candidaturas descartadas ou seleção para proposta pendente) + `CardLeadOutreach` + `ModalOfertaPersonalizada`; histórico de ofertas recentes |
 
 ### Fase 7 — Notificações
 
 | ID | Unidade | Status | Notas |
 | --- | --- | --- | --- |
-| U7.1 | Drawer de notificações | ✅ | `DrawerNotificacoes` no topbar com badge real, agrupamento por chave e bulk "Marcar todas como lidas" |
+| U7.1 | Painel lateral de notificações | ✅ | `DrawerNotificacoes` no topbar com badge real, agrupamento por chave e bulk "Marcar todas como lidas" |
 | U7.2 | Página dedicada + filtros + bulk | ✅ | `/notificacoes` criada com abas Ativas/Arquivadas, busca, filtros por severidade/contexto/período e ações de leitura/arquivamento |
 | U7.3 | Preferências + auto-resolução | ✅ | Sub-aba "Notificações" em `/configuracoes/pessoal`; auto-resolução aplicada em `/reviews/novo/[contratoId]`, `/fornecedor/proposta/[id]` e `/admin/sessoes/[id]` |
 

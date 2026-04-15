@@ -164,7 +164,7 @@ export default function AdminOrganizacoesPage() {
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          {rep?.total_reviews ?? 0} reviews
+                          {rep?.total_reviews ?? 0} avaliações
                         </p>
                       </div>
                     </div>

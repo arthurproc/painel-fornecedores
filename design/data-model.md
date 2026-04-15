@@ -42,23 +42,23 @@
             Review × 2 (uma por lado)
 ```
 
-Ao lado disso: `Conversa` + `Mensagem` (nascem da Candidatura shortlistada), e os catálogos da plataforma (`Categoria`, `Regiao`, `MotivoDescarte`, `TemplatePergunta`, `ReviewDimensao`, `CatalogoConsultoria`).
+Ao lado disso: `Conversa` + `Mensagem` (nascem da Candidatura selecionada para proposta), e os catálogos da plataforma (`Categoria`, `Regiao`, `MotivoDescarte`, `TemplatePergunta`, `ReviewDimensao`, `CatalogoConsultoria`).
 
 ---
 
 ## 1. Atores e organizações
 
-> **Modelo de tenant dual.** Uma mesma pessoa jurídica (`Organizacao`) pode operar nos dois lados do marketplace simultaneamente — como **empresa** (contratante) e/ou **fornecedor** (prestador). Cada lado é um perfil 1:1 da Organizacao com display info própria, mas identidade legal, membros e configuração ficam no nível do tenant.
+> **Modelo de organização dual.** Uma mesma pessoa jurídica (`Organizacao`) pode operar nos dois lados do marketplace simultaneamente — como **empresa** (contratante) e/ou **fornecedor** (prestador). Cada lado é um perfil 1:1 da Organizacao com display info própria, mas identidade legal, membros e configuração ficam no nível da organização.
 
 ### Organizacao
 
-Tenant umbrella. Carrega identidade legal e membros. Pode ter perfil empresa ativo, perfil fornecedor ativo, ou ambos (pelo menos um obrigatório).
+Organização-base. Carrega identidade legal e membros. Pode ter perfil empresa ativo, perfil fornecedor ativo, ou ambos (pelo menos um obrigatório).
 
 ```ts
 Organizacao {
   id: string
 
-  // Identidade legal — única no tenant, compartilhada pelos dois perfis:
+  // Identidade legal — única na organização, compartilhada pelos dois perfis:
   razao_social: string
   cnpj: string
   endereco_fiscal: string
@@ -73,7 +73,7 @@ Organizacao {
   slug?: string                  // URL amigável do perfil público (ex.: 'vale', 'techminas'); opcional no MVP
 
   // Relações:
-  membros: Membro[]              // lista única do tenant
+  membros: Membro[]              // lista única da organização
   // empresa: Empresa | null       (1:0..1, lookup em empresas[])
   // fornecedor: Fornecedor | null (1:0..1, lookup em fornecedores[])
 
@@ -84,7 +84,7 @@ Organizacao {
 
 ### Membro
 
-Pessoa física vinculada a uma `Organizacao`. Tem **role único** que vale para qualquer perfil ativo do tenant — sem distinção por lado no MVP.
+Pessoa física vinculada a uma `Organizacao`. Tem **role único** que vale para qualquer perfil ativo da organização — sem distinção por lado no MVP.
 
 ```ts
 Membro {
@@ -105,11 +105,11 @@ Membro {
 ```
 
 **Roles:**
-- `owner` — dono do tenant. Único. Pode tudo, incluindo transferir ownership e desativar tenant.
+- `owner` — gestor principal da organização. Único. Pode tudo, incluindo transferir ownership e desativar a organização.
 - `admin` — gere membros, edita perfis, opera o fluxo.
 - `operador` — opera o fluxo (candidatura, triagem, mensagens, reviews) sem mexer em membros nem perfis.
 
-> **Decisão MVP:** todo membro opera todos os perfis ativos do tenant sem restrição. Granularidade por lado fica em backlog.
+> **Decisão MVP:** todo membro opera todos os perfis ativos da organização sem restrição. Granularidade por lado fica em backlog.
 
 ### Empresa *(perfil — evoluir do mockup atual)*
 

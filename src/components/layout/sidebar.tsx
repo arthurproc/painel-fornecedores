@@ -72,7 +72,7 @@ const sidebarByType: Record<AppShellTipo, SidebarConfig> = {
       },
       { href: "/empresa/mensagens", label: "Mensagens", icon: MessageSquare },
       { href: "/empresa/diretorio", label: "Diretório", icon: Search },
-      { href: "/reviews", label: "Reviews", icon: Star },
+      { href: "/reviews", label: "Avaliações", icon: Star },
     ],
     footerItems: [
       { href: "/empresa/perfil-publico", label: "Perfil público", icon: Building2 },
@@ -106,7 +106,7 @@ const sidebarByType: Record<AppShellTipo, SidebarConfig> = {
           { href: "/fornecedor/consultoria/minhas-sessoes", label: "Minhas sessões" },
         ],
       },
-      { href: "/reviews", label: "Reviews", icon: Star },
+      { href: "/reviews", label: "Avaliações", icon: Star },
     ],
     footerItems: [
       { href: "/fornecedor/perfil", label: "Perfil público", icon: User },

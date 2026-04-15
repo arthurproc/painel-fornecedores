@@ -154,7 +154,7 @@ export default async function PerfilPublicoEmpresaPage({
         </div>
       )}
 
-      <SectionTitle>Reviews recebidas</SectionTitle>
+      <SectionTitle>Avaliações recebidas</SectionTitle>
       {reviewsRecebidas.length === 0 ? (
         <EstadoVazio mensagem="Esta organização ainda não recebeu avaliações." />
       ) : (
@@ -165,7 +165,7 @@ export default async function PerfilPublicoEmpresaPage({
           {empresa.reputacao_agregada.total_reviews > reviewsRecebidas.length ? (
             <Button asChild variant="outline" size="sm">
               <Link href={`/perfil/empresa/${empresa.id}/reviews`}>
-                Ver todas as reviews
+                Ver todas as avaliações
               </Link>
             </Button>
           ) : null}

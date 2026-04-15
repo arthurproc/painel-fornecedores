@@ -182,21 +182,21 @@ export function ReviewsPaginada({
 
       {fallbackAplicado ? (
         <Badge variant="secondary" className="rounded-full">
-          Sem reviews no período selecionado. Mostrando &ldquo;desde sempre&rdquo;.
+          Sem avaliações no período selecionado. Mostrando &ldquo;desde sempre&rdquo;.
         </Badge>
       ) : null}
 
       {filtradas.length === 0 ? (
         <Card className="rounded-xl border-dashed">
           <CardContent className="p-8 text-center text-sm text-muted-foreground">
-            Nenhuma review corresponde aos filtros selecionados.
+            Nenhuma avaliação corresponde aos filtros selecionados.
           </CardContent>
         </Card>
       ) : (
         <>
           <p className="text-xs text-muted-foreground">
             {filtradas.length}{" "}
-            {filtradas.length === 1 ? "review" : "reviews"} · página {paginaAtual}{" "}
+            {filtradas.length === 1 ? "avaliação" : "avaliações"} · página {paginaAtual}{" "}
             de {totalPaginas}
           </p>
           <div className="space-y-3">

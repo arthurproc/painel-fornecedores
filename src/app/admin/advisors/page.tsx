@@ -20,13 +20,13 @@ export default async function AdminAdvisorsPage({ searchParams }: Props) {
         <Card className="rounded-xl">
           <CardContent className="flex flex-wrap items-center justify-between gap-3 p-5">
             <div>
-              <h1 className="text-lg font-semibold">Equipe de advisors</h1>
+              <h1 className="text-lg font-semibold">Equipe de consultores</h1>
               <p className="text-sm text-muted-foreground">
                 Convide, desative e ajuste carga simultânea máxima.
               </p>
             </div>
-            <Button size="sm" disabled title="Convite de novos advisors disponível em produção">
-              Convidar advisor
+            <Button size="sm" disabled title="Convite de novos consultores disponível em produção">
+              Convidar consultor
             </Button>
           </CardContent>
         </Card>
@@ -40,9 +40,9 @@ export default async function AdminAdvisorsPage({ searchParams }: Props) {
                   <div className="min-w-0 flex-1 space-y-2">
                     <div className="flex items-center gap-2">
                       <p className="text-base font-semibold">{advisor.nome}</p>
-                      <Badge variant="secondary" className="capitalize">
-                        {advisor.role}
-                      </Badge>
+                        <Badge variant="secondary" className="capitalize">
+                         {advisor.role === "owner" ? "gestor" : "consultor"}
+                        </Badge>
                       {!advisor.ativo ? (
                         <Badge variant="outline">inativo</Badge>
                       ) : null}
@@ -92,8 +92,8 @@ export default async function AdminAdvisorsPage({ searchParams }: Props) {
         </div>
 
         <p className="text-xs text-muted-foreground">
-          Dica de validação: adicione <code>?advisor=adv-ana</code> — advisor não-owner é
-          redirecionado para o dashboard.
+           Dica de validação: adicione <code>?advisor=adv-ana</code> — consultor que não é gestor é
+           redirecionado para o dashboard.
         </p>
       </div>
     </AppShell>

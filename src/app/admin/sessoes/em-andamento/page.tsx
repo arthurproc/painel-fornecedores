@@ -15,7 +15,7 @@ export default function AdminSessoesAndamentoPage() {
           <CardContent className="p-5">
             <h1 className="text-lg font-semibold">Em andamento ({emAndamento.length})</h1>
             <p className="text-sm text-muted-foreground">
-              Sessões atribuídas e sendo executadas por advisors.
+              Sessões atribuídas e sendo executadas por consultores.
             </p>
           </CardContent>
         </Card>

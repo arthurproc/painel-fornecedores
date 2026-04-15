@@ -18,7 +18,7 @@ export const mensagens: Mensagem[] = [
     autor_membro_id: "mem-arcelormittal-owner",
     tipo: "livre",
     conteudo:
-      "Oi SegWork, a candidatura de vocês foi shortlistada. Podemos agendar uma conversa rápida essa semana?",
+      "Oi SegWork, a candidatura de vocês foi selecionada para proposta. Podemos agendar uma conversa rápida essa semana?",
     enviada_em: "2026-04-07T09:00:00",
     lida_em: "2026-04-07T09:30:00",
   },
@@ -57,7 +57,7 @@ export const mensagens: Mensagem[] = [
     conversa_id: "conv-5b",
     autor_membro_id: "mem-arcelormittal-owner",
     tipo: "livre",
-    conteudo: "Ambiental Solutions, vocês estão na shortlist. Aguardamos proposta formal.",
+    conteudo: "Ambiental Solutions, vocês foram selecionados para proposta. Aguardamos a proposta formal.",
     enviada_em: "2026-04-08T09:15:00",
     lida_em: "2026-04-08T10:00:00",
   },
@@ -75,7 +75,7 @@ export const mensagens: Mensagem[] = [
     conversa_id: "conv-5c",
     autor_membro_id: "mem-arcelormittal-owner",
     tipo: "livre",
-    conteudo: "TechMinas, parabéns pela shortlist.",
+    conteudo: "TechMinas, parabéns pela seleção para proposta.",
     enviada_em: "2026-04-08T10:00:00",
   },
   {
@@ -126,7 +126,7 @@ export const mensagens: Mensagem[] = [
     conversa_id: "conv-5d",
     autor_membro_id: "mem-arcelormittal-owner",
     tipo: "livre",
-    conteudo: "Metalúrgica XYZ, a shortlist foi confirmada. Precisamos da proposta formal com cronograma até quinta.",
+    conteudo: "Metalúrgica XYZ, a seleção para proposta foi confirmada. Precisamos da proposta formal com cronograma até quinta.",
     enviada_em: "2026-04-15T09:10:00",
   },
   {

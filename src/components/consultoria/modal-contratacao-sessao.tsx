@@ -175,7 +175,7 @@ export function ModalContratacaoSessao({
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                   <span>
                     {catalogo.tipo === "revisao_proposta"
-                      ? "Você precisa ter uma candidatura shortlistada para contratar esta sessão."
+                      ? "Você precisa ter uma candidatura selecionada para proposta para contratar esta sessão."
                       : catalogo.tipo === "retorno_pos_descarte"
                         ? "Você não tem candidaturas descartadas no momento."
                         : "Nenhuma candidatura elegível no momento."}

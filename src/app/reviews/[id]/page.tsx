@@ -76,7 +76,7 @@ export default function ReviewDetalhePage({ params }: { params: Promise<{ id: st
             <div>
               <p className="font-medium">Aguardando a contraparte</p>
               <p className="mt-1 text-amber-800">
-                Sua review foi submetida em {review.submetida_em ?? "—"}. Ela será liberada
+                Sua avaliação foi enviada em {review.submetida_em ?? "—"}. Ela será liberada
                 publicamente quando a outra parte submeter (ou em até 14 dias).
               </p>
             </div>
@@ -88,7 +88,7 @@ export default function ReviewDetalhePage({ params }: { params: Promise<{ id: st
         <Card className="rounded-xl border-muted">
           <CardContent className="flex items-start gap-3 p-4 text-sm text-muted-foreground">
             <Lock className="mt-0.5 h-4 w-4" />
-            Esta review está em rascunho. Abra pelo contrato para finalizar.
+            Esta avaliação está em rascunho. Abra pelo contrato para finalizar.
           </CardContent>
         </Card>
       )}

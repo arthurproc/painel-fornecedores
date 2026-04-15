@@ -65,9 +65,9 @@ export default function PropostaFormalPage({
       <AppShell tipo="fornecedor" titulo="Proposta formal">
         <Card className="rounded-xl">
           <CardContent className="p-8 text-center space-y-3">
-            <Badge variant="secondary">Aguardando shortlist</Badge>
+            <Badge variant="secondary">Aguardando seleção para proposta</Badge>
             <p className="text-sm text-muted-foreground">
-              Propostas formais só podem ser submetidas após a empresa confirmar a shortlist.
+              Propostas formais só podem ser submetidas após a empresa confirmar a seleção para proposta.
             </p>
             <Button asChild variant="outline" className="mt-4">
               <Link href="/fornecedor/candidaturas">Ver candidaturas</Link>

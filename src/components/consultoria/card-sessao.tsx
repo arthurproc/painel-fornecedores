@@ -96,7 +96,7 @@ export function CardSessao({ sessao, perspectiva }: CardSessaoProps) {
         <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
           <div>
             {advisor ? (
-              <span>Advisor: <span className="text-foreground">{advisor.nome}</span></span>
+              <span>Consultor: <span className="text-foreground">{advisor.nome}</span></span>
             ) : (
               <span className="italic">Aguardando atribuição</span>
             )}

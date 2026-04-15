@@ -164,8 +164,8 @@ export function DetalheContrato({ contrato, lado, podeEncerrar }: DetalheContrat
             <p className="text-xs text-muted-foreground">
               {podeAvaliar
                 ? ambosSubmetidos
-                  ? "Reviews liberadas após submissão dupla."
-                  : "Encerre o contrato para destravar sua review."
+                  ? "Avaliações liberadas após submissão dupla."
+                  : "Encerre o contrato para destravar sua avaliação."
                 : "Disponível somente após o contrato encerrar."}
             </p>
           </div>
@@ -190,7 +190,7 @@ export function DetalheContrato({ contrato, lado, podeEncerrar }: DetalheContrat
         <Card className="rounded-xl border-emerald-200 bg-emerald-50">
           <CardContent className="flex items-start gap-3 p-4 text-sm text-emerald-900">
             <CheckCircle2 className="mt-0.5 h-4 w-4" />
-            Contrato encerrado. Vocês dois podem escrever a review — o release acontece quando
+            Contrato encerrado. Vocês dois podem escrever a avaliação — a liberação acontece quando
             ambos os lados submeterem.
           </CardContent>
         </Card>
@@ -237,7 +237,7 @@ export function DetalheContrato({ contrato, lado, podeEncerrar }: DetalheContrat
           <DialogHeader>
             <DialogTitle>Marcar contrato como encerrado?</DialogTitle>
             <DialogDescription>
-              Isso libera o formulário de review para os dois lados. As notas ficam bloqueadas
+              Isso libera o formulário de avaliação para os dois lados. As notas ficam bloqueadas
               até que a outra parte também submeta.
             </DialogDescription>
           </DialogHeader>

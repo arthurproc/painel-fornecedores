@@ -32,7 +32,7 @@ export interface NotificationListItem {
 export const notificationPreferenceGroups = [
   {
     id: "criticas_handshake",
-    titulo: "Shortlist, proposta formal e contratos",
+    titulo: "Seleção para proposta, proposta formal e contratos",
     descricao: "Eventos críticos do handshake comercial.",
   },
   {
@@ -47,7 +47,7 @@ export const notificationPreferenceGroups = [
   },
   {
     id: "importantes_empresa",
-    titulo: "Candidaturas e reviews do contexto empresa",
+    titulo: "Candidaturas e avaliações do contexto empresa",
     descricao: "Triagem, lembretes operacionais e avaliação pós-contrato.",
   },
   {
@@ -58,7 +58,7 @@ export const notificationPreferenceGroups = [
   {
     id: "importantes_admin",
     titulo: "Operação da Consultoria",
-    descricao: "Fila de sessões, outcomes e alertas do owner/advisor.",
+    descricao: "Fila de sessões, outcomes e alertas do gestor/consultor.",
   },
   {
     id: "informativas_descoberta",
@@ -72,7 +72,7 @@ export const notificationPreferenceGroups = [
   },
   {
     id: "informativas_tenant",
-    titulo: "Tenant e organização",
+    titulo: "Organização e membros",
     descricao: "Membros, roles e mudanças estruturais da organização.",
   },
 ] as const;

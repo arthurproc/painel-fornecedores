@@ -33,16 +33,16 @@ export function BannerConsultoria({
         }
       : estado === "projeto_alto_fit"
         ? {
-            titulo: "Projeto com alto fit para você",
+            titulo: "Projeto com alta aderência para você",
             descricao:
               projetoTitulo && empresaNome
-                ? `${projetoTitulo} em ${empresaNome}. Seu fit estimado está em ${fitScore ?? 80}%.`
-                : `Há um novo projeto com fit estimado de ${fitScore ?? 80}% no seu perfil.`,
+                ? `${projetoTitulo} em ${empresaNome}. Sua aderência estimada está em ${fitScore ?? 80}%.`
+                : `Há um novo projeto com aderência estimada de ${fitScore ?? 80}% no seu perfil.`,
             cta: "Ver oportunidade",
             href: "/fornecedor/projetos",
           }
         : {
-            titulo: "Aumente sua taxa de shortlist",
+            titulo: "Aumente sua taxa de seleção para proposta",
             descricao:
               "Use a Consultoria para revisar candidatura e proposta formal antes de enviar.",
             cta: "Ver catálogo",

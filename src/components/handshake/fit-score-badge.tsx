@@ -48,14 +48,14 @@ export function FitScoreBadge({ breakdown, size = "sm", showHook = true }: FitSc
             }}
           >
             <Info className="h-3.5 w-3.5" />
-            <span className="sr-only">Por que meu fit é {breakdown.total}?</span>
+            <span className="sr-only">Por que minha aderência é {breakdown.total}?</span>
           </Button>
           <Dialog open={aberto} onOpenChange={setAberto}>
             <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle>Por que meu fit é {breakdown.total}%?</DialogTitle>
+                <DialogTitle>Por que minha aderência é {breakdown.total}%?</DialogTitle>
                 <DialogDescription>
-                  O fit score compara o seu perfil com o projeto. Categoria e região pesam mais; capacidade declarada complementa.
+                  A aderência compara o seu perfil com o projeto. Categoria e região pesam mais; capacidade declarada complementa.
                 </DialogDescription>
               </DialogHeader>
               <ul className="space-y-3 text-sm">
@@ -64,7 +64,7 @@ export function FitScoreBadge({ breakdown, size = "sm", showHook = true }: FitSc
                 <LinhaFit label="Capacidade declarada" match={breakdown.capacidade.match} peso={breakdown.capacidade.peso} />
               </ul>
               <p className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">
-                O score é apenas um indicador leve. A decisão é sempre da empresa na triagem.
+                Essa pontuação é apenas um indicador leve. A decisão é sempre da empresa na triagem.
               </p>
             </DialogContent>
           </Dialog>

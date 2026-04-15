@@ -79,7 +79,7 @@ export function ModalAtribuirAdvisor({
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
               <Users className="h-5 w-5" />
             </div>
-            <DialogTitle>Atribuir a outro advisor</DialogTitle>
+            <DialogTitle>Atribuir a outro consultor</DialogTitle>
           </div>
           <DialogDescription>
             Sugestão baseada em especialização (categoria + região) e carga atual.
@@ -110,7 +110,7 @@ export function ModalAtribuirAdvisor({
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">
                     {advisor.nome}{" "}
-                    <span className="text-xs text-muted-foreground">({advisor.role})</span>
+                    <span className="text-xs text-muted-foreground">({advisor.role === "owner" ? "gestor" : "consultor"})</span>
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {advisor.especializacoes.map((e) => e.categoria).join(" · ")}

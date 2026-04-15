@@ -22,7 +22,7 @@ function quandoFazSentido(tipo: CatalogoConsultoria["tipo"]): string {
     case "revisao_candidatura":
       return "Antes de enviar uma candidatura.";
     case "revisao_proposta":
-      return "Quando estiver shortlistado para fechar a proposta.";
+      return "Quando for selecionado para proposta e precisar fechar a proposta formal.";
     case "acompanhamento_completo":
       return "Cobertura das duas fases — economia vs. comprar separado.";
     case "retorno_pos_descarte":

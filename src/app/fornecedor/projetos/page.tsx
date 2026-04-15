@@ -93,7 +93,7 @@ export default function DescobrirProjetosPage() {
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
             <strong className="text-foreground">{filtrados.length}</strong> projeto(s) aberto(s)
-            para candidatura — ordenados por fit score.
+            para candidatura — ordenados por aderência.
           </p>
           {filtros !== FILTROS_INICIAIS && (
             <Button variant="ghost" size="sm" onClick={() => setFiltros(FILTROS_INICIAIS)}>

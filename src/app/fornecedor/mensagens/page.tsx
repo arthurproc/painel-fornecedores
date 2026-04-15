@@ -21,7 +21,6 @@ export default function MensagensFornecedorPage() {
     <AppShell tipo="fornecedor" titulo="Mensagens">
       <MensagensView
         lado="fornecedor"
-        membrosPertencemAoLado={(id) => membrosFornecedor.has(id)}
         filtrarConversa={(conversa) =>
           conversa.fornecedor_membros_ids.some((id) => membrosFornecedor.has(id))
         }

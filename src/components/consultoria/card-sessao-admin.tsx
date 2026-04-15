@@ -108,7 +108,7 @@ export function CardSessaoAdmin({ sessao, onMudou }: CardSessaoAdminProps) {
           {sessao.tipo === "revisao_proposta" && candidatura?.status !== "shortlistada" ? (
             <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <span>Candidatura não está shortlistada — verificar com o fornecedor.</span>
+              <span>Candidatura ainda não foi selecionada para proposta — verificar com o fornecedor.</span>
             </div>
           ) : null}
 

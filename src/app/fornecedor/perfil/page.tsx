@@ -178,7 +178,7 @@ export default function PerfilFornecedorPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  A listagem detalhada de reviews será exibida na Fase 5 (perfis
+                  A listagem detalhada de avaliações será exibida na Fase 5 (perfis
                   públicos). Por enquanto a reputação agregada aparece ao lado.
                 </p>
               </CardContent>
@@ -217,7 +217,7 @@ export default function PerfilFornecedorPage() {
               <CardContent className="space-y-4">
                 {rep.total_reviews === 0 ? (
                   <p className="text-sm text-muted-foreground">
-                    Sem reviews suficientes para calcular.
+                    Sem avaliações suficientes para calcular.
                   </p>
                 ) : (
                   <>
@@ -247,9 +247,9 @@ export default function PerfilFornecedorPage() {
                       </div>
                     ))}
                     <p className="text-xs text-muted-foreground">
-                      Calculado com {rep.total_reviews} review
-                      {rep.total_reviews === 1 ? "" : "s"} liberada
-                      {rep.total_reviews === 1 ? "" : "s"}.
+                      Calculado com {rep.total_reviews} avaliação
+                       {rep.total_reviews === 1 ? "" : "s"} liberada
+                       {rep.total_reviews === 1 ? "" : "s"}.
                     </p>
                   </>
                 )}

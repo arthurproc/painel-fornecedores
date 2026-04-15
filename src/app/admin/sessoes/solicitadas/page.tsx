@@ -27,7 +27,7 @@ export default function AdminSessoesSolicitadas() {
                 Sessões solicitadas ({solicitadas.length})
               </h1>
               <p className="text-sm text-muted-foreground">
-                Atribua um advisor ou traga para você. Sugestão baseada em especialização + carga.
+                Atribua um consultor ou traga para você. Sugestão baseada em especialização + carga.
               </p>
             </div>
           </CardContent>

@@ -19,10 +19,10 @@ const templates = [
   },
   {
     id: "tpl-shortlist",
-    titulo: "Shortlist em projeto estratégico",
-    gatilho: "Fornecedor shortlistado com valor > R$ 300k",
+    titulo: "Seleção para proposta em projeto estratégico",
+    gatilho: "Fornecedor selecionado para proposta com valor > R$ 300k",
     corpo:
-      "Parabéns pela shortlist em {projeto}! Esse é o momento em que a proposta formal decide o contrato — posso acompanhar do pitch ao envio via Acompanhamento Completo.",
+      "Parabéns pela seleção para proposta em {projeto}! Esse é o momento em que a proposta formal decide o contrato — posso acompanhar do pitch ao envio via Acompanhamento Completo.",
     servico_sugerido: "Acompanhamento completo",
   },
   {

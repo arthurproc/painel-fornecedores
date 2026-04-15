@@ -97,9 +97,9 @@ export function FormularioReview({ avaliadoLado, onSubmit }: FormularioReviewPro
       </Card>
 
       <div className="flex justify-end gap-3 border-t border-border pt-4">
-        <Button type="submit" disabled={!completo}>
-          Submeter review
-        </Button>
+          <Button type="submit" disabled={!completo}>
+           Enviar avaliação
+          </Button>
       </div>
     </form>
   );

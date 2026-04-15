@@ -47,7 +47,7 @@ const conteudoPorTipo: Record<
       {
         pergunta: "Em quanto tempo recebo a revisão?",
         resposta:
-          "Dentro de 24-48h após a atribuição de um advisor. Em 100% dos casos ajustados em projetos parecidos.",
+          "Dentro de 24-48h após a atribuição de um consultor. Em 100% dos casos ajustados em projetos parecidos.",
       },
       {
         pergunta: "Consigo revisar mais de uma candidatura?",
@@ -65,12 +65,12 @@ const conteudoPorTipo: Record<
       "Notas escritas + 1 sessão opcional de tira-dúvidas",
     ],
     quandoFazSentido:
-      "Quando você está shortlistado e precisa fechar uma proposta formal competitiva. Investir aqui aumenta muito a taxa de vitória.",
+      "Quando você foi selecionado para proposta e precisa fechar uma proposta formal competitiva. Investir aqui aumenta muito a taxa de vitória.",
     faq: [
       {
         pergunta: "Preciso ter proposta pronta?",
         resposta:
-          "Não. O advisor pode revisar ideias iniciais ou ajudar a estruturar do zero dentro do escopo da sessão.",
+          "Não. O consultor pode revisar ideias iniciais ou ajudar a estruturar do zero dentro do escopo da sessão.",
       },
       {
         pergunta: "Posso combinar com revisão de candidatura?",
@@ -80,8 +80,8 @@ const conteudoPorTipo: Record<
   },
   acompanhamento_completo: {
     oQueRecebe: [
-      "Revisão de candidatura + revisão de proposta formal num único advisor",
-      "Advisor dedicado durante todo o ciclo da oportunidade",
+      "Revisão de candidatura + revisão de proposta formal com um único consultor",
+      "Consultor dedicado durante todo o ciclo da oportunidade",
       "Anexos de estudos de caso relevantes em cada fase",
       "Sessões de tira-dúvidas sob demanda",
       "Acompanhamento pós-envio com análise de resultado",
@@ -114,7 +114,7 @@ const conteudoPorTipo: Record<
       {
         pergunta: "Funciona para qualquer categoria?",
         resposta:
-          "Sim. O advisor cruza seu histórico com padrões de candidaturas vencedoras no mesmo segmento.",
+          "Sim. O consultor cruza seu histórico com padrões de candidaturas vencedoras no mesmo segmento.",
       },
       {
         pergunta: "Tem garantia de resultado?",
