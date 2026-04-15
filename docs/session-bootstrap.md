@@ -40,3 +40,5 @@ Ao terminar a última unidade de uma fase, o Arthur provavelmente vai rodar `/cl
 - `design/` — fonte de verdade (imutável entre fases)
 
 Nenhum contexto da conversa anterior é necessário pra próxima fase se esse protocolo for seguido.
+
+Cada execução deve ser feita uma fase, escolhida pelo Arthur do início ao fim. Ao fim da fase, execute o processo de verificação e revisão do que foi feito, com checks de DoD e execute o servidor dev e faça smoke test em todas as rotas que foram modificadas ou criadas durante a execução. Ao fim, faça o handover com um resumo do que foi feito junto com um plano do o que Arthur deve testar para validar, quais páginas abrir, quais fluxos seguir, etc. O objetivo é garantir que o Arthur tenha tudo que precisa para revisar e validar o trabalho feito, mesmo sem contexto da conversa anterior.

@@ -1,135 +1,117 @@
+import Link from "next/link";
 import {
-  Star,
-  MapPin,
-  Mail,
-  Phone,
-  Calendar,
   Award,
   Briefcase,
+  Calendar,
   Edit,
+  Mail,
+  MapPin,
+  Phone,
+  Star,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { fornecedores, projetos, empresas } from "@/lib/mock-data";
-
-function formatarMesAno(data: string): string {
-  const [, mes, ano] = data.split("/");
-  const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-  return `${meses[parseInt(mes) - 1]} ${ano}`;
-}
-
-const projetosRealizados = [
-  {
-    titulo: "Manutenção de Britadores — Mina de Cauê",
-    empresa: "Vale S.A.",
-    valor: "R$ 450.000",
-    data: "2025",
-  },
-  {
-    titulo: "Revisão Elétrica de Subestação",
-    empresa: "Usiminas",
-    valor: "R$ 180.000",
-    data: "2025",
-  },
-  {
-    titulo: "Instalação de Sensores de Vibração",
-    empresa: "ArcelorMittal",
-    valor: "R$ 95.000",
-    data: "2024",
-  },
-  {
-    titulo: "Manutenção Preventiva Anual — Planta Itabira",
-    empresa: "Vale S.A.",
-    valor: "R$ 620.000",
-    data: "2024",
-  },
-];
+import { Separator } from "@/components/ui/separator";
+import {
+  MEMBRO_LOGADO_ID,
+  getContratosByFornecedor,
+  getFornecedorByOrganizacao,
+  getMembroById,
+} from "@/lib/mock-data";
 
 export default function PerfilFornecedorPage() {
-  const fornecedor = fornecedores[0]; // TechMinas
+  const membroLogado = getMembroById(MEMBRO_LOGADO_ID);
+  const fornecedor = getFornecedorByOrganizacao(
+    membroLogado?.organizacao_id ?? ""
+  );
 
-  const reviews: Array<{
-    empresa: string;
-    logo: string;
-    qualidade: number;
-    prazo: number;
-    comentario: string;
-    data: string;
-  }> = [];
-  // Reviews concretas serão populadas em U1.7. Por ora o bloco aparece vazio.
-  void formatarMesAno;
-  void projetos;
-  void empresas;
+  if (!fornecedor) {
+    return (
+      <AppShell tipo="fornecedor" titulo="Meu perfil">
+        <Card className="mx-auto max-w-xl rounded-xl">
+          <CardContent className="space-y-3 p-6 text-sm">
+            <p className="font-medium">
+              Sua organização ainda não tem perfil de fornecedor ativo.
+            </p>
+            <p className="text-muted-foreground">
+              Ative o perfil em Configurações para começar a receber convites e se
+              candidatar a projetos.
+            </p>
+            <Button asChild variant="outline">
+              <Link href="/configuracoes">Ir para Configurações</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </AppShell>
+    );
+  }
 
-  const avgQualidade =
-    reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + r.qualidade, 0) / reviews.length
-      : 0;
-  const avgPrazo =
-    reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + r.prazo, 0) / reviews.length
-      : 0;
-  const satisfacao = Math.round((avgQualidade / 5) * 100);
-  const entregaNoPrazo = Math.round((avgPrazo / 5) * 100);
+  const contratosEncerrados = getContratosByFornecedor(fornecedor.id).filter(
+    (c) => c.status === "encerrado"
+  );
+
+  const { reputacao_agregada: rep } = fornecedor;
+  const mediaGeral = rep.total_reviews > 0 ? rep.media_geral : 0;
+  const notaPctGeral = Math.round((mediaGeral / 5) * 100);
 
   return (
-    <AppShell tipo="fornecedor" titulo="Meu Perfil">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Cabeçalho do perfil */}
-        <Card>
+    <AppShell tipo="fornecedor" titulo="Meu perfil">
+      <div className="mx-auto max-w-4xl space-y-6">
+        <Card className="rounded-xl">
           <CardContent className="p-6">
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-5">
-                <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 text-2xl font-bold text-primary">
                   {fornecedor.logo}
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold">{fornecedor.nome}</h1>
-                  <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                  <div className="mt-1 flex items-center gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      {fornecedor.reputacao_agregada.total_reviews > 0
-                        ? `${fornecedor.reputacao_agregada.media_geral.toFixed(1)} (${fornecedor.reputacao_agregada.total_reviews} avaliações)`
+                      <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                      {rep.total_reviews > 0
+                        ? `${mediaGeral.toFixed(1)} (${rep.total_reviews} avaliações)`
                         : "Sem avaliações ainda"}
                     </span>
                     <span className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      {fornecedor.regiao}
+                      <MapPin className="h-4 w-4" />
+                      {fornecedor.cidade} · {fornecedor.regiao}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
+                      <Calendar className="h-4 w-4" />
                       Desde {fornecedor.desde}
                     </span>
                   </div>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="gap-1">
-                <Edit className="w-3.5 h-3.5" /> Editar Perfil
+              <Button asChild variant="outline" size="sm" className="gap-1">
+                <Link href="/configuracoes">
+                  <Edit className="h-3.5 w-3.5" /> Editar em Configurações
+                </Link>
               </Button>
             </div>
 
-            <p className="text-muted-foreground mt-4 leading-relaxed">
+            <p className="mt-4 leading-relaxed text-muted-foreground">
               {fornecedor.descricao}
             </p>
 
             <Separator className="my-4" />
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="flex items-center gap-2 text-sm">
-                <Mail className="w-4 h-4 text-muted-foreground" />
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-muted-foreground" />
                 {fornecedor.contato.email}
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Phone className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-muted-foreground" />
                 {fornecedor.contato.telefone}
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Briefcase className="w-4 h-4 text-muted-foreground" />
-                {fornecedor.projetosRealizados} projetos realizados
+              <div className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4 text-muted-foreground" />
+                {contratosEncerrados.length} contratos encerrados
               </div>
             </div>
           </CardContent>
@@ -137,10 +119,9 @@ export default function PerfilFornecedorPage() {
 
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-2 space-y-6">
-            {/* Áreas de Atuação */}
-            <Card>
+            <Card className="rounded-xl">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Áreas de Atuação</CardTitle>
+                <CardTitle className="text-base">Áreas de atuação</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
@@ -150,163 +131,128 @@ export default function PerfilFornecedorPage() {
                     </Badge>
                   ))}
                 </div>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Regiões atendidas: {fornecedor.regioes_atendidas.join(" · ")}
+                </p>
               </CardContent>
             </Card>
 
-            {/* Projetos Realizados */}
-            <Card>
+            <Card className="rounded-xl">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Projetos Realizados</CardTitle>
+                <CardTitle className="text-base">Contratos encerrados</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {projetosRealizados.map((proj) => (
-                    <div
-                      key={proj.titulo}
-                      className="flex items-center justify-between p-3 rounded-lg bg-muted/30"
-                    >
-                      <div>
-                        <p className="font-medium text-sm">{proj.titulo}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {proj.empresa} &bull; {proj.data}
-                        </p>
-                      </div>
-                      <span className="text-sm font-semibold text-primary">
-                        {proj.valor}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Avaliações */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Avaliações</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {reviews.length === 0 ? (
+                {contratosEncerrados.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
-                    Nenhuma avaliação registrada ainda.
+                    Nenhum contrato encerrado ainda. Assim que fecharem contratos,
+                    eles aparecerão aqui para compor o portfólio público.
                   </p>
                 ) : (
-                  <div className="space-y-5">
-                    {reviews.map((av, idx) => (
-                      <div key={idx}>
-                        <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-bold shrink-0">
-                            {av.logo}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <p className="font-medium text-sm">{av.empresa}</p>
-                              <p className="text-xs text-muted-foreground">{av.data}</p>
-                            </div>
-                            <div className="space-y-1">
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-muted-foreground">
-                                  Qualidade do serviço
-                                </span>
-                                <div className="flex gap-0.5">
-                                  {Array.from({ length: 5 }).map((_, i) => (
-                                    <Star
-                                      key={i}
-                                      className={`w-3 h-3 ${
-                                        i < av.qualidade
-                                          ? "fill-amber-400 text-amber-400"
-                                          : "text-muted"
-                                      }`}
-                                    />
-                                  ))}
-                                </div>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-muted-foreground">
-                                  Cumprimento de prazo
-                                </span>
-                                <div className="flex gap-0.5">
-                                  {Array.from({ length: 5 }).map((_, i) => (
-                                    <Star
-                                      key={i}
-                                      className={`w-3 h-3 ${
-                                        i < av.prazo
-                                          ? "fill-amber-400 text-amber-400"
-                                          : "text-muted"
-                                      }`}
-                                    />
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                  <div className="space-y-3">
+                    {contratosEncerrados.map((c) => (
+                      <div
+                        key={c.id}
+                        className="flex items-center justify-between rounded-lg bg-muted/30 p-3"
+                      >
+                        <div>
+                          <p className="text-sm font-medium">
+                            Contrato #{c.id} · projeto {c.projeto_id}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Fechado em {c.data_fechamento}
+                          </p>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-2 ml-11">
-                          {av.comentario}
-                        </p>
+                        <span className="text-sm font-semibold text-primary">
+                          {c.valor_final}
+                        </span>
                       </div>
                     ))}
                   </div>
                 )}
               </CardContent>
             </Card>
+
+            <Card className="rounded-xl">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Avaliações recebidas</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  A listagem detalhada de reviews será exibida na Fase 5 (perfis
+                  públicos). Por enquanto a reputação agregada aparece ao lado.
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Coluna lateral */}
           <div className="space-y-6">
-            {/* Certificações */}
-            <Card>
+            <Card className="rounded-xl">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Award className="w-4 h-4" /> Certificações
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Award className="h-4 w-4" /> Certificações
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {fornecedor.certificacoes.map((cert) => (
-                    <div
-                      key={cert}
-                      className="flex items-center gap-2 text-sm"
-                    >
-                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                      {cert}
-                    </div>
-                  ))}
-                </div>
+                {fornecedor.certificacoes.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Nenhuma certificação cadastrada.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {fornecedor.certificacoes.map((cert) => (
+                      <div key={cert} className="flex items-center gap-2 text-sm">
+                        <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                        {cert}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            {/* Estatísticas */}
-            <Card>
+            <Card className="rounded-xl">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Estatísticas</CardTitle>
+                <CardTitle className="text-base">Reputação agregada</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-muted-foreground">Taxa de Sucesso</span>
-                    <span className="font-medium">92%</span>
-                  </div>
-                  <Progress value={92} className="h-2" />
-                </div>
-                <div>
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-muted-foreground">
-                      Entrega no Prazo
-                    </span>
-                    <span className="font-medium">{entregaNoPrazo}%</span>
-                  </div>
-                  <Progress value={entregaNoPrazo} className="h-2" />
-                </div>
-                <div>
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-muted-foreground">
-                      Satisfação do Cliente
-                    </span>
-                    <span className="font-medium">{satisfacao}%</span>
-                  </div>
-                  <Progress value={satisfacao} className="h-2" />
-                </div>
+                {rep.total_reviews === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Sem reviews suficientes para calcular.
+                  </p>
+                ) : (
+                  <>
+                    <div>
+                      <div className="mb-1 flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Média geral</span>
+                        <span className="font-medium">
+                          {mediaGeral.toFixed(1)} / 5
+                        </span>
+                      </div>
+                      <Progress value={notaPctGeral} className="h-2" />
+                    </div>
+                    {Object.entries(rep.por_dimensao).map(([dim, info]) => (
+                      <div key={dim}>
+                        <div className="mb-1 flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground capitalize">
+                            {dim.replace(/_/g, " ")}
+                          </span>
+                          <span className="font-medium">
+                            {info.media.toFixed(1)} / 5
+                          </span>
+                        </div>
+                        <Progress
+                          value={Math.round((info.media / 5) * 100)}
+                          className="h-2"
+                        />
+                      </div>
+                    ))}
+                    <p className="text-xs text-muted-foreground">
+                      Calculado com {rep.total_reviews} review
+                      {rep.total_reviews === 1 ? "" : "s"} liberada
+                      {rep.total_reviews === 1 ? "" : "s"}.
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>

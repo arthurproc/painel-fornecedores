@@ -1,280 +1,308 @@
-import { Mail, Shield, Clock } from "lucide-react";
+"use client";
+
+import { useMemo, useState } from "react";
+import { Clock, Mail, Shield, UsersRound } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  advisors,
+  getOrganizacaoById,
+  membros,
+  organizacoes,
+  type Membro,
+  type Organizacao,
+} from "@/lib/mock-data";
 
-interface Usuario {
-  id: string;
-  nome: string;
-  email: string;
-  funcao: "admin_plataforma" | "gestor" | "visualizador";
-  org: string;
-  orgTipo: "plataforma" | "empresa" | "fornecedor";
-  desde: string;
-  status: "ativo" | "pendente" | "inativo";
+type MembroRole = Membro["role"];
+
+const roleLabels: Record<MembroRole, string> = {
+  owner: "Owner",
+  admin: "Admin",
+  operador: "Operador",
+};
+
+const roleColors: Record<MembroRole, string> = {
+  owner: "bg-primary/10 text-primary",
+  admin: "bg-blue-100 text-blue-800",
+  operador: "bg-gray-100 text-gray-700",
+};
+
+function perfilLabel(org: Organizacao | undefined): string {
+  if (!org) return "—";
+  if (org.perfil_empresa_ativo && org.perfil_fornecedor_ativo) return "Empresa + Fornecedor";
+  if (org.perfil_empresa_ativo) return "Empresa";
+  if (org.perfil_fornecedor_ativo) return "Fornecedor";
+  return "Sem perfil ativo";
 }
 
-const usuarios: Usuario[] = [
-  {
-    id: "u0",
-    nome: "Celso Oliveira",
-    email: "celso@conectafornece.com.br",
-    funcao: "admin_plataforma",
-    org: "ConectaFornece",
-    orgTipo: "plataforma",
-    desde: "01/01/2026",
-    status: "ativo",
-  },
-  {
-    id: "u1",
-    nome: "Ricardo Barbosa",
-    email: "rbarbosa@vale.com",
-    funcao: "gestor",
-    org: "Vale S.A.",
-    orgTipo: "empresa",
-    desde: "10/01/2026",
-    status: "ativo",
-  },
-  {
-    id: "u2",
-    nome: "Fernanda Lima",
-    email: "flima@vale.com",
-    funcao: "visualizador",
-    org: "Vale S.A.",
-    orgTipo: "empresa",
-    desde: "15/01/2026",
-    status: "ativo",
-  },
-  {
-    id: "u3",
-    nome: "Marcos Andrade",
-    email: "mandrade@usiminas.com",
-    funcao: "gestor",
-    org: "Usiminas",
-    orgTipo: "empresa",
-    desde: "12/01/2026",
-    status: "ativo",
-  },
-  {
-    id: "u4",
-    nome: "Paula Sousa",
-    email: "psousa@arcelormittal.com",
-    funcao: "gestor",
-    org: "ArcelorMittal",
-    orgTipo: "empresa",
-    desde: "08/01/2026",
-    status: "ativo",
-  },
-  {
-    id: "u5",
-    nome: "João Silva",
-    email: "joao@techminas.com.br",
-    funcao: "gestor",
-    org: "TechMinas Serviços Industriais",
-    orgTipo: "fornecedor",
-    desde: "14/01/2026",
-    status: "ativo",
-  },
-  {
-    id: "u6",
-    nome: "Ana Costa",
-    email: "ana@ambientalsolutions.com.br",
-    funcao: "gestor",
-    org: "Ambiental Solutions",
-    orgTipo: "fornecedor",
-    desde: "20/01/2026",
-    status: "ativo",
-  },
-  {
-    id: "u7",
-    nome: "Carlos Mendes",
-    email: "carlos@translogmg.com.br",
-    funcao: "gestor",
-    org: "TransLog MG Transportes",
-    orgTipo: "fornecedor",
-    desde: "22/01/2026",
-    status: "ativo",
-  },
-  {
-    id: "u8",
-    nome: "Beatriz Rocha",
-    email: "beatriz@construminas.com.br",
-    funcao: "gestor",
-    org: "Construminas Engenharia",
-    orgTipo: "fornecedor",
-    desde: "05/02/2026",
-    status: "ativo",
-  },
-  {
-    id: "u9",
-    nome: "Lucas Ferreira",
-    email: "lucas@segwork.com.br",
-    funcao: "gestor",
-    org: "SegWork Consultoria",
-    orgTipo: "fornecedor",
-    desde: "18/01/2026",
-    status: "ativo",
-  },
-  {
-    id: "u10",
-    nome: "—",
-    email: "compras@novaaciaria.com.br",
-    funcao: "gestor",
-    org: "Nova Aciaria Ltda",
-    orgTipo: "empresa",
-    desde: "13/04/2026",
-    status: "pendente",
-  },
-];
+function iniciais(nome: string): string {
+  const parts = nome.split(" ").filter(Boolean);
+  return (parts[0]?.[0] ?? "?") + (parts[1]?.[0] ?? "");
+}
 
-const funcaoLabels: Record<Usuario["funcao"], string> = {
-  admin_plataforma: "Admin plataforma",
-  gestor: "Gestor",
-  visualizador: "Visualizador",
-};
+function formatarData(iso: string): string {
+  if (!iso) return "—";
+  const [y, m, d] = iso.split("-");
+  if (!y || !m || !d) return iso;
+  return `${d}/${m}/${y}`;
+}
 
-const funcaoColors: Record<Usuario["funcao"], string> = {
-  admin_plataforma: "bg-primary/10 text-primary",
-  gestor: "bg-blue-100 text-blue-800",
-  visualizador: "bg-gray-100 text-gray-700",
-};
+export default function AdminUsuariosPage() {
+  const [filtroRole, setFiltroRole] = useState<"todos" | MembroRole>("todos");
+  const [filtroTenant, setFiltroTenant] = useState<string>("todos");
 
-const orgTipoColors: Record<Usuario["orgTipo"], string> = {
-  plataforma: "bg-primary/10 text-primary",
-  empresa: "bg-amber-100 text-amber-800",
-  fornecedor: "bg-emerald-100 text-emerald-800",
-};
-
-const orgTipoLabels: Record<Usuario["orgTipo"], string> = {
-  plataforma: "Plataforma",
-  empresa: "Empresa",
-  fornecedor: "Fornecedor",
-};
-
-const statusColors: Record<Usuario["status"], string> = {
-  ativo: "bg-emerald-100 text-emerald-800",
-  pendente: "bg-amber-100 text-amber-800",
-  inativo: "bg-gray-100 text-gray-600",
-};
-
-const statusLabels: Record<Usuario["status"], string> = {
-  ativo: "Ativo",
-  pendente: "Convite pendente",
-  inativo: "Inativo",
-};
-
-function Iniciais({ nome }: { nome: string }) {
-  if (nome === "—") return <span className="text-muted-foreground">?</span>;
-  const parts = nome.split(" ");
-  return (
-    <span>
-      {parts[0][0]}
-      {parts[1]?.[0] ?? ""}
-    </span>
+  const membrosFiltrados = useMemo(
+    () =>
+      membros.filter((m) => {
+        if (filtroRole !== "todos" && m.role !== filtroRole) return false;
+        if (filtroTenant !== "todos" && m.organizacao_id !== filtroTenant)
+          return false;
+        return true;
+      }),
+    [filtroRole, filtroTenant]
   );
-}
 
-export default function AdminUsuarios() {
-  const ativos = usuarios.filter((u) => u.status === "ativo").length;
-  const pendentes = usuarios.filter((u) => u.status === "pendente").length;
+  const porOrganizacao = useMemo(() => {
+    const mapa = new Map<string, Membro[]>();
+    for (const m of membrosFiltrados) {
+      const bucket = mapa.get(m.organizacao_id) ?? [];
+      bucket.push(m);
+      mapa.set(m.organizacao_id, bucket);
+    }
+    return [...mapa.entries()].sort(([a], [b]) => {
+      const orgA = getOrganizacaoById(a)?.razao_social ?? a;
+      const orgB = getOrganizacaoById(b)?.razao_social ?? b;
+      return orgA.localeCompare(orgB);
+    });
+  }, [membrosFiltrados]);
+
+  const ownerCount = membros.filter((m) => m.role === "owner").length;
+  const adminCount = membros.filter((m) => m.role === "admin").length;
+  const operadorCount = membros.filter((m) => m.role === "operador").length;
 
   return (
     <AppShell tipo="admin" titulo="Usuários">
       <div className="space-y-6">
-        {/* Summary bar */}
-        <div className="flex items-center gap-6 text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
           <span>
-            <span className="font-semibold text-foreground">{usuarios.length}</span> usuários
-            cadastrados
+            <span className="font-semibold text-foreground">{membros.length}</span>{" "}
+            membros cadastrados em {organizacoes.length} organizações
           </span>
           <span>
-            <span className="font-semibold text-emerald-700">{ativos}</span> ativos
+            <span className="font-semibold text-foreground">{ownerCount}</span>{" "}
+            owners ·{" "}
+            <span className="font-semibold text-foreground">{adminCount}</span>{" "}
+            admins ·{" "}
+            <span className="font-semibold text-foreground">{operadorCount}</span>{" "}
+            operadores
           </span>
-          {pendentes > 0 && (
-            <span>
-              <span className="font-semibold text-amber-700">{pendentes}</span> com convite
-              pendente
-            </span>
+          <span>
+            <span className="font-semibold text-foreground">{advisors.length}</span>{" "}
+            advisors (tenant interno)
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground">Role</span>
+            <Select
+              value={filtroRole}
+              onValueChange={(v) => setFiltroRole(v as typeof filtroRole)}
+            >
+              <SelectTrigger className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todas as roles</SelectItem>
+                <SelectItem value="owner">Owner</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="operador">Operador</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground">Organização</span>
+            <Select value={filtroTenant} onValueChange={setFiltroTenant}>
+              <SelectTrigger className="w-72">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todas as organizações</SelectItem>
+                {organizacoes.map((o) => (
+                  <SelectItem key={o.id} value={o.id}>
+                    {o.razao_social}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {porOrganizacao.length === 0 ? (
+            <Card>
+              <CardContent className="p-6 text-center text-sm text-muted-foreground">
+                Nenhum membro corresponde aos filtros selecionados.
+              </CardContent>
+            </Card>
+          ) : (
+            porOrganizacao.map(([orgId, lista]) => {
+              const org = getOrganizacaoById(orgId);
+              return (
+                <Card key={orgId} className="rounded-xl">
+                  <CardContent className="p-0">
+                    <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
+                      <div className="flex items-center gap-2">
+                        <UsersRound className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm font-semibold">
+                          {org?.razao_social ?? orgId}
+                        </p>
+                        <Badge variant="secondary" className="text-xs">
+                          {perfilLabel(org)}
+                        </Badge>
+                        {org && !org.ativo && (
+                          <Badge
+                            variant="secondary"
+                            className="bg-gray-100 text-xs text-gray-600"
+                          >
+                            Inativa
+                          </Badge>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {lista.length} membro{lista.length === 1 ? "" : "s"}
+                      </span>
+                    </div>
+
+                    <div className="divide-y divide-border">
+                      {lista.map((m) => (
+                        <div
+                          key={m.id}
+                          className="grid grid-cols-[2fr_1fr_1fr_1fr] items-center gap-4 px-5 py-3"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                              {iniciais(m.nome)}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium">
+                                {m.nome}
+                              </p>
+                              <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
+                                <Mail className="h-3 w-3 shrink-0" />
+                                {m.email}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {m.cargo}
+                          </div>
+                          <div>
+                            <Badge
+                              variant="secondary"
+                              className={`text-xs ${roleColors[m.role]}`}
+                            >
+                              {roleLabels[m.role]}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Clock className="h-3 w-3" />
+                              desde {formatarData(m.desde)}
+                            </span>
+                            <Badge
+                              variant="secondary"
+                              className={
+                                m.ativo
+                                  ? "bg-emerald-100 text-xs text-emerald-800"
+                                  : "bg-gray-100 text-xs text-gray-600"
+                              }
+                            >
+                              {m.ativo ? "Ativo" : "Inativo"}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })
           )}
         </div>
 
-        {/* User list */}
-        <Card>
-          <CardContent className="p-0">
-            <div className="divide-y divide-border">
-              {/* Header */}
-              <div className="grid grid-cols-[2fr_2fr_1fr_1fr_1fr] gap-4 px-5 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                <span>Usuário</span>
-                <span>Organização</span>
-                <span>Função</span>
-                <span>Membro desde</span>
-                <span>Status</span>
-              </div>
-
-              {/* Rows */}
-              {usuarios.map((u) => (
+        <div className="space-y-3 pt-2">
+          <div className="flex items-center gap-2">
+            <Shield className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-semibold">Advisors — tenant interno</h2>
+            <Badge variant="secondary" className="text-xs">
+              ConectaFornece Consultoria
+            </Badge>
+          </div>
+          <Card className="rounded-xl">
+            <CardContent className="divide-y divide-border p-0">
+              {advisors.map((a) => (
                 <div
-                  key={u.id}
-                  className="grid grid-cols-[2fr_2fr_1fr_1fr_1fr] gap-4 items-center px-5 py-4"
+                  key={a.id}
+                  className="grid grid-cols-[2fr_1fr_1fr_1fr] items-center gap-4 px-5 py-3"
                 >
-                  {/* Usuário */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-                      <Iniciais nome={u.nome} />
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                      {iniciais(a.nome)}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-medium text-sm truncate">{u.nome}</p>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
-                        <Mail className="w-3 h-3 shrink-0" />
-                        {u.email}
+                      <p className="truncate text-sm font-medium">{a.nome}</p>
+                      <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
+                        <Mail className="h-3 w-3 shrink-0" />
+                        {a.email}
                       </p>
                     </div>
                   </div>
-
-                  {/* Organização */}
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Badge
-                      variant="secondary"
-                      className={`text-xs shrink-0 ${orgTipoColors[u.orgTipo]}`}
-                    >
-                      {orgTipoLabels[u.orgTipo]}
-                    </Badge>
-                    <span className="text-sm truncate">{u.org}</span>
+                  <div className="text-xs text-muted-foreground">
+                    {a.especializacoes.length} especialização
+                    {a.especializacoes.length === 1 ? "" : "es"}
                   </div>
-
-                  {/* Função */}
                   <div>
                     <Badge
                       variant="secondary"
-                      className={`text-xs ${funcaoColors[u.funcao]}`}
+                      className={
+                        a.role === "owner"
+                          ? "bg-primary/10 text-xs text-primary"
+                          : "bg-blue-100 text-xs text-blue-800"
+                      }
                     >
-                      {u.funcao === "admin_plataforma" && (
-                        <Shield className="w-3 h-3 mr-1" />
-                      )}
-                      {funcaoLabels[u.funcao]}
+                      {a.role === "owner" ? "Owner" : "Advisor"}
                     </Badge>
                   </div>
-
-                  {/* Desde */}
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock className="w-3 h-3" />
-                    {u.desde}
-                  </div>
-
-                  {/* Status */}
-                  <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      desde {formatarData(a.desde)}
+                    </span>
                     <Badge
                       variant="secondary"
-                      className={`text-xs ${statusColors[u.status]}`}
+                      className={
+                        a.ativo
+                          ? "bg-emerald-100 text-xs text-emerald-800"
+                          : "bg-gray-100 text-xs text-gray-600"
+                      }
                     >
-                      {statusLabels[u.status]}
+                      {a.ativo ? "Ativo" : "Inativo"}
                     </Badge>
                   </div>
                 </div>
               ))}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </AppShell>
   );

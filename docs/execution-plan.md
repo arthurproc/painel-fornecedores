@@ -4,7 +4,7 @@
 >
 > **Regra de ouro:** quando o código atual conflita com o design, o design ganha. O código em `src/` é ponto de partida visual e deve ser refatorado/deletado agressivamente ao longo das unidades.
 
-**Última atualização:** 2026-04-15 (Fase 4 concluída; Fase 4.5 saneamento inserida; Diretório → U5.5)
+**Última atualização:** 2026-04-15 (Fase 4.5 concluída; Diretório → U5.5)
 **Total de unidades:** 50, distribuídas em 8 fases
 **Bootstrap de sessão:** `docs/session-bootstrap.md`
 
@@ -67,13 +67,13 @@
 
 | ID | Unidade | Status | Notas |
 | --- | --- | --- | --- |
-| U4.5.1 | Form `/empresa/novo-projeto` alinhado ao schema novo | 📋 | — |
-| U4.5.2 | Lista `/empresa/projetos` + detalhe `/empresa/projeto/[id]` pós-handshake | 📋 | — |
-| U4.5.3 | `/fornecedor/perfil` ligado ao fornecedor logado + dados reais | 📋 | — |
-| U4.5.4 | Páginas legadas `/empresa/fornecedor/[id]` e `/fornecedor/empresa/[id]` | 📋 | — |
-| U4.5.5 | `/empresa/perfil-publico` stub coerente até Fase 5 | 📋 | — |
-| U4.5.6 | Admin `/admin/usuarios` migrado para `Membro` | 📋 | — |
-| U4.5.7 | Admin `/admin/organizacoes` ancorado em `Organizacao` canônica | 📋 | — |
+| U4.5.1 | Form `/empresa/novo-projeto` alinhado ao schema novo | ✅ | Single-form desktop; componente `FormularioProjeto` reaproveitável; ações "Salvar rascunho" + "Publicar projeto"; toast substituído por card de confirmação + redirect |
+| U4.5.2 | Lista `/empresa/projetos` + detalhe `/empresa/projeto/[id]` pós-handshake | ✅ | Lista usa empresa da organização logada (sem `empresaId` chumbado); detalhe usa `HeaderProjeto`+blocos, CTAs contextuais por status (triagem/propostas/contrato); modal de fechamento e StarRating removidos |
+| U4.5.3 | `/fornecedor/perfil` ligado ao fornecedor logado + dados reais | ✅ | Lê `getFornecedorByOrganizacao(membroLogado.organizacao_id)`; `projetosRealizados` literal removido; reputação agregada exibe por dimensão; link "Editar" → `/configuracoes` |
+| U4.5.4 | Páginas legadas `/empresa/fornecedor/[id]` e `/fornecedor/empresa/[id]` | ✅ | **Rotas deletadas** em vez de stubbed — auditoria pós-execução confirmou que nenhum link interno apontava para elas desde o fim da Fase 4 (todos os "Ver perfil" já vão para `/organizacao/...`). Decisão registrada em `docs/post-execution-review.md §1`. Se a revisão futura optar por voltar a perfis contextuais, recriar do zero |
+| U4.5.5 | `/empresa/perfil-publico` stub coerente até Fase 5 | ✅ | Mensagem cita rota canônica futura `/organizacao/empresa/[organizacao_id]`; botão "Ver esqueleto" pode 404 até U5.2 |
+| U4.5.6 | Admin `/admin/usuarios` migrado para `Membro` | ✅ | Lista membros agrupados por `Organizacao` com roles canônicas (owner/admin/operador); seção separada para advisors (owner/advisor); filtros por role e tenant |
+| U4.5.7 | Admin `/admin/organizacoes` ancorado em `Organizacao` canônica | ✅ | Lista vem de `organizacoes`; chips `perfil_empresa_ativo`/`perfil_fornecedor_ativo`/`linkage_publica`; dual-role explícito (ex.: Metalúrgica XYZ); contagens via `getContratosPorOrg` + `projetos.filter` |
 
 ### Fase 5 — Perfis públicos
 
