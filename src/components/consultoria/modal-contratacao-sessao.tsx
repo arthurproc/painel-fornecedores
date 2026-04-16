@@ -73,7 +73,7 @@ export function ModalContratacaoSessao({
             c.status === "rascunho"
               ? "rascunho"
               : c.status === "shortlistada"
-                ? "shortlistada"
+                ? "selecionada para proposta"
                 : "aguardando triagem",
           candidatura_id: c.id,
         });

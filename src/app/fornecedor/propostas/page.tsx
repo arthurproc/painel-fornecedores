@@ -58,8 +58,8 @@ export default function PropostasFornecedorPage() {
           <CardContent className="p-5">
             <h1 className="text-lg font-semibold">Propostas formais</h1>
             <p className="text-sm text-muted-foreground">
-              {minhas.length} proposta(s) em andamento · {shortlistSemProposta.length} shortlist
-              aguardando proposta
+              {minhas.length} proposta(s) em andamento · {shortlistSemProposta.length} seleção(ões)
+              para proposta aguardando envio
             </p>
           </CardContent>
         </Card>
@@ -67,7 +67,7 @@ export default function PropostasFornecedorPage() {
         {shortlistSemProposta.length > 0 && (
           <section className="space-y-3">
             <h2 className="text-sm font-semibold uppercase text-muted-foreground">
-              Shortlist aguardando proposta
+              Selecionadas para proposta aguardando envio
             </h2>
             {shortlistSemProposta.map(({ candidatura, projeto, empresa }) => (
               <Card key={candidatura.id} className="rounded-xl border-amber-200 bg-amber-50/50">

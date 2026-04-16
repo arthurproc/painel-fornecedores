@@ -32,7 +32,7 @@ import {
 const FILTRO_OPCOES: { value: "todas" | CandidaturaStatus; label: string }[] = [
   { value: "todas", label: "Todas" },
   { value: "enviada", label: "Aguardando triagem" },
-  { value: "shortlistada", label: "Shortlistadas" },
+  { value: "shortlistada", label: "Selecionadas para proposta" },
   { value: "descartada", label: "Descartadas" },
   { value: "retirada", label: "Retiradas" },
   { value: "expirada", label: "Expiradas" },

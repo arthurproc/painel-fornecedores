@@ -372,7 +372,7 @@ export const sessoesConsultoria: SessaoConsultoria[] = [
         tipo: "notas",
         fase: "proposta",
         conteudo:
-          "# Pré-análise de proposta\n\nApós a triagem, vamos revisar:\n\n- Estrutura de preço (fixo vs. escalonado)\n- Cronograma detalhado com *gate* de aceitação intermediário\n- Cláusulas de garantia — Vale costuma pedir 12 meses mínimo\n\n## Próximo passo\n\nSó avançamos após a candidatura ser shortlistada. Enquanto isso, preparo um rascunho baseado no projeto.",
+          "# Pré-análise de proposta\n\nApós a triagem, vamos revisar:\n\n- Estrutura de preço (fixo vs. escalonado)\n- Cronograma detalhado com *gate* de aceitação intermediário\n- Cláusulas de garantia — Vale costuma pedir 12 meses mínimo\n\n## Próximo passo\n\nSó avançamos após a candidatura ser selecionada para proposta. Enquanto isso, preparo um rascunho baseado no projeto.",
         criado_em: "2026-04-12",
       },
     ],
@@ -612,11 +612,11 @@ export const ofertasOutreach: OfertaOutreach[] = [
     id: "oft-2",
     fornecedor_id: "2",
     owner_id: "adv-celso",
-    mensagem:
-      "Ambiental Solutions está shortlistada no projeto 5 ArcelorMittal. Posso apoiar na proposta formal com acompanhamento completo.",
+      mensagem:
+        "Ambiental Solutions foi selecionada para proposta no projeto 5 ArcelorMittal. Posso apoiar na proposta formal com acompanhamento completo.",
     catalogo_sugerido_id: "cat-acompanhamento",
     status: "visualizada",
-    motivo_lead: "Candidatura shortlistada em projeto de SST",
+    motivo_lead: "Candidatura selecionada para proposta em projeto de SST",
     enviada_em: "2026-04-08",
     visualizada_em: "2026-04-09",
   },

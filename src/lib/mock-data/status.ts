@@ -11,7 +11,7 @@ export const statusLabels: Record<string, StatusLabel> = {
   expirado: "Expirado",
   // Proposta / Candidatura (legado mock + novos)
   enviada: "Enviada",
-  shortlistada: "Shortlistada",
+  shortlistada: "Selecionada para proposta",
   descartada: "Descartada",
   expirada: "Expirada",
   retirada: "Retirada",

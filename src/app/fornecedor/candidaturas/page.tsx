@@ -30,7 +30,7 @@ const ABAS: { value: FiltroFornecedor; label: string }[] = [
   { value: "todas", label: "Todas" },
   { value: "rascunho", label: "Rascunhos" },
   { value: "enviada", label: "Aguardando triagem" },
-  { value: "shortlistada", label: "Shortlistadas" },
+  { value: "shortlistada", label: "Selecionadas para proposta" },
   { value: "descartada", label: "Descartadas" },
   { value: "retirada", label: "Retiradas" },
   { value: "expirada", label: "Expiradas" },

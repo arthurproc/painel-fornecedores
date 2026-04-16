@@ -316,7 +316,7 @@ export default function EmpresaDashboard() {
                 </>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  Mensagens com fornecedores aparecem após shortlist.
+                  Mensagens com fornecedores aparecem após a seleção para proposta.
                 </p>
               )}
               <Button asChild size="sm" variant="outline">

@@ -48,7 +48,7 @@ function computarLeads(): Lead[] {
     if (shortlist.length > 0) {
       leads.push({
         fornecedor,
-        sinal: "Candidatura shortlistada aguardando proposta",
+        sinal: "Candidatura selecionada para proposta aguardando envio",
         detalhes: shortlist.slice(0, 2).map((c) => `Candidatura ${c.id}`),
         sugestao_catalogo_id: "cat-revisao-proposta",
         recencia: shortlist[0].enviada_em ?? "recente",
