@@ -20,6 +20,7 @@ import {
   contratos,
   empresas,
   getFornecedorById,
+  getFornecedorCredenciaisNomes,
   getOrganizacaoById,
   projetos,
   reviews,
@@ -73,6 +74,8 @@ export default async function PerfilPublicoFornecedorPage({
     )
     .sort((a, b) => (b.liberada_em ?? "").localeCompare(a.liberada_em ?? ""))
     .slice(0, 5);
+
+  const credenciais = getFornecedorCredenciaisNomes(fornecedor);
 
   return (
     <div className="space-y-6">
@@ -130,17 +133,17 @@ export default async function PerfilPublicoFornecedorPage({
       <Card className="rounded-xl">
         <CardContent className="p-5">
           <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            <Award className="h-4 w-4" /> Certificações
+            <Award className="h-4 w-4" /> Credenciais
           </h3>
-          {fornecedor.certificacoes.length === 0 ? (
+          {credenciais.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Nenhuma certificação cadastrada.
+              Nenhuma credencial cadastrada.
             </p>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {fornecedor.certificacoes.map((cert) => (
-                <Badge key={cert} className="rounded-full" variant="secondary">
-                  {cert}
+              {credenciais.map((credencial) => (
+                <Badge key={credencial} className="rounded-full" variant="secondary">
+                  {credencial}
                 </Badge>
               ))}
             </div>

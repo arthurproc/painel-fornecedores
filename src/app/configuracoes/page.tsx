@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { Building2, CreditCard, EyeOff, Link2, ShieldCheck, Users } from "lucide-react";
+import { FormCredenciaisFornecedor } from "@/components/configuracoes/form-credenciais-fornecedor";
+import { FormDocumentosFornecedor } from "@/components/configuracoes/form-documentos-fornecedor";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +15,9 @@ import {
   getEmpresaByOrganizacao,
   getFornecedorByOrganizacao,
   getMembrosByOrg,
+  countCredenciaisSemComprovante,
+  countDocumentosVigentes,
+  getFornecedorCredenciaisNomes,
 } from "@/lib/mock-data";
 import { useContextoAtivo, useSessaoMock } from "@/lib/session";
 
@@ -28,6 +34,7 @@ export default function ConfiguracoesOrganizacaoPage() {
   const membros = getMembrosByOrg(organizacaoAtiva.id);
   const perfilEmpresa = getEmpresaByOrganizacao(organizacaoAtiva.id);
   const perfilFornecedor = getFornecedorByOrganizacao(organizacaoAtiva.id);
+  const [, forceRender] = useState(0);
 
   const podeVerAbaEmpresa = organizacaoAtiva.perfil_empresa_ativo && Boolean(perfilEmpresa);
   const podeVerAbaFornecedor =
@@ -192,39 +199,78 @@ export default function ConfiguracoesOrganizacaoPage() {
 
           {podeVerAbaFornecedor ? (
             <TabsContent value="perfil-fornecedor" className="mt-4">
-              <Card className="rounded-xl">
-                <CardHeader>
-                  <CardTitle className="text-xl font-semibold">Perfil Fornecedor</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Nome público</Label>
-                      <Input value={perfilFornecedor?.nome ?? ""} readOnly className="bg-muted/50" />
+              <div className="space-y-4">
+                <Card className="rounded-xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-semibold">Perfil Fornecedor</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Nome público</Label>
+                        <Input value={perfilFornecedor?.nome ?? ""} readOnly className="bg-muted/50" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Cidade</Label>
+                        <Input value={perfilFornecedor?.cidade ?? ""} readOnly className="bg-muted/50" />
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Cidade</Label>
-                      <Input value={perfilFornecedor?.cidade ?? ""} readOnly className="bg-muted/50" />
+                      <Label>Categorias atendidas</Label>
+                      <Input value={perfilFornecedor?.categorias.join(" · ") ?? ""} readOnly className="bg-muted/50" />
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Categorias atendidas</Label>
-                    <Input value={perfilFornecedor?.categorias.join(" · ") ?? ""} readOnly className="bg-muted/50" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Regiões atendidas</Label>
-                    <Input
-                      value={perfilFornecedor?.regioes_atendidas.join(" · ") ?? ""}
-                      readOnly
-                      className="bg-muted/50"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Certificações</Label>
-                    <Input value={perfilFornecedor?.certificacoes.join(" · ") ?? ""} readOnly className="bg-muted/50" />
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className="space-y-2">
+                      <Label>Regiões atendidas</Label>
+                      <Input value={perfilFornecedor?.regioes_atendidas.join(" · ") ?? ""} readOnly className="bg-muted/50" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {perfilFornecedor ? (
+                  <Card className="rounded-xl">
+                    <CardHeader>
+                      <CardTitle className="text-base">Resumo de cobertura</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-3 gap-3 text-sm">
+                      <div className="rounded-lg border border-border p-3">
+                        <p className="text-2xl font-bold">{perfilFornecedor.credenciais_ids.length}</p>
+                        <p className="text-xs text-muted-foreground">credenciais cadastradas</p>
+                      </div>
+                      <div className="rounded-lg border border-border p-3">
+                        <p className="text-2xl font-bold">{countDocumentosVigentes(perfilFornecedor)}</p>
+                        <p className="text-xs text-muted-foreground">comprovantes vigentes</p>
+                      </div>
+                      <div className="rounded-lg border border-border p-3">
+                        <p className="text-2xl font-bold">{countCredenciaisSemComprovante(perfilFornecedor)}</p>
+                        <p className="text-xs text-muted-foreground">credenciais sem comprovante</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : null}
+
+                {perfilFornecedor ? (
+                  <FormCredenciaisFornecedor
+                    fornecedor={perfilFornecedor}
+                    onUpdated={() => forceRender((value) => value + 1)}
+                  />
+                ) : null}
+                {perfilFornecedor ? (
+                  <FormDocumentosFornecedor
+                    fornecedor={perfilFornecedor}
+                    onUpdated={() => forceRender((value) => value + 1)}
+                  />
+                ) : null}
+                {perfilFornecedor ? (
+                  <Card className="rounded-xl">
+                    <CardHeader>
+                      <CardTitle className="text-base">Leitura pública atual</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Input value={getFornecedorCredenciaisNomes(perfilFornecedor).join(" · ")} readOnly className="bg-muted/50" />
+                    </CardContent>
+                  </Card>
+                ) : null}
+              </div>
             </TabsContent>
           ) : null}
 

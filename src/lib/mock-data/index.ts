@@ -17,5 +17,6 @@ export * from "./notificacoes";
 export * from "./catalogos";
 export * from "./status";
 export * from "./helpers";
+export * from "../platform-credentials";
 
 export { categorias, regioes } from "@/lib/platform-data";

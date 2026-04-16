@@ -20,8 +20,7 @@ Eliminar a ambiguidade atual entre certificações, requisitos e documentos, int
   - `requisitos: string[]`
   - `documentos_exigidos: DocumentoExigido[]`
   - `criterios_selecao: string[]`
-- `Candidatura` (`src/lib/mock-data/candidaturas.ts`) guarda apenas:
-  - `certificacoes_aplicaveis: string[]`
+- `Candidatura` (`src/lib/mock-data/candidaturas.ts`) ainda não separa claramente os anexos por documento exigido.
 - Não existe entidade canônica para credenciais; nomes podem divergir (`NR-22`, `NR22`, `Certificado NR-22`).
 
 ### UI atual auditada
@@ -41,7 +40,7 @@ Eliminar a ambiguidade atual entre certificações, requisitos e documentos, int
 
 ### Design/docs auditados
 
-- `design/data-model.md` ainda modela `Candidatura.certificacoes_aplicaveis` e não separa credencial de comprovante.
+- `design/data-model.md` ainda não modela corretamente o vínculo entre documento exigido, anexo da candidatura e documento do perfil.
 - `design/handshake-flow.md` ainda trata genericamente “certificações/documentos aplicáveis” na candidatura.
 - `design/info-architecture.md` cita certificações no perfil fornecedor, mas não descreve um gerenciador de comprovantes.
 
@@ -265,14 +264,9 @@ Arquivo:
 
 - `src/lib/mock-data/candidaturas.ts`
 
-Estado atual:
-
-- `certificacoes_aplicaveis: string[]`
-
 Estado alvo:
 
 ```ts
-credenciais_destacadas_ids: string[]
 documentos_anexados: DocumentoCandidaturaAnexado[]
 ```
 
@@ -397,23 +391,11 @@ Manter:
 - capacidade declarada
 - faixa de preço
 
-Substituir a seção atual de `Certificações aplicáveis` por duas camadas:
+Substituir a seção atual de `Certificações aplicáveis` por uma camada única:
 
-1. `Credenciais do seu perfil relevantes para este projeto`
-2. `Documentos para esta candidatura`
+1. `Documentos para esta candidatura`
 
-#### Seção 1 — Credenciais relevantes
-
-Mostrar match entre `projeto.credenciais_exigidas` e `fornecedor.credenciais_ids`.
-
-Estados por credencial:
-
-- `Encontrada no perfil`
-- `Não cadastrada no perfil`
-
-Essa seção é informativa e pode alimentar `credenciais_destacadas_ids`.
-
-#### Seção 2 — Documentos para esta candidatura
+#### Seção — Documentos para esta candidatura
 
 Para cada `documento_exigido` do projeto, renderizar uma linha/cartão com:
 

@@ -10,7 +10,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FormularioCandidatura } from "@/components/handshake/formulario-candidatura";
 import {
   MEMBRO_LOGADO_ID,
+  addDocumentoEmpresa,
+  candidaturas,
   contratos,
+  createCandidatura,
   empresas,
   getFornecedorByOrganizacao,
   getMembroById,
@@ -29,6 +32,16 @@ export default function CandidatarPage({
   const fornecedor = getFornecedorByOrganizacao(membroLogado?.organizacao_id ?? "");
   const empresa = projeto ? empresas.find((e) => e.id === projeto.empresa_id) : undefined;
   const [enviada, setEnviada] = useState(false);
+  const candidaturaAtiva = Boolean(
+    projeto &&
+      fornecedor &&
+      candidaturas.find(
+        (candidatura) =>
+          candidatura.projeto_id === projeto.id &&
+          candidatura.fornecedor_id === fornecedor.id &&
+          ["rascunho", "enviada", "shortlistada"].includes(candidatura.status)
+      )
+  );
 
   if (!projeto) {
     return (
@@ -51,7 +64,54 @@ export default function CandidatarPage({
       )
     : [];
 
-  function handleSubmit() {
+  function handleSubmit(payload: {
+    pitch: string;
+    capacidade_declarada: string;
+    faixa_preco_preliminar?: string;
+    contratos_destacados: string[];
+    documentos_anexados: import("@/lib/mock-data").DocumentoCandidaturaAnexado[];
+    documentos_manuais_meta: Record<string, { arquivoNome: string; validade: string; observacao: string }>;
+  }) {
+    if (!fornecedor || !membroLogado || !projeto) return;
+
+    const documentosAnexados = payload.documentos_anexados.map((documento) => {
+      if (documento.origem === "manual" || !documento.documento_empresa_id) {
+        const meta = payload.documentos_manuais_meta[documento.documento_exigido_id];
+        const novoDocumento = addDocumentoEmpresa(fornecedor.id, {
+          nome: documento.nome,
+          tipo: documento.nome.toLowerCase().includes("portfólio") ? "portfolio" : "outro",
+          arquivo_nome: meta?.arquivoNome || documento.nome,
+          arquivo_caminho: documento.arquivo_caminho,
+          validade: meta?.validade || undefined,
+          status: "vigente",
+          observacao: meta?.observacao || undefined,
+        });
+
+        return {
+          ...documento,
+          documento_empresa_id: novoDocumento?.id,
+          arquivo_caminho: novoDocumento?.arquivo_caminho ?? documento.arquivo_caminho,
+        };
+      }
+
+      return documento;
+    });
+
+    createCandidatura({
+      projeto_id: projeto.id,
+      fornecedor_id: fornecedor.id,
+      autor_membro_id: membroLogado.id,
+      pitch: payload.pitch,
+      contratos_destacados: payload.contratos_destacados,
+      capacidade_declarada: payload.capacidade_declarada,
+      faixa_preco_preliminar: payload.faixa_preco_preliminar,
+      documentos_anexados: documentosAnexados,
+      status: "enviada",
+      revisada_consultoria: false,
+      criada_em: "2026-04-15",
+      enviada_em: "2026-04-15",
+    });
+
     setEnviada(true);
     setTimeout(() => {
       router.push("/fornecedor/candidaturas");
@@ -92,12 +152,20 @@ export default function CandidatarPage({
             </CardContent>
           </Card>
         ) : (
-          <FormularioCandidatura
-            projeto={projeto}
-            fornecedor={fornecedor}
-            contratosDestacaveis={contratosDestacaveis}
-            onSubmit={handleSubmit}
-          />
+          candidaturaAtiva ? (
+            <Card className="rounded-xl border-amber-200 bg-amber-50">
+              <CardContent className="p-5 text-sm text-amber-900">
+                Já existe uma candidatura ativa sua para este projeto. Volte ao projeto ou consulte Minhas candidaturas.
+              </CardContent>
+            </Card>
+          ) : (
+            <FormularioCandidatura
+              projeto={projeto}
+              fornecedor={fornecedor}
+              contratosDestacaveis={contratosDestacaveis}
+              onSubmit={handleSubmit}
+            />
+          )
         )}
       </div>
     </AppShell>

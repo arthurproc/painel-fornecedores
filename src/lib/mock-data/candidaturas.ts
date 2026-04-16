@@ -1,36 +1,49 @@
 import type { CandidaturaStatus } from "./_shared";
+export interface DocumentoCandidaturaAnexado {
+  documento_exigido_id: string;
+  documento_empresa_id?: string;
+  nome: string;
+  origem: "perfil" | "manual";
+  arquivo_caminho: string;
+  status: "anexado" | "pendente";
+}
 
 export interface Candidatura {
   id: string;
   projeto_id: string;
   fornecedor_id: string;
   autor_membro_id: string;
-
   pitch: string;
   contratos_destacados: string[];
   capacidade_declarada: string;
   faixa_preco_preliminar?: string;
-  certificacoes_aplicaveis: string[];
-
+  documentos_anexados: DocumentoCandidaturaAnexado[];
   status: CandidaturaStatus;
   motivo_descarte?: {
     categoria_id: string;
     comentario?: string;
   };
-
   revisada_consultoria: boolean;
   sessao_consultoria_id?: string;
-
   aviso_30d_enviado_em?: string;
-
   criada_em: string;
   enviada_em?: string;
   decidida_em?: string;
   expirada_em?: string;
 }
 
-export const candidaturas: Candidatura[] = [
-  // Projeto 1 — publicado (2 candidaturas enviadas)
+interface CandidaturaSeed extends Omit<Candidatura, "documentos_anexados"> {
+  documentos_anexados?: DocumentoCandidaturaAnexado[];
+}
+
+function normalizeCandidatura(seed: CandidaturaSeed): Candidatura {
+  return {
+    ...seed,
+    documentos_anexados: seed.documentos_anexados ?? [],
+  };
+}
+
+const candidaturaSeeds: CandidaturaSeed[] = [
   {
     id: "cand-1",
     projeto_id: "1",
@@ -41,7 +54,16 @@ export const candidaturas: Candidatura[] = [
     contratos_destacados: ["ct-7", "ct-9"],
     capacidade_declarada: "Equipe 15 técnicos + engenheiro responsável",
     faixa_preco_preliminar: "R$ 300.000 - R$ 360.000",
-    certificacoes_aplicaveis: ["NR-22", "ISO 9001"],
+    documentos_anexados: [
+      {
+        documento_exigido_id: "proj-1-doc-nr22",
+        documento_empresa_id: "doc-tech-nr-22",
+        nome: "Certificado NR-22 vigente",
+        origem: "perfil",
+        arquivo_caminho: "/mock-storage/fornecedores/1/certificado-nr-22-techminas.pdf",
+        status: "anexado",
+      },
+    ],
     status: "enviada",
     revisada_consultoria: false,
     criada_em: "2026-04-11",
@@ -57,13 +79,11 @@ export const candidaturas: Candidatura[] = [
     contratos_destacados: ["ct-13", "ct-14"],
     capacidade_declarada: "Equipe 10 técnicos",
     faixa_preco_preliminar: "R$ 280.000 - R$ 320.000",
-    certificacoes_aplicaveis: ["MTE", "ISO 45001"],
     status: "enviada",
     revisada_consultoria: true,
     criada_em: "2026-04-11",
     enviada_em: "2026-04-11",
   },
-  // Projeto 2 — publicado (1 enviada, 1 expirada)
   {
     id: "cand-3",
     projeto_id: "2",
@@ -74,7 +94,6 @@ export const candidaturas: Candidatura[] = [
     contratos_destacados: ["ct-10"],
     capacidade_declarada: "Equipe multidisciplinar 12 profissionais",
     faixa_preco_preliminar: "R$ 650.000 - R$ 780.000",
-    certificacoes_aplicaveis: ["ISO 14001", "Licença IBAMA"],
     status: "enviada",
     revisada_consultoria: false,
     criada_em: "2026-04-09",
@@ -89,14 +108,12 @@ export const candidaturas: Candidatura[] = [
       "Podemos fornecer a parte logística do projeto. Aguardando retorno há mais de 45 dias.",
     contratos_destacados: [],
     capacidade_declarada: "Logística e mobilização",
-    certificacoes_aplicaveis: [],
     status: "expirada",
     revisada_consultoria: false,
     criada_em: "2026-02-20",
     enviada_em: "2026-02-20",
     expirada_em: "2026-04-06",
   },
-  // Projeto 3 — em_triagem (1 enviada, 1 descartada)
   {
     id: "cand-4",
     projeto_id: "3",
@@ -107,7 +124,6 @@ export const candidaturas: Candidatura[] = [
     contratos_destacados: ["ct-11"],
     capacidade_declarada: "Frota 52 veículos",
     faixa_preco_preliminar: "R$ 1.400.000 - R$ 1.600.000",
-    certificacoes_aplicaveis: ["RNTRC", "SASSMAQ"],
     status: "enviada",
     revisada_consultoria: false,
     criada_em: "2026-04-06",
@@ -122,7 +138,6 @@ export const candidaturas: Candidatura[] = [
       "Podemos apoiar com fabricação de componentes auxiliares e suporte logístico local.",
     contratos_destacados: [],
     capacidade_declarada: "Fabricação sob medida",
-    certificacoes_aplicaveis: ["ISO 9001"],
     status: "descartada",
     motivo_descarte: {
       categoria_id: "fora_escopo",
@@ -133,7 +148,6 @@ export const candidaturas: Candidatura[] = [
     enviada_em: "2026-04-05",
     decidida_em: "2026-04-08",
   },
-  // Projeto 4 — publicado (1 enviada)
   {
     id: "cand-5",
     projeto_id: "4",
@@ -144,13 +158,11 @@ export const candidaturas: Candidatura[] = [
     contratos_destacados: ["ct-12"],
     capacidade_declarada: "Equipe 20 profissionais + engenheiro",
     faixa_preco_preliminar: "R$ 220.000 - R$ 260.000",
-    certificacoes_aplicaveis: ["CREA-MG", "PBQP-H"],
     status: "enviada",
     revisada_consultoria: true,
     criada_em: "2026-04-13",
     enviada_em: "2026-04-13",
   },
-  // Projeto 5 — em_propostas (3 shortlistadas com propostas em vários status)
   {
     id: "cand-5a",
     projeto_id: "5",
@@ -161,7 +173,6 @@ export const candidaturas: Candidatura[] = [
     contratos_destacados: ["ct-13", "ct-14"],
     capacidade_declarada: "Equipe 8 profissionais",
     faixa_preco_preliminar: "R$ 95.000 - R$ 120.000",
-    certificacoes_aplicaveis: ["MTE", "ISO 45001"],
     status: "shortlistada",
     revisada_consultoria: true,
     criada_em: "2026-04-02",
@@ -177,7 +188,6 @@ export const candidaturas: Candidatura[] = [
       "Ambiental Solutions atua em SST há mais de uma década. Proposta em elaboração com foco em compliance completo.",
     contratos_destacados: ["ct-10"],
     capacidade_declarada: "Equipe multidisciplinar 6 profissionais",
-    certificacoes_aplicaveis: ["ISO 14001"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2026-04-02",
@@ -193,14 +203,12 @@ export const candidaturas: Candidatura[] = [
       "Apoiamos a ArcelorMittal desde 2018. Candidatura foi retirada porque a equipe foi realocada para outro contrato.",
     contratos_destacados: ["ct-7"],
     capacidade_declarada: "Equipe sênior",
-    certificacoes_aplicaveis: ["NR-10", "NR-35"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2026-04-03",
     enviada_em: "2026-04-03",
     decidida_em: "2026-04-08",
   },
-  // Projeto 6 — publicado (1 rascunho, 1 retirada)
   {
     id: "cand-rascunho",
     projeto_id: "6",
@@ -210,7 +218,6 @@ export const candidaturas: Candidatura[] = [
       "Candidatura em elaboração. Preparando documentação técnica e proposta preliminar de fornecimento.",
     contratos_destacados: [],
     capacidade_declarada: "Em definição",
-    certificacoes_aplicaveis: ["ISO 9001"],
     status: "rascunho",
     revisada_consultoria: false,
     criada_em: "2026-04-12",
@@ -224,7 +231,6 @@ export const candidaturas: Candidatura[] = [
       "Havíamos manifestado interesse mas após análise interna decidimos não prosseguir com esta candidatura.",
     contratos_destacados: [],
     capacidade_declarada: "N/A",
-    certificacoes_aplicaveis: [],
     status: "retirada",
     revisada_consultoria: false,
     criada_em: "2026-04-01",
@@ -241,7 +247,16 @@ export const candidaturas: Candidatura[] = [
     contratos_destacados: [],
     capacidade_declarada: "Equipe 6 técnicos + suporte de usinagem",
     faixa_preco_preliminar: "R$ 310.000 - R$ 355.000",
-    certificacoes_aplicaveis: ["ISO 9001", "NR-10 SEP"],
+    documentos_anexados: [
+      {
+        documento_exigido_id: "proj-1-doc-art",
+        documento_empresa_id: "doc-mx-portfolio-contratos",
+        nome: "Portfólio de contratos similares",
+        origem: "manual",
+        arquivo_caminho: "/mock-storage/fornecedores/6/portfolio-contratos-metalurgica-xyz.pdf",
+        status: "anexado",
+      },
+    ],
     status: "enviada",
     revisada_consultoria: false,
     criada_em: "2026-04-13",
@@ -257,7 +272,6 @@ export const candidaturas: Candidatura[] = [
     contratos_destacados: ["ct-18"],
     capacidade_declarada: "Equipe de caldeiraria + parceiro de engenharia de segurança",
     faixa_preco_preliminar: "R$ 102.000 - R$ 128.000",
-    certificacoes_aplicaveis: ["ISO 9001", "CREA-MG"],
     status: "shortlistada",
     revisada_consultoria: true,
     criada_em: "2026-04-04",
@@ -273,7 +287,6 @@ export const candidaturas: Candidatura[] = [
       "Montaríamos a infraestrutura metálica e os abrigos dos sensores ambientais. A candidatura expirou sem retorno da empresa contratante.",
     contratos_destacados: [],
     capacidade_declarada: "Equipe de instalação metálica",
-    certificacoes_aplicaveis: ["ISO 9001"],
     status: "expirada",
     revisada_consultoria: false,
     criada_em: "2026-02-18",
@@ -289,23 +302,20 @@ export const candidaturas: Candidatura[] = [
       "Iniciamos a candidatura para fornecimento de suportes metálicos para armazenagem de EPIs, mas decidimos retirar ao identificar limitação de estoque homologado.",
     contratos_destacados: [],
     capacidade_declarada: "Em revisão de capacidade",
-    certificacoes_aplicaveis: ["ISO 9001"],
     status: "retirada",
     revisada_consultoria: false,
     criada_em: "2026-03-27",
     enviada_em: "2026-03-28",
     decidida_em: "2026-04-02",
   },
-  // Projetos fechados (7-14) — cada um com candidatura shortlistada vencedora
   {
     id: "cand-ct-7",
     projeto_id: "7",
     fornecedor_id: "1",
     autor_membro_id: "mem-techminas-owner",
-    pitch: "Proposta vencedora para manutenção de pontes rolantes — execução concluída.",
+    pitch: "Proposta vencedora para manutenção de pontes rolantes - execução concluída.",
     contratos_destacados: [],
     capacidade_declarada: "Equipe 12 técnicos",
-    certificacoes_aplicaveis: ["NR-11"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2026-01-10",
@@ -320,7 +330,6 @@ export const candidaturas: Candidatura[] = [
     pitch: "Proposta vencedora para gestão de resíduos industriais.",
     contratos_destacados: [],
     capacidade_declarada: "Equipe 8 profissionais",
-    certificacoes_aplicaveis: ["ISO 14001"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2026-02-15",
@@ -332,10 +341,9 @@ export const candidaturas: Candidatura[] = [
     projeto_id: "9",
     fornecedor_id: "1",
     autor_membro_id: "mem-techminas-owner",
-    pitch: "Revisão geral de equipamentos de içamento — contrato em execução.",
+    pitch: "Revisão geral de equipamentos de içamento - contrato em execução.",
     contratos_destacados: [],
     capacidade_declarada: "Equipe 10 técnicos",
-    certificacoes_aplicaveis: ["NR-11", "NR-12"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2025-12-10",
@@ -347,10 +355,9 @@ export const candidaturas: Candidatura[] = [
     projeto_id: "10",
     fornecedor_id: "2",
     autor_membro_id: "mem-ambiental-owner",
-    pitch: "Elaboração do RIMA — contrato encerrado.",
+    pitch: "Elaboração do RIMA - contrato encerrado.",
     contratos_destacados: [],
     capacidade_declarada: "Engenheiro ambiental + biólogos",
-    certificacoes_aplicaveis: ["Licença IBAMA"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2025-11-15",
@@ -365,7 +372,6 @@ export const candidaturas: Candidatura[] = [
     pitch: "Transporte especializado de equipamentos pesados.",
     contratos_destacados: [],
     capacidade_declarada: "Frota especial 10 veículos",
-    certificacoes_aplicaveis: ["RNTRC"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2026-01-25",
@@ -380,7 +386,6 @@ export const candidaturas: Candidatura[] = [
     pitch: "Ampliação do almoxarifado industrial.",
     contratos_destacados: [],
     capacidade_declarada: "Equipe completa de obra civil",
-    certificacoes_aplicaveis: ["CREA-MG", "PBQP-H"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2025-10-20",
@@ -395,7 +400,6 @@ export const candidaturas: Candidatura[] = [
     pitch: "Implantação do PGR com equipe multidisciplinar.",
     contratos_destacados: [],
     capacidade_declarada: "Equipe 6 profissionais",
-    certificacoes_aplicaveis: ["MTE"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2026-01-15",
@@ -412,7 +416,6 @@ export const candidaturas: Candidatura[] = [
     contratos_destacados: ["ct-7", "ct-9"],
     capacidade_declarada: "Equipe 9 técnicos + engenheiro mecânico",
     faixa_preco_preliminar: "R$ 248.000 - R$ 290.000",
-    certificacoes_aplicaveis: ["ISO 9001", "NR-35"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2026-04-05",
@@ -429,7 +432,6 @@ export const candidaturas: Candidatura[] = [
     contratos_destacados: ["ct-13", "ct-14"],
     capacidade_declarada: "Coordenação SST + parceiro técnico de ventilação",
     faixa_preco_preliminar: "R$ 232.000 - R$ 276.000",
-    certificacoes_aplicaveis: ["ISO 45001", "MTE"],
     status: "shortlistada",
     revisada_consultoria: true,
     criada_em: "2026-04-06",
@@ -445,7 +447,6 @@ export const candidaturas: Candidatura[] = [
       "Equipe certificada para inspeção e recuperação de pontes rolantes com entrega de laudo dimensional e plano de correção executado em janela curta.",
     contratos_destacados: ["ct-7", "ct-9"],
     capacidade_declarada: "Equipe 12 técnicos",
-    certificacoes_aplicaveis: ["NR-11"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2026-02-18",
@@ -461,7 +462,6 @@ export const candidaturas: Candidatura[] = [
       "A Ambiental Solutions atuou com parceiro de ventilação para adequar as cabines de pintura e revisar os controles de exposição ocupacional.",
     contratos_destacados: ["ct-10"],
     capacidade_declarada: "Coordenação técnica + parceiro de montagem",
-    certificacoes_aplicaveis: ["ISO 14001"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2026-01-18",
@@ -476,7 +476,6 @@ export const candidaturas: Candidatura[] = [
     pitch: "Usinagem e entrega de eixos de transmissão com rastreabilidade completa do material.",
     contratos_destacados: [],
     capacidade_declarada: "Torno CNC + inspeção dimensional",
-    certificacoes_aplicaveis: ["ISO 9001"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2025-09-12",
@@ -491,14 +490,12 @@ export const candidaturas: Candidatura[] = [
     pitch: "Fabricação e montagem de plataforma metálica com memorial de cálculo e inspeção de solda.",
     contratos_destacados: ["ct-18"],
     capacidade_declarada: "Equipe de caldeiraria e montagem",
-    certificacoes_aplicaveis: ["ISO 9001", "CREA-MG"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2026-03-02",
     enviada_em: "2026-03-02",
     decidida_em: "2026-03-12",
   },
-  // Projeto 18 (Metalúrgica XYZ — publicado) — 2 enviadas
   {
     id: "cand-18-a",
     projeto_id: "18",
@@ -509,7 +506,6 @@ export const candidaturas: Candidatura[] = [
     contratos_destacados: ["ct-7", "ct-9"],
     capacidade_declarada: "Equipe 8 técnicos + engenheiro",
     faixa_preco_preliminar: "R$ 170.000 - R$ 195.000",
-    certificacoes_aplicaveis: ["NR-10", "NR-10 SEP", "ISO 9001"],
     status: "enviada",
     revisada_consultoria: false,
     criada_em: "2026-04-11",
@@ -524,13 +520,11 @@ export const candidaturas: Candidatura[] = [
       "Nossa divisão de manutenção industrial atende plantas metalúrgicas da região central. Portfólio inclui contratos similares em Usiminas. Proposta inclui reposição de refratário com fornecedor homologado.",
     contratos_destacados: ["ct-12"],
     capacidade_declarada: "Equipe 12 profissionais",
-    certificacoes_aplicaveis: ["CREA-MG", "ISO 9001"],
     status: "enviada",
     revisada_consultoria: true,
     criada_em: "2026-04-12",
     enviada_em: "2026-04-12",
   },
-  // Projeto 19 (Metalúrgica XYZ — em_triagem) — 1 shortlistada, 1 enviada, 1 descartada
   {
     id: "cand-19-a",
     projeto_id: "19",
@@ -541,7 +535,6 @@ export const candidaturas: Candidatura[] = [
     contratos_destacados: ["ct-13", "ct-14"],
     capacidade_declarada: "Engenheiro sênior + 3 técnicos",
     faixa_preco_preliminar: "R$ 205.000 - R$ 240.000",
-    certificacoes_aplicaveis: ["MTE", "ISO 45001"],
     status: "shortlistada",
     revisada_consultoria: true,
     criada_em: "2026-04-03",
@@ -557,7 +550,6 @@ export const candidaturas: Candidatura[] = [
       "Ampliamos recentemente nossa atuação em segurança do trabalho. Podemos apoiar com parceria técnica em NR-12, mas o escopo principal é ambiental.",
     contratos_destacados: ["ct-10"],
     capacidade_declarada: "Equipe parceira via consórcio",
-    certificacoes_aplicaveis: ["ISO 14001"],
     status: "enviada",
     revisada_consultoria: false,
     criada_em: "2026-04-06",
@@ -572,19 +564,17 @@ export const candidaturas: Candidatura[] = [
       "Podemos apoiar com a parte elétrica da adequação. Segurança documental ficaria por conta do cliente.",
     contratos_destacados: [],
     capacidade_declarada: "Equipe elétrica 4 técnicos",
-    certificacoes_aplicaveis: ["NR-10"],
     status: "descartada",
     motivo_descarte: {
       categoria_id: "fora_escopo",
       comentario:
-        "Escopo exige entrega completa com dossiê NR-12 assinado por engenheiro de segurança — proposta parcial não atende.",
+        "Escopo exige entrega completa com dossiê NR-12 assinado por engenheiro de segurança - proposta parcial não atende.",
     },
     revisada_consultoria: false,
     criada_em: "2026-04-04",
     enviada_em: "2026-04-04",
     decidida_em: "2026-04-08",
   },
-  // Projeto 20 (Metalúrgica XYZ — publicado) — 1 enviada
   {
     id: "cand-20-a",
     projeto_id: "20",
@@ -595,7 +585,6 @@ export const candidaturas: Candidatura[] = [
     contratos_destacados: ["ct-12"],
     capacidade_declarada: "Logística própria + fornecedor homologado",
     faixa_preco_preliminar: "R$ 110.000 - R$ 130.000",
-    certificacoes_aplicaveis: ["ISO 9001"],
     status: "enviada",
     revisada_consultoria: false,
     criada_em: "2026-04-13",
@@ -609,7 +598,6 @@ export const candidaturas: Candidatura[] = [
     pitch: "Treinamento NR-35 para 120 colaboradores.",
     contratos_destacados: [],
     capacidade_declarada: "Instrutor sênior + monitor",
-    certificacoes_aplicaveis: ["Certificado instrutor NR-35"],
     status: "shortlistada",
     revisada_consultoria: false,
     criada_em: "2026-01-10",
@@ -617,6 +605,8 @@ export const candidaturas: Candidatura[] = [
     decidida_em: "2026-01-30",
   },
 ];
+
+export const candidaturas: Candidatura[] = candidaturaSeeds.map(normalizeCandidatura);
 
 export function getCandidaturaById(id: string): Candidatura | undefined {
   return candidaturas.find((c) => c.id === id);
@@ -628,4 +618,13 @@ export function getCandidaturasByProjeto(projeto_id: string): Candidatura[] {
 
 export function getCandidaturasByFornecedor(fornecedor_id: string): Candidatura[] {
   return candidaturas.filter((c) => c.fornecedor_id === fornecedor_id);
+}
+
+export function createCandidatura(input: Omit<Candidatura, "id">): Candidatura {
+  const candidatura: Candidatura = {
+    ...input,
+    id: `cand-${input.fornecedor_id}-${input.projeto_id}-${candidaturas.length + 1}`,
+  };
+  candidaturas.unshift(candidatura);
+  return candidatura;
 }

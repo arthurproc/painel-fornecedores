@@ -10,8 +10,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { HeaderProjeto } from "@/components/handshake/header-projeto";
 import {
   BlocoCriterios,
+  BlocoCredenciaisExigidas,
   BlocoDocumentos,
-  BlocoRequisitos,
+  BlocoRequisitosTecnicos,
 } from "@/components/handshake/blocos-projeto";
 import { CTAConsultoria } from "@/components/handshake/cta-consultoria";
 import {
@@ -53,7 +54,10 @@ export default function ProjetoFornecedorPage({
   const breakdown = computeFitScore(projeto, fornecedor);
 
   const candidaturaExistente = candidaturas.find(
-    (c) => c.projeto_id === projeto.id && c.fornecedor_id === fornecedor?.id
+    (c) =>
+      c.projeto_id === projeto.id &&
+      c.fornecedor_id === fornecedor?.id &&
+      ["rascunho", "enviada", "shortlistada"].includes(c.status)
   );
 
   const podeCandidatar =
@@ -104,11 +108,12 @@ export default function ProjetoFornecedorPage({
         </Card>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <BlocoCredenciaisExigidas credenciais={projeto.credenciais_exigidas} />
           <BlocoCriterios criterios={projeto.criterios_selecao} />
           <BlocoDocumentos documentos={projeto.documentos_exigidos} />
         </div>
 
-        <BlocoRequisitos requisitos={projeto.requisitos} />
+        <BlocoRequisitosTecnicos requisitos={projeto.requisitos_tecnicos} />
 
         <Card className="rounded-xl bg-muted/40">
           <CardContent className="flex flex-col items-start justify-between gap-4 p-6 lg:flex-row lg:items-center">

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   Award,
@@ -18,8 +20,11 @@ import { Separator } from "@/components/ui/separator";
 import {
   MEMBRO_LOGADO_ID,
   getContratosByFornecedor,
+  getFornecedorCredenciaisNomes,
   getFornecedorByOrganizacao,
   getMembroById,
+  countCredenciaisSemComprovante,
+  countDocumentosVigentes,
 } from "@/lib/mock-data";
 
 export default function PerfilFornecedorPage() {
@@ -56,6 +61,7 @@ export default function PerfilFornecedorPage() {
   const { reputacao_agregada: rep } = fornecedor;
   const mediaGeral = rep.total_reviews > 0 ? rep.media_geral : 0;
   const notaPctGeral = Math.round((mediaGeral / 5) * 100);
+  const credenciais = getFornecedorCredenciaisNomes(fornecedor);
 
   return (
     <AppShell tipo="fornecedor" titulo="Meu perfil">
@@ -89,7 +95,7 @@ export default function PerfilFornecedorPage() {
               </div>
               <Button asChild variant="outline" size="sm" className="gap-1">
                 <Link href="/configuracoes">
-                  <Edit className="h-3.5 w-3.5" /> Editar em Configurações
+                  <Edit className="h-3.5 w-3.5" /> Gerenciar em Configurações
                 </Link>
               </Button>
             </div>
@@ -188,25 +194,36 @@ export default function PerfilFornecedorPage() {
           <div className="space-y-6">
             <Card className="rounded-xl">
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Award className="h-4 w-4" /> Certificações
-                </CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Award className="h-4 w-4" /> Credenciais
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {credenciais.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      Nenhuma credencial cadastrada.
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {credenciais.map((credencial) => (
+                        <div key={credencial} className="flex items-center gap-2 text-sm">
+                          <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                          {credencial}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+            <Card className="rounded-xl">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Cobertura documental</CardTitle>
               </CardHeader>
-              <CardContent>
-                {fornecedor.certificacoes.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    Nenhuma certificação cadastrada.
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {fornecedor.certificacoes.map((cert) => (
-                      <div key={cert} className="flex items-center gap-2 text-sm">
-                        <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                        {cert}
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <CardContent className="space-y-2 text-sm">
+                <p>{fornecedor.credenciais_ids.length} credenciais cadastradas</p>
+                <p>{countDocumentosVigentes(fornecedor)} comprovantes vigentes</p>
+                <p>{countCredenciaisSemComprovante(fornecedor)} credenciais sem comprovante</p>
               </CardContent>
             </Card>
 

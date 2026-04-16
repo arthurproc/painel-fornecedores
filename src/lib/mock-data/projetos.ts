@@ -1,9 +1,18 @@
 import type { ProjetoStatus } from "./_shared";
+import { resolveCredencialId } from "@/lib/platform-credentials";
+
+export interface CredencialExigida {
+  credencial_id: string;
+  obrigatoria: boolean;
+  observacao?: string;
+}
 
 export interface DocumentoExigido {
+  id: string;
   nome: string;
   obrigatorio: boolean;
   observacao?: string;
+  credencial_relacionada_id?: string;
 }
 
 export interface Projeto {
@@ -20,14 +29,57 @@ export interface Projeto {
   prazo: string;
   dataPublicacao: string;
   status: ProjetoStatus;
-  requisitos: string[];
+  requisitos_tecnicos: string[];
+  credenciais_exigidas: CredencialExigida[];
   documentos_exigidos: DocumentoExigido[];
   criterios_selecao: string[];
   autor_membro_id: string;
   contrato_id?: string;
 }
 
-export const projetos: Projeto[] = [
+interface ProjetoSeed extends Omit<Projeto, "requisitos_tecnicos" | "credenciais_exigidas" | "documentos_exigidos"> {
+  requisitos?: string[];
+  requisitos_tecnicos?: string[];
+  credenciais_exigidas?: CredencialExigida[];
+  documentos_exigidos: Array<Omit<DocumentoExigido, "id"> & { id?: string }>;
+}
+
+function inferCredenciais(seed: ProjetoSeed): CredencialExigida[] {
+  const fontes = [
+    ...(seed.requisitos_tecnicos ?? seed.requisitos ?? []),
+    ...seed.documentos_exigidos.map((documento) => documento.nome),
+  ];
+
+  const ids = Array.from(
+    new Set(
+      fontes
+        .map((value) => resolveCredencialId(value))
+        .filter((value): value is string => Boolean(value))
+    )
+  );
+
+  return ids.map((credencial_id) => ({ credencial_id, obrigatoria: true }));
+}
+
+function normalizeProjeto(seed: ProjetoSeed): Projeto {
+  const requisitos_tecnicos = seed.requisitos_tecnicos ?? seed.requisitos ?? [];
+  const credenciais_exigidas = seed.credenciais_exigidas ?? inferCredenciais(seed);
+  const documentos_exigidos = seed.documentos_exigidos.map((documento, index) => ({
+    ...documento,
+    id: documento.id ?? `proj-${seed.id}-doc-${index + 1}`,
+    credencial_relacionada_id:
+      documento.credencial_relacionada_id ?? resolveCredencialId(documento.nome),
+  }));
+
+  return {
+    ...seed,
+    requisitos_tecnicos,
+    credenciais_exigidas,
+    documentos_exigidos,
+  };
+}
+
+const projetoSeeds: ProjetoSeed[] = [
   {
     id: "1",
     titulo: "Manutenção Preventiva de Correias Transportadoras",
@@ -44,16 +96,33 @@ export const projetos: Projeto[] = [
     dataPublicacao: "10/04/2026",
     status: "publicado",
     autor_membro_id: "mem-vale-admin",
-    requisitos: [
-      "Certificação NR-22",
+    requisitos_tecnicos: [
       "Experiência mínima de 5 anos em mineração",
       "Equipe técnica com no mínimo 10 profissionais",
       "Seguro de responsabilidade civil",
     ],
+    credenciais_exigidas: [
+      { credencial_id: "nr_22", obrigatoria: true },
+      { credencial_id: "nr_10", obrigatoria: false, observacao: "Desejável para equipe elétrica." },
+    ],
     documentos_exigidos: [
-      { nome: "Certificado NR-22", obrigatorio: true },
-      { nome: "ART de responsabilidade técnica", obrigatorio: true },
-      { nome: "Apólice de seguro", obrigatorio: true },
+      {
+        id: "proj-1-doc-nr22",
+        nome: "Certificado NR-22 vigente",
+        obrigatorio: true,
+        credencial_relacionada_id: "nr_22",
+      },
+      {
+        id: "proj-1-doc-art",
+        nome: "ART de responsabilidade técnica",
+        obrigatorio: true,
+        observacao: "Assinada pelo responsável do contrato.",
+      },
+      {
+        id: "proj-1-doc-seguro",
+        nome: "Apólice de seguro",
+        obrigatorio: true,
+      },
     ],
     criterios_selecao: [
       "Preço competitivo",
@@ -133,15 +202,47 @@ export const projetos: Projeto[] = [
     dataPublicacao: "12/04/2026",
     status: "publicado",
     autor_membro_id: "mem-usiminas-admin",
-    requisitos: [
-      "CREA regularizado",
-      "Alvará de construção",
+    requisitos_tecnicos: [
       "Experiência em obras industriais",
       "Cumprimento de normas ANVISA",
+      "Equipe com engenheiro civil responsável",
+    ],
+    credenciais_exigidas: [
+      { credencial_id: "crea_mg", obrigatoria: true },
+      { credencial_id: "nr_10", obrigatoria: true, observacao: "Necessária para adequações elétricas." },
+      { credencial_id: "pbqp_h", obrigatoria: false },
     ],
     documentos_exigidos: [
-      { nome: "Registro CREA", obrigatorio: true },
-      { nome: "Alvará de construção", obrigatorio: true },
+      {
+        id: "proj-4-doc-crea",
+        nome: "Registro CREA-MG vigente",
+        obrigatorio: true,
+        credencial_relacionada_id: "crea_mg",
+      },
+      {
+        id: "proj-4-doc-art",
+        nome: "ART assinada do responsável técnico",
+        obrigatorio: true,
+        observacao: "Anexar com assinatura e escopo da obra.",
+        credencial_relacionada_id: "crea_mg",
+      },
+      {
+        id: "proj-4-doc-nr10",
+        nome: "Certificado NR-10 da equipe elétrica",
+        obrigatorio: true,
+        credencial_relacionada_id: "nr_10",
+      },
+      {
+        id: "proj-4-doc-portfolio",
+        nome: "Portfólio de obras industriais similares",
+        obrigatorio: true,
+        observacao: "Até 3 casos relevantes com cliente e escopo.",
+      },
+      {
+        id: "proj-4-doc-seguro",
+        nome: "Apólice de seguro de responsabilidade civil",
+        obrigatorio: false,
+      },
     ],
     criterios_selecao: ["Preço", "Prazo de entrega", "Portfólio de obras semelhantes"],
   },
@@ -169,7 +270,7 @@ export const projetos: Projeto[] = [
     ],
     documentos_exigidos: [
       { nome: "Registro no MTE", obrigatorio: true },
-      { nome: "Certificação OHSAS 18001", obrigatorio: false },
+      { nome: "Certificação ISO 45001", obrigatorio: false },
     ],
     criterios_selecao: ["Preço", "Experiência metalúrgica", "Multidisciplinaridade da equipe"],
   },
@@ -218,12 +319,7 @@ export const projetos: Projeto[] = [
     status: "fechado",
     autor_membro_id: "mem-vale-admin",
     contrato_id: "ct-7",
-    requisitos: [
-      "NR-11",
-      "Experiência em equipamentos de içamento",
-      "Inspetor de solda certificado",
-      "Laudo de inspeção NR-12",
-    ],
+    requisitos: ["NR-11", "Experiência em equipamentos de içamento", "Inspetor de solda certificado", "Laudo de inspeção NR-12"],
     documentos_exigidos: [
       { nome: "Certificado NR-11", obrigatorio: true },
       { nome: "Laudo NR-12", obrigatorio: true },
@@ -278,7 +374,7 @@ export const projetos: Projeto[] = [
   },
   {
     id: "10",
-    titulo: "Relatório de Impacto Ambiental — Expansão Norte",
+    titulo: "Relatório de Impacto Ambiental - Expansão Norte",
     empresa_id: "arcelormittal",
     descricao:
       "Elaboração do RIMA para licenciamento da expansão da área industrial norte, incluindo estudos de flora, fauna, solo e recursos hídricos.",
@@ -297,7 +393,7 @@ export const projetos: Projeto[] = [
   },
   {
     id: "11",
-    titulo: "Transporte de Equipamentos Pesados — Parada Geral",
+    titulo: "Transporte de Equipamentos Pesados - Parada Geral",
     empresa_id: "vale",
     descricao:
       "Transporte especializado de equipamentos industriais de grande porte durante a parada geral de manutenção do complexo de Itabira.",
@@ -376,7 +472,7 @@ export const projetos: Projeto[] = [
     titulo: "Inspeção Periódica de Vasos de Pressão",
     empresa_id: "vale",
     descricao:
-      "Rascunho inicial — inspeção de NR-13 em vasos de pressão e caldeiras do complexo de Itabira. Escopo ainda em definição pela equipe técnica.",
+      "Rascunho inicial - inspeção de NR-13 em vasos de pressão e caldeiras do complexo de Itabira. Escopo ainda em definição pela equipe técnica.",
     categoria: "Manutenção Industrial",
     regiao: "Itabira - MG",
     cidade: "Itabira",
@@ -430,7 +526,7 @@ export const projetos: Projeto[] = [
     titulo: "Manutenção Preventiva de Fornos de Indução",
     empresa_id: "metalurgica-xyz",
     descricao:
-      "Manutenção preventiva semestral dos fornos de indução da planta de João Monlevade — inclui inspeção dos indutores, troca de refratários e calibração de sensores de temperatura. Escopo elétrico e mecânico integrado.",
+      "Manutenção preventiva semestral dos fornos de indução da planta de João Monlevade - inclui inspeção dos indutores, troca de refratários e calibração de sensores de temperatura. Escopo elétrico e mecânico integrado.",
     categoria: "Manutenção Industrial",
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
@@ -462,7 +558,7 @@ export const projetos: Projeto[] = [
     titulo: "Adequação de Prensas à NR-12",
     empresa_id: "metalurgica-xyz",
     descricao:
-      "Projeto de adequação de 8 prensas mecânicas à NR-12 — inclui diagnóstico, especificação de dispositivos de segurança, instalação de cortinas de luz, chaves de segurança e revisão documental. Obrigatório entregar dossiê técnico.",
+      "Projeto de adequação de 8 prensas mecânicas à NR-12 - inclui diagnóstico, especificação de dispositivos de segurança, instalação de cortinas de luz, chaves de segurança e revisão documental. Obrigatório entregar dossiê técnico.",
     categoria: "Segurança do Trabalho",
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
@@ -490,7 +586,7 @@ export const projetos: Projeto[] = [
   },
   {
     id: "20",
-    titulo: "Fornecimento de Consumíveis de Soldagem — Contrato Anual",
+    titulo: "Fornecimento de Consumíveis de Soldagem - Contrato Anual",
     empresa_id: "metalurgica-xyz",
     descricao:
       "Contrato anual de fornecimento de eletrodos, arames e gases para soldagem MIG/MAG e TIG. Entregas mensais à planta de João Monlevade com laudos de lote e rastreabilidade completa.",
@@ -630,12 +726,13 @@ export const projetos: Projeto[] = [
   },
 ];
 
+export const projetos: Projeto[] = projetoSeeds.map(normalizeProjeto);
+
 export function getProjetoById(id: string): Projeto | undefined {
   return projetos.find((p) => p.id === id);
 }
 
 export function candidaturasCountByProjeto(projeto_id: string): number {
-  // Será sobrescrito via helpers.ts assim que candidaturas existirem (import circular → tardio).
   return _candidaturasCount?.[projeto_id] ?? 0;
 }
 

@@ -94,7 +94,8 @@ Fluxo do primeiro acesso, do signup até o tenant operacional.
 4. Configurar perfil(s) escolhido(s)
    └── empresa: setor, descrição, cidade, região, logo
    └── fornecedor: categorias atendidas, regiões atendidas,
-                   descrição, cidade, certificações, capacidade
+                    descrição, cidade, credenciais canônicas, capacidade,
+                    documentos internos reaproveitáveis
 
 5. (Opcional) Convidar membros adicionais
 
@@ -127,7 +128,7 @@ Tela acessível pelo switcher do topbar (qualquer contexto). Estrutura em **abas
 - **Organização** — razão social, CNPJ, endereço fiscal, linkage pública (toggle), ativação/desativação de perfis. Só `owner` edita.
 - **Membros** — lista, convidar, editar role, desativar. `admin` e `owner` editam.
 - **Perfil Empresa** — só visível se perfil ativo. Edita campos do perfil empresa (descrição, setor, logo, etc.). `admin` e `owner` editam.
-- **Perfil Fornecedor** — idem. Inclui categorias atendidas, regiões atendidas, certificações.
+- **Perfil Fornecedor** — idem. Inclui categorias atendidas, regiões atendidas, credenciais canônicas e um gerenciador interno de comprovantes/documentos da empresa. O perfil público expõe só os nomes das credenciais; status documental fica privado.
 - **Faturamento** — futuro (Consultoria). Marcar como `*` no MVP.
 
 > Ver §"Perguntas em aberto" para a decisão sobre ordem de abas e default de entrada.

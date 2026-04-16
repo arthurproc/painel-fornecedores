@@ -6,9 +6,23 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CTAConsultoria } from "./cta-consultoria";
+
+let etapaCounter = 1;
+let documentoCounter = 1;
+
+function nextEtapaId() {
+  const id = `etp-${etapaCounter}`;
+  etapaCounter += 1;
+  return id;
+}
+
+function nextDocumentoId() {
+  const id = `doc-${documentoCounter}`;
+  documentoCounter += 1;
+  return id;
+}
 
 interface Etapa {
   id: string;
@@ -47,14 +61,12 @@ export function FormularioProposta({
   const [prazo, setPrazo] = useState(prazoInicial);
   const [observacoes, setObservacoes] = useState(observacoesIniciais);
   const [etapas, setEtapas] = useState<Etapa[]>(
-    etapasIniciais.length > 0
-      ? etapasIniciais
-      : [{ id: `etp-${Date.now()}`, titulo: "", prazo: "" }]
+    etapasIniciais.length > 0 ? etapasIniciais : [{ id: nextEtapaId(), titulo: "", prazo: "" }]
   );
   const [documentos, setDocumentos] = useState<DocumentoMock[]>(documentosIniciais);
 
   function adicionarEtapa() {
-    setEtapas((prev) => [...prev, { id: `etp-${Date.now()}`, titulo: "", prazo: "" }]);
+    setEtapas((prev) => [...prev, { id: nextEtapaId(), titulo: "", prazo: "" }]);
   }
 
   function removerEtapa(id: string) {
@@ -71,11 +83,11 @@ export function FormularioProposta({
     const numero = documentos.length + 1;
     setDocumentos((prev) => [
       ...prev,
-      {
-        id: `doc-${Date.now()}`,
-        nome: `anexo-tecnico-${numero}.pdf`,
-        enviado_em: new Date().toISOString().slice(0, 10),
-      },
+        {
+          id: nextDocumentoId(),
+          nome: `anexo-tecnico-${numero}.pdf`,
+          enviado_em: new Date().toISOString().slice(0, 10),
+        },
     ]);
   }
 

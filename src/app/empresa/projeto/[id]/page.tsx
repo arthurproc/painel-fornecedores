@@ -16,8 +16,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { HeaderProjeto } from "@/components/handshake/header-projeto";
 import {
   BlocoCriterios,
+  BlocoCredenciaisExigidas,
   BlocoDocumentos,
-  BlocoRequisitos,
+  BlocoRequisitosTecnicos,
 } from "@/components/handshake/blocos-projeto";
 import {
   computeContagensProjeto,
@@ -215,10 +216,11 @@ export default function ProjetoEmpresaPage({
         )}
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <BlocoCredenciaisExigidas credenciais={projeto.credenciais_exigidas} />
           <BlocoCriterios criterios={projeto.criterios_selecao} />
           <BlocoDocumentos documentos={projeto.documentos_exigidos} />
         </div>
-        <BlocoRequisitos requisitos={projeto.requisitos} />
+        <BlocoRequisitosTecnicos requisitos={projeto.requisitos_tecnicos} />
 
         {contrato && projeto.status === "fechado" && (
           <Card className="rounded-xl">

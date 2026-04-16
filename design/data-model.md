@@ -141,6 +141,21 @@ Empresa {
 }
 ```
 
+### CredencialCatalogo *(novo catálogo canônico)*
+
+Lista central administrada pela plataforma. Elimina variações como `NR22`, `NR-22` e `Certificado NR-22`.
+
+```ts
+CredencialCatalogo {
+  id: string
+  nome: string
+  tipo: "certificacao" | "licenca" | "registro" | "norma"
+  sinonimos: string[]
+  documento_padrao_nome?: string
+  ativo: boolean
+}
+```
+
 ### Fornecedor *(perfil — evoluir do mockup atual)*
 
 Já existe com: `id, nome, logo, descricao, categorias, regiao, avaliacao (number), projetosRealizados, certificacoes, desde, contato`.
@@ -160,7 +175,8 @@ Fornecedor {
   cidade: string                         // novo
   regiao: string
   regioes_atendidas: string[]            // separa "onde a empresa fica" de "onde atende"
-  certificacoes: string[]
+  credenciais_ids: string[]              // ref a CredencialCatalogo
+  documentos_empresa: DocumentoEmpresa[] // comprovantes reaproveitáveis pelo fornecedor
   capacidade_atual?: string
   contato: { email: string; telefone: string }
   desde: string
@@ -170,6 +186,21 @@ Fornecedor {
 
   // Reputação — independente do lado empresa:
   reputacao_agregada: ReputacaoAgregada  // SUBSTITUI o `avaliacao: number` atual
+}
+```
+
+```ts
+DocumentoEmpresa {
+  id: string
+  nome: string
+  tipo: "credencial" | "portfolio" | "seguro" | "laudo" | "outro"
+  credencial_id?: string
+  arquivo_nome: string
+  arquivo_caminho: string
+  validade?: string
+  status: "vigente" | "vencido" | "em_analise"
+  enviado_em: string
+  observacao?: string
 }
 ```
 
@@ -220,9 +251,10 @@ Projeto {
   data_publicacao: string
 
   // Novos campos do handshake:
+  requisitos_tecnicos: string[]             // texto livre com sugestões; não é credencial nem documento
+  credenciais_exigidas: CredencialExigida[] // referências canônicas ao catálogo
   documentos_exigidos: DocumentoExigido[]   // ver §6 (estrutura)
   criterios_selecao: string[]               // texto livre, lista
-  requisitos: string[]                      // mantém — pré-requisitos técnicos
 
   status: ProjetoStatus                 // enum expandido, ver §5
   autor_membro_id: string               // quem publicou
@@ -234,6 +266,14 @@ Projeto {
 
   // Snapshot do contrato (caso fechado) — ver Contrato:
   contrato_id?: string
+}
+```
+
+```ts
+CredencialExigida {
+  credencial_id: string
+  obrigatoria: boolean
+  observacao?: string
 }
 ```
 
@@ -252,7 +292,7 @@ Candidatura {
   contratos_destacados: string[]         // ids de Contrato do fornecedor
   capacidade_declarada: string           // texto livre curto
   faixa_preco_preliminar?: string        // opcional, com nudge na UI
-  certificacoes_aplicaveis: string[]     // selecionadas do perfil
+  documentos_anexados: DocumentoCandidaturaAnexado[]
 
   status: CandidaturaStatus              // ver §5
   motivo_descarte?: {
@@ -274,6 +314,19 @@ Candidatura {
   expirada_em?: string
 }
 ```
+
+```ts
+DocumentoCandidaturaAnexado {
+  documento_exigido_id: string
+  documento_empresa_id?: string
+  nome: string
+  origem: "perfil" | "manual"
+  arquivo_caminho: string
+  status: "anexado" | "pendente"
+}
+```
+
+**Regra-chave do mock:** quando a origem é `perfil`, a candidatura aponta para o mesmo `arquivo_caminho` já salvo em `Fornecedor.documentos_empresa`. Quando a origem é `manual`, o documento nasce no perfil do fornecedor e depois é referenciado pela candidatura.
 
 ### Proposta *(refinar do mockup atual)*
 

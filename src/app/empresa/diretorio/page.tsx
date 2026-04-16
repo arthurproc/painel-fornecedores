@@ -16,6 +16,7 @@ import {
   categorias,
   contratos,
   fornecedores,
+  getFornecedorCredenciaisNomes,
   regioes,
 } from "@/lib/mock-data";
 
@@ -26,7 +27,9 @@ export default function DiretorioFornecedoresPage() {
 
   const certificacoes = useMemo(() => {
     const set = new Set<string>();
-    fornecedores.forEach((f) => f.certificacoes.forEach((c) => set.add(c)));
+    fornecedores.forEach((fornecedor) =>
+      getFornecedorCredenciaisNomes(fornecedor).forEach((credencial) => set.add(credencial))
+    );
     return Array.from(set).sort();
   }, []);
 
@@ -56,7 +59,7 @@ export default function DiretorioFornecedoresPage() {
         return false;
       if (
         filtros.certificacao !== "todas" &&
-        !f.certificacoes.includes(filtros.certificacao)
+        !getFornecedorCredenciaisNomes(f).includes(filtros.certificacao)
       )
         return false;
       return true;

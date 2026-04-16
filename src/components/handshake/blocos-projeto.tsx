@@ -1,7 +1,7 @@
-import { CheckCircle2, FileText, ListChecks } from "lucide-react";
+import { BadgeCheck, CheckCircle2, FileText, ListChecks } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { DocumentoExigido } from "@/lib/mock-data";
+import { getCredencialNome, type CredencialExigida, type DocumentoExigido } from "@/lib/mock-data";
 
 interface BlocoCriteriosProps {
   criterios: string[];
@@ -44,26 +44,31 @@ export function BlocoDocumentos({ documentos }: BlocoDocumentosProps) {
     <Card className="rounded-xl">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-base">
-          <FileText className="h-4 w-4" /> Documentos exigidos
+          <FileText className="h-4 w-4" /> Documentos exigidos para anexar
         </CardTitle>
       </CardHeader>
       <CardContent>
         {documentos.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhum documento obrigatório listado.</p>
+          <p className="text-sm text-muted-foreground">Nenhum documento listado.</p>
         ) : (
           <ul className="space-y-2 text-sm">
             {documentos.map((doc) => (
               <li
-                key={doc.nome}
+                key={doc.id}
                 className="flex items-start justify-between gap-3 rounded-lg border border-border p-3"
               >
                 <div>
                   <p className="font-medium">{doc.nome}</p>
-                  {doc.observacao && (
+                  {doc.credencial_relacionada_id ? (
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Relacionado à credencial {getCredencialNome(doc.credencial_relacionada_id)}
+                    </p>
+                  ) : null}
+                  {doc.observacao ? (
                     <p className="mt-0.5 text-xs text-muted-foreground">{doc.observacao}</p>
-                  )}
+                  ) : null}
                 </div>
-                <Badge variant="secondary" className={doc.obrigatorio ? "bg-red-100 text-red-800" : ""}>
+                <Badge variant="secondary">
                   {doc.obrigatorio ? "Obrigatório" : "Opcional"}
                 </Badge>
               </li>
@@ -79,12 +84,13 @@ interface BlocoRequisitosProps {
   requisitos: string[];
 }
 
-export function BlocoRequisitos({ requisitos }: BlocoRequisitosProps) {
+export function BlocoRequisitosTecnicos({ requisitos }: BlocoRequisitosProps) {
   if (requisitos.length === 0) return null;
+
   return (
     <Card className="rounded-xl">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Requisitos do fornecedor</CardTitle>
+        <CardTitle className="text-base">Requisitos técnicos</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-2">
@@ -92,6 +98,44 @@ export function BlocoRequisitos({ requisitos }: BlocoRequisitosProps) {
             <Badge key={req} variant="outline">
               {req}
             </Badge>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface BlocoCredenciaisProps {
+  credenciais: CredencialExigida[];
+}
+
+export function BlocoCredenciaisExigidas({ credenciais }: BlocoCredenciaisProps) {
+  if (credenciais.length === 0) return null;
+
+  return (
+    <Card className="rounded-xl">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <BadgeCheck className="h-4 w-4" /> Credenciais exigidas
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          {credenciais.map((credencial) => (
+            <div
+              key={credencial.credencial_id}
+              className="flex items-start justify-between gap-3 rounded-lg border border-border p-3"
+            >
+              <div>
+                <p className="font-medium">{getCredencialNome(credencial.credencial_id)}</p>
+                {credencial.observacao ? (
+                  <p className="mt-0.5 text-xs text-muted-foreground">{credencial.observacao}</p>
+                ) : null}
+              </div>
+              <Badge variant="secondary">
+                {credencial.obrigatoria ? "Obrigatória" : "Opcional"}
+              </Badge>
+            </div>
           ))}
         </div>
       </CardContent>

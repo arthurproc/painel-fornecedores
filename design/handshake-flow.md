@@ -61,7 +61,7 @@ flowchart TD
 
 ### Fase 0 — Descoberta
 
-- **Empresa** cria um projeto com escopo, categoria, região, cidade, faixa de orçamento, prazo, documentos exigidos, critérios de seleção.
+- **Empresa** cria um projeto com escopo, categoria, região, cidade, faixa de orçamento, prazo, requisitos técnicos, credenciais exigidas, documentos exigidos e critérios de seleção.
 - Projeto entra no feed público. Fornecedores filtram por categoria, região/cidade, faixa de valor, prazo.
 - **Fornecedor** abre a página do projeto. Vê:
   - Descrição completa do escopo
@@ -80,7 +80,16 @@ Campos da candidatura:
 - Contratos relevantes já executados (seleção a partir do perfil; o fornecedor destaca 2–3)
 - Capacidade/disponibilidade declarada
 - Faixa de preço preliminar (opcional — protege quem não quer revelar cedo)
-- Certificações/documentos aplicáveis (puxados do perfil)
+- Documentos exigidos pelo projeto, com match contra os comprovantes do perfil
+
+Regras da seção documental:
+
+- Se um `documento_exigido` estiver ligado a uma `credencial_exigida`, a UI tenta localizar um comprovante vigente correspondente em `Fornecedor.documentos_empresa`.
+- Se encontrar, mostra `Anexar do perfil` e reutiliza o mesmo `arquivo_caminho`.
+- Se a credencial existir mas faltar comprovante, mostra pendência forte (`credencial cadastrada, mas sem comprovante`).
+- Se não houver correspondência automática, o fornecedor pode `Anexar manualmente`.
+- Anexo manual continua sendo **metadata-only** no mock, mas salva também no perfil do fornecedor para reaproveitamento futuro.
+- **Não bloquear envio**: documentos obrigatórios pendentes geram alerta, mas o botão `Enviar candidatura` continua habilitado quando os campos básicos estiverem válidos.
 
 Ao lado do botão **Enviar candidatura**, aparece a **CTA 1**: _"Quer um especialista da Consultoria revisando antes?"_ — não é um paywall, é um serviço ao lado. Ver seção Consultoria.
 
@@ -162,7 +171,7 @@ Regras:
 Telas e componentes implicados:
 
 - [ ] Página de projeto (contexto fornecedor) — descrição, perfil clicável da empresa, fit score com hook da Consultoria, CTA "Candidatar-se"
-- [ ] Formulário de candidatura (Fase 1) — pitch curto, seleção de contratos destacáveis (puxa do perfil), capacidade declarada, faixa de preço opcional com nudge, certificações aplicáveis, CTA 1 de Consultoria ao lado do botão "Enviar"
+- [ ] Formulário de candidatura (Fase 1) — pitch curto, seleção de contratos destacáveis (puxa do perfil), capacidade declarada, faixa de preço opcional com nudge, credenciais relevantes, match documental com o perfil, anexo manual metadata-only, CTA 1 de Consultoria ao lado do botão "Enviar"
 - [ ] Tela de triagem (Fase 2, contexto empresa) — cards de candidatura com pitch, fit score, reputação, contratos destacados, faixa de preço; ações "Shortlist" e "Descartar"
 - [ ] Modal/drawer de descarte com motivo — enum categorias (fora de escopo, sem capacidade, preço fora, documentação, outro) + comentário opcional
 - [ ] Conversa / mensagens (Fase 2-3) — chat livre + drawer de templates estruturados (respostas inline)
