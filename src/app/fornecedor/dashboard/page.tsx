@@ -1,9 +1,13 @@
 import Link from "next/link";
+import { Gauge } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { BannerConsultoria, type BannerConsultoriaEstado } from "@/components/dashboard/banner-consultoria";
+import { CadeadoUtilizacao } from "@/components/capacidade/cadeado-utilizacao";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { getCategoriaItemById, getUnidadeAbreviada } from "@/lib/platform-data";
 import {
   MEMBRO_LOGADO_ID,
   candidaturas,
@@ -267,6 +271,62 @@ export default function FornecedorDashboard() {
             <Button asChild size="sm" variant="outline">
               <Link href="/fornecedor/candidaturas">Ver todas</Link>
             </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between gap-3">
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                <Gauge className="h-4 w-4" /> Capacidade & utilização
+              </CardTitle>
+              <Button asChild size="sm" variant="outline">
+                <Link href="/configuracoes">Gerenciar</Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {fornecedorAtual && fornecedorAtual.capacidades_instaladas.length > 0 ? (
+              fornecedorAtual.capacidades_instaladas.map((capacidade) => {
+                const item = getCategoriaItemById(capacidade.categoria_item_id);
+                const unidade = item ? getUnidadeAbreviada(item.unidade_medida) : "";
+                const util = capacidade.percent_utilizacao_atual;
+                const livre = capacidade.capacidade_nominal_mensal * (1 - util / 100);
+                return (
+                  <div
+                    key={capacidade.id}
+                    className="space-y-1.5 rounded-lg border border-border p-3"
+                  >
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium">
+                        {item?.nome ?? capacidade.categoria_item_id}
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                        <CadeadoUtilizacao /> {util}% utilizado
+                      </span>
+                    </div>
+                    <Progress value={util} className="h-2" />
+                    <p className="text-xs text-muted-foreground">
+                      Teto: {capacidade.capacidade_nominal_mensal.toLocaleString("pt-BR")} {unidade}{" "}
+                      · {Math.round(livre).toLocaleString("pt-BR")} {unidade} livres hoje
+                    </p>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="rounded-lg border border-dashed border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+                <p className="font-medium">Você ainda não declarou capacidade em nenhum item.</p>
+                <p className="mt-1 text-xs">
+                  Fornecedores com capacidade declarada aparecem melhor no fit-score e recebem
+                  mais convites diretos das empresas contratantes.
+                </p>
+                <Button asChild size="sm" className="mt-3 gap-1">
+                  <Link href="/configuracoes">
+                    <Gauge className="h-3.5 w-3.5" /> Declarar capacidade agora
+                  </Link>
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 

@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { getCategoriaItemById, getUnidadeAbreviada } from "@/lib/platform-data";
 import { cn } from "@/lib/utils";
 import {
   getMotivoDescarteById,
@@ -10,6 +11,15 @@ import {
   type Fornecedor,
   type Projeto,
 } from "@/lib/mock-data";
+
+function capacidadeResumo(candidatura: Candidatura, projeto?: Projeto): string {
+  if (candidatura.capacidade_alocada && projeto?.categoria_item_id) {
+    const item = getCategoriaItemById(projeto.categoria_item_id);
+    const unidade = item ? getUnidadeAbreviada(item.unidade_medida) : "";
+    return `${Math.round(candidatura.capacidade_alocada.valor_nominal).toLocaleString("pt-BR")} ${unidade}`;
+  }
+  return candidatura.capacidade_declarada;
+}
 
 interface CardCandidaturaProps {
   candidatura: Candidatura;
@@ -59,7 +69,10 @@ export function CardCandidatura({
               <strong className="text-foreground">{candidatura.faixa_preco_preliminar}</strong>
             </span>
           )}
-          <span>Capacidade: {candidatura.capacidade_declarada}</span>
+          <span>
+            Capacidade alocada:{" "}
+            <strong className="text-foreground">{capacidadeResumo(candidatura, projeto)}</strong>
+          </span>
           <span>
             {candidatura.enviada_em ? `Enviada em ${candidatura.enviada_em}` : "Em rascunho"}
           </span>

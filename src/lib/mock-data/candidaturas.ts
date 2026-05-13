@@ -8,6 +8,13 @@ export interface DocumentoCandidaturaAnexado {
   status: "anexado" | "pendente";
 }
 
+export interface CapacidadeAlocada {
+  /** Quantidade alocada na unidade do `categoria_item_id` do projeto. */
+  valor_nominal: number;
+  /** 0-100. Fatia da capacidade nominal mensal do fornecedor sendo dedicada. */
+  percent_da_capacidade_total: number;
+}
+
 export interface Candidatura {
   id: string;
   projeto_id: string;
@@ -15,7 +22,15 @@ export interface Candidatura {
   autor_membro_id: string;
   pitch: string;
   contratos_destacados: string[];
+  /** @deprecated Migrar para `capacidade_alocada`. Mantido durante transição. */
   capacidade_declarada: string;
+  capacidade_alocada?: CapacidadeAlocada;
+  /**
+   * Texto livre opcional onde o fornecedor contextualiza a alocação quando ela
+   * supera a capacidade livre atual — ex.: liberação prevista por encerramento
+   * de outro contrato, mobilização programada, expansão de equipe.
+   */
+  observacao_disponibilidade?: string;
   faixa_preco_preliminar?: string;
   documentos_anexados: DocumentoCandidaturaAnexado[];
   status: CandidaturaStatus;

@@ -29,12 +29,18 @@ import {
   statusColors,
   statusLabels,
 } from "@/lib/mock-data";
-import { computeFitScore } from "@/lib/fit-score";
+import {
+  capacidadeStatusBadgeClass,
+  capacidadeStatusLabel,
+  computeFitScore,
+} from "@/lib/fit-score";
+import { cn } from "@/lib/utils";
 
 const HOJE = new Date("2026-04-15T12:00:00");
 
 export default function DescobrirProjetosPage() {
   const [filtros, setFiltros] = useState<FiltrosProjetoValue>(FILTROS_INICIAIS);
+  const [soCompativeis, setSoCompativeis] = useState(false);
 
   const membroLogado = getMembroById(MEMBRO_LOGADO_ID);
   const fornecedor = getFornecedorByOrganizacao(membroLogado?.organizacao_id ?? "");
@@ -73,8 +79,14 @@ export default function DescobrirProjetosPage() {
         const breakdown = computeFitScore(projeto, fornecedor);
         return { projeto, empresa, breakdown };
       })
+      .filter(({ breakdown }) =>
+        soCompativeis
+          ? breakdown.capacidade.status === "compatible" ||
+            breakdown.capacidade.status === "tight"
+          : true
+      )
       .sort((a, b) => b.breakdown.total - a.breakdown.total);
-  }, [filtros, projetosAbertos, fornecedor]);
+  }, [filtros, projetosAbertos, fornecedor, soCompativeis]);
 
   return (
     <AppShell tipo="fornecedor" titulo="Descobrir projetos">
@@ -90,16 +102,37 @@ export default function DescobrirProjetosPage() {
           </CardContent>
         </Card>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">
             <strong className="text-foreground">{filtrados.length}</strong> projeto(s) aberto(s)
             para candidatura — ordenados por aderência.
           </p>
-          {filtros !== FILTROS_INICIAIS && (
-            <Button variant="ghost" size="sm" onClick={() => setFiltros(FILTROS_INICIAIS)}>
-              Limpar filtros
-            </Button>
-          )}
+          <div className="flex items-center gap-3">
+            <label
+              className="flex items-center gap-2 text-xs text-muted-foreground"
+              title="Considera apenas o teto da sua operação vs o volume do projeto. Utilização atual não entra na conta — se você vai ter capacidade adicional quando o projeto começar, candidate-se mesmo assim."
+            >
+              <input
+                type="checkbox"
+                checked={soCompativeis}
+                onChange={(event) => setSoCompativeis(event.target.checked)}
+                className="h-3.5 w-3.5 rounded border-border"
+              />
+              Mostrar só compatíveis com minha capacidade
+            </label>
+            {(filtros !== FILTROS_INICIAIS || soCompativeis) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFiltros(FILTROS_INICIAIS);
+                  setSoCompativeis(false);
+                }}
+              >
+                Limpar filtros
+              </Button>
+            )}
+          </div>
         </div>
 
         {filtrados.length === 0 ? (
@@ -138,6 +171,14 @@ export default function DescobrirProjetosPage() {
                           {statusLabels[projeto.status]}
                         </Badge>
                         <FitScoreBadge breakdown={breakdown} />
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-0.5 text-[10px] font-medium",
+                            capacidadeStatusBadgeClass(breakdown.capacidade.status)
+                          )}
+                        >
+                          {capacidadeStatusLabel(breakdown.capacidade.status)}
+                        </span>
                       </div>
                     </div>
 

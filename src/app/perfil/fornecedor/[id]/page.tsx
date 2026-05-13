@@ -4,9 +4,11 @@ import {
   Award,
   Building2,
   Calendar,
+  Gauge,
   MapPin,
   ShieldCheck,
 } from "lucide-react";
+import { getCategoriaItemById, getUnidadeAbreviada } from "@/lib/platform-data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,6 +29,12 @@ import {
   type Fornecedor,
   type Organizacao,
 } from "@/lib/mock-data";
+
+const classificacaoLabel = {
+  leve: "Leve",
+  medio: "Médio",
+  pesado: "Pesado",
+} as const;
 
 export default async function PerfilPublicoFornecedorPage({
   params,
@@ -120,13 +128,65 @@ export default async function PerfilPublicoFornecedorPage({
                 </Badge>
               ))}
             </div>
-            {fornecedor.capacidade_atual ? (
-              <div>
-                <span className="text-muted-foreground">Capacidade atual: </span>
-                <span>{fornecedor.capacidade_atual}</span>
-              </div>
-            ) : null}
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-xl">
+        <CardContent className="p-5">
+          <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <Gauge className="h-4 w-4" /> Capacidade instalada
+          </h3>
+          {fornecedor.capacidades_instaladas.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              O fornecedor ainda não declarou capacidade. Você poderá ver os números após
+              receber uma candidatura dele.
+            </p>
+          ) : (
+            <>
+              <div className="overflow-hidden rounded-lg border border-border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium">Item</th>
+                      <th className="px-3 py-2 text-left font-medium">Classificação</th>
+                      <th className="px-3 py-2 text-right font-medium">Capacidade nominal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fornecedor.capacidades_instaladas.map((capacidade) => {
+                      const item = getCategoriaItemById(capacidade.categoria_item_id);
+                      const unidade = item ? getUnidadeAbreviada(item.unidade_medida) : "";
+                      return (
+                        <tr key={capacidade.id} className="border-t border-border">
+                          <td className="px-3 py-2">{item?.nome ?? capacidade.categoria_item_id}</td>
+                          <td className="px-3 py-2 text-muted-foreground">
+                            {capacidade.classificacao ? (
+                              <span className="text-xs uppercase">
+                                {classificacaoLabel[capacidade.classificacao]}
+                              </span>
+                            ) : (
+                              <span className="text-xs">—</span>
+                            )}
+                          </td>
+                          <td className="px-3 py-2 text-right font-medium">
+                            {capacidade.capacidade_nominal_mensal.toLocaleString("pt-BR")} {unidade}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {fornecedor.capacidades_instaladas.length}{" "}
+                {fornecedor.capacidades_instaladas.length === 1
+                  ? "item declarado"
+                  : "itens declarados"}{" "}
+                · utilização e equipamentos só ficam visíveis em candidaturas ativas.
+              </p>
+            </>
+          )}
         </CardContent>
       </Card>
 

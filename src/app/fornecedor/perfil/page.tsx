@@ -6,11 +6,14 @@ import {
   Briefcase,
   Calendar,
   Edit,
+  Gauge,
   Mail,
   MapPin,
   Phone,
   Star,
 } from "lucide-react";
+import { CadeadoUtilizacao } from "@/components/capacidade/cadeado-utilizacao";
+import { getCategoriaItemById, getUnidadeAbreviada } from "@/lib/platform-data";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -140,6 +143,68 @@ export default function PerfilFornecedorPage() {
                 <p className="mt-3 text-xs text-muted-foreground">
                   Regiões atendidas: {fornecedor.regioes_atendidas.join(" · ")}
                 </p>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-xl">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Gauge className="h-4 w-4" /> Capacidade instalada
+                </CardTitle>
+                <Button asChild size="sm" variant="outline" className="gap-1">
+                  <Link href="/configuracoes">
+                    <Edit className="h-3.5 w-3.5" /> Gerenciar
+                  </Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {fornecedor.capacidades_instaladas.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Nenhum item declarado. Cadastre sua capacidade em Configurações para
+                    aparecer melhor no fit-score e receber convites compatíveis.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {fornecedor.capacidades_instaladas.map((capacidade) => {
+                      const item = getCategoriaItemById(capacidade.categoria_item_id);
+                      const unidade = item ? getUnidadeAbreviada(item.unidade_medida) : "";
+                      return (
+                        <div
+                          key={capacidade.id}
+                          className="flex items-center justify-between rounded-lg bg-muted/30 p-3 text-sm"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 font-medium">
+                              <span className="truncate">
+                                {item?.nome ?? capacidade.categoria_item_id}
+                              </span>
+                              {capacidade.classificacao ? (
+                                <Badge variant="secondary" className="text-[10px] uppercase">
+                                  {capacidade.classificacao}
+                                </Badge>
+                              ) : null}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {capacidade.capacidade_nominal_mensal.toLocaleString("pt-BR")}{" "}
+                              {unidade}
+                              {capacidade.equipamentos.length > 0 ? (
+                                <span> · {capacidade.equipamentos.length} equipamento(s)</span>
+                              ) : null}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-primary">
+                              {capacidade.percent_utilizacao_atual}%
+                            </p>
+                            <div className="flex items-center justify-end gap-1 text-[10px] text-muted-foreground">
+                              <CadeadoUtilizacao /> utilizado
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
 

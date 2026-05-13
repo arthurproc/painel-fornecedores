@@ -43,3 +43,7 @@ next-env.d.ts
 # claude code
 .claude/settings.local.json
 .playwright-mcp/
+
+# playwright/dev screenshots at repo root
+/passo*.png
+/tooltip-*.png

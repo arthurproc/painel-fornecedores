@@ -19,6 +19,7 @@ import {
   getFornecedorCredenciaisNomes,
   regioes,
 } from "@/lib/mock-data";
+import { getCategoriaItemById, getUnidadeAbreviada } from "@/lib/platform-data";
 
 export default function DiretorioFornecedoresPage() {
   const [filtros, setFiltros] = useState<FiltrosFornecedorValue>(
@@ -45,25 +46,39 @@ export default function DiretorioFornecedoresPage() {
 
   const lista = useMemo(() => {
     const termo = filtros.busca.trim().toLowerCase();
-    return fornecedores.filter((f) => {
-      if (termo) {
-        const texto = `${f.nome} ${f.descricao}`.toLowerCase();
-        if (!texto.includes(termo)) return false;
-      }
-      if (filtros.categoria !== "todas" && !f.categorias.includes(filtros.categoria))
-        return false;
-      if (
-        filtros.regiao !== "todas" &&
-        !f.regioes_atendidas.includes(filtros.regiao)
-      )
-        return false;
-      if (
-        filtros.certificacao !== "todas" &&
-        !getFornecedorCredenciaisNomes(f).includes(filtros.certificacao)
-      )
-        return false;
-      return true;
-    });
+    const itemFiltro =
+      filtros.categoria_item_id !== "todas" ? filtros.categoria_item_id : undefined;
+    const livreMin = Number(filtros.capacidade_livre_min) || 0;
+    return fornecedores
+      .map((f) => {
+        const capacidade = itemFiltro
+          ? f.capacidades_instaladas.find((c) => c.categoria_item_id === itemFiltro)
+          : undefined;
+        const livre = capacidade
+          ? capacidade.capacidade_nominal_mensal * (1 - capacidade.percent_utilizacao_atual / 100)
+          : undefined;
+        return { fornecedor: f, capacidade, livre };
+      })
+      .filter(({ fornecedor: f, capacidade, livre }) => {
+        if (termo) {
+          const texto = `${f.nome} ${f.descricao}`.toLowerCase();
+          if (!texto.includes(termo)) return false;
+        }
+        if (filtros.categoria !== "todas" && !f.categorias.includes(filtros.categoria))
+          return false;
+        if (filtros.regiao !== "todas" && !f.regioes_atendidas.includes(filtros.regiao))
+          return false;
+        if (
+          filtros.certificacao !== "todas" &&
+          !getFornecedorCredenciaisNomes(f).includes(filtros.certificacao)
+        )
+          return false;
+        if (itemFiltro) {
+          if (!capacidade) return false;
+          if (livreMin > 0 && (livre ?? 0) < livreMin) return false;
+        }
+        return true;
+      });
   }, [filtros]);
 
   return (
@@ -97,9 +112,15 @@ export default function DiretorioFornecedoresPage() {
           </Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {lista.map((f) => {
-              const total =
-                contratosEncerradosPorFornecedor[f.id] ?? 0;
+            {lista.map(({ fornecedor: f, livre }) => {
+              const total = contratosEncerradosPorFornecedor[f.id] ?? 0;
+              const itemFiltrado =
+                filtros.categoria_item_id !== "todas"
+                  ? getCategoriaItemById(filtros.categoria_item_id)
+                  : undefined;
+              const unidadeAbrev = itemFiltrado
+                ? getUnidadeAbreviada(itemFiltrado.unidade_medida)
+                : "";
               return (
                 <Link
                   key={f.id}
@@ -145,6 +166,12 @@ export default function DiretorioFornecedoresPage() {
                         tipo="fornecedor"
                         compact
                       />
+                      {itemFiltrado && livre !== undefined ? (
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
+                          <strong>{Math.round(livre).toLocaleString("pt-BR")} {unidadeAbrev}</strong>{" "}
+                          disponíveis hoje em {itemFiltrado.nome}
+                        </div>
+                      ) : null}
                       <div className="flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
                         <span>
                           {total} {total === 1 ? "contrato" : "contratos"}{" "}

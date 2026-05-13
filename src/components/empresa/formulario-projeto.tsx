@@ -27,19 +27,33 @@ import {
   documentosProjetoSugeridos,
   requisitosTecnicosSugeridos,
 } from "@/lib/project-form-options";
-import { categorias, regioes } from "@/lib/platform-data";
+import {
+  categoriaItens,
+  getCategoriaItemById,
+  getItensBySetor,
+  getUnidadeAbreviada,
+  regioes,
+  setores,
+} from "@/lib/platform-data";
 import { cn } from "@/lib/utils";
 import type {
   CredencialExigida,
   DocumentoExigido,
+  PeriodicidadeVolume,
   Projeto,
   ProjetoStatus,
+  VolumeEstimado,
 } from "@/lib/mock-data";
+
+type ClassificacaoOpcional = "leve" | "medio" | "pesado" | "";
 
 export interface ProjetoRascunhoPayload {
   titulo: string;
   descricao: string;
   categoria: string;
+  categoria_item_id: string;
+  volume_estimado: VolumeEstimado;
+  classificacao_desejada?: "leve" | "medio" | "pesado";
   regiao: string;
   cidade: string;
   orcamento_min: string;
@@ -98,7 +112,26 @@ export function FormularioProjeto({
 }: FormularioProjetoProps) {
   const [titulo, setTitulo] = useState(initial?.titulo ?? "");
   const [descricao, setDescricao] = useState(initial?.descricao ?? "");
-  const [categoria, setCategoria] = useState(initial?.categoria ?? "");
+
+  const itemInicial = initial?.categoria_item_id
+    ? getCategoriaItemById(initial.categoria_item_id)
+    : undefined;
+  const [setorId, setSetorId] = useState(itemInicial?.setor_id ?? "");
+  const [categoriaItemId, setCategoriaItemId] = useState(initial?.categoria_item_id ?? "");
+  const [classificacao, setClassificacao] = useState<ClassificacaoOpcional>("");
+  const [volumeQuantidade, setVolumeQuantidade] = useState(
+    initial?.volume_estimado ? String(initial.volume_estimado.quantidade) : ""
+  );
+  const [volumePeriodicidade, setVolumePeriodicidade] = useState<PeriodicidadeVolume>(
+    initial?.volume_estimado?.periodicidade ?? "total"
+  );
+
+  const itemSelecionado = categoriaItemId ? getCategoriaItemById(categoriaItemId) : undefined;
+  const itensDoSetor = setorId ? getItensBySetor(setorId) : [];
+  const unidadeLabel = itemSelecionado
+    ? getUnidadeAbreviada(itemSelecionado.unidade_medida)
+    : "";
+
   const [regiao, setRegiao] = useState(initial?.regiao ?? empresaRegiao ?? "");
   const [cidade, setCidade] = useState(initial?.cidade ?? empresaCidade ?? "");
   const [orcamentoMin, setOrcamentoMin] = useState(initial?.orcamento_min ?? "");
@@ -131,20 +164,19 @@ export function FormularioProjeto({
     [orcamentoMin, orcamentoMax]
   );
 
-  const erros = useMemo(() => {
-    const list: string[] = [];
-    if (titulo.trim().length < 5) list.push("Título do projeto (mín. 5 caracteres)");
-    if (descricao.trim().length < 20) {
-      list.push("Descrição com pelo menos 20 caracteres");
-    }
-    if (!categoria) list.push("Categoria");
-    if (!regiao) list.push("Região");
-    if (!cidade.trim()) list.push("Cidade");
-    if (!orcamentoMin || !orcamentoMax) list.push("Orçamento (mín. e máx.)");
-    if (!prazoIso) list.push("Prazo");
-    if (criterios.length === 0) list.push("Ao menos um critério de seleção");
-    return list;
-  }, [titulo, descricao, categoria, regiao, cidade, orcamentoMin, orcamentoMax, prazoIso, criterios]);
+  const erros: string[] = [];
+  if (titulo.trim().length < 5) erros.push("Título do projeto (mín. 5 caracteres)");
+  if (descricao.trim().length < 20) erros.push("Descrição com pelo menos 20 caracteres");
+  if (!categoriaItemId) erros.push("Setor e item do projeto");
+  if (!regiao) erros.push("Região");
+  if (!cidade.trim()) erros.push("Cidade");
+  if (!volumeQuantidade || Number(volumeQuantidade) <= 0) erros.push("Volume estimado");
+  if (itemSelecionado?.tem_classificacao_carga && !classificacao) {
+    erros.push("Classificação (Leve/Médio/Pesado)");
+  }
+  if (!orcamentoMin || !orcamentoMax) erros.push("Orçamento (mín. e máx.)");
+  if (!prazoIso) erros.push("Prazo");
+  if (criterios.length === 0) erros.push("Ao menos um critério de seleção");
 
   function addRequisito() {
     const valor = novoRequisito.trim();
@@ -191,11 +223,20 @@ export function FormularioProjeto({
   }
 
   function submit(status: ProjetoStatus) {
-    if (erros.length > 0) return;
+    if (erros.length > 0 || !itemSelecionado) return;
+    const categoriaDerivada =
+      categoriaItens.find((c) => c.id === categoriaItemId)?.nome ?? "";
     onSubmit({
       titulo: titulo.trim(),
       descricao: descricao.trim(),
-      categoria,
+      categoria: categoriaDerivada,
+      categoria_item_id: categoriaItemId,
+      volume_estimado: {
+        quantidade: Number(volumeQuantidade) || 0,
+        periodicidade: volumePeriodicidade,
+      },
+      classificacao_desejada:
+        itemSelecionado.tem_classificacao_carga && classificacao ? classificacao : undefined,
       regiao,
       cidade: cidade.trim(),
       orcamento_min: orcamentoMin,
@@ -238,35 +279,129 @@ export function FormularioProjeto({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Categoria</Label>
-              <Select value={categoria} onValueChange={setCategoria}>
+              <Label>Setor</Label>
+              <Select
+                value={setorId}
+                onValueChange={(value) => {
+                  setSetorId(value);
+                  setCategoriaItemId("");
+                  setClassificacao("");
+                }}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma categoria" />
+                  <SelectValue placeholder="Selecione um setor" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categorias.map((item) => (
-                    <SelectItem key={item} value={item}>
-                      {item}
+                  {setores.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Região</Label>
-              <Select value={regiao} onValueChange={setRegiao}>
+              <Label>Item</Label>
+              <Select
+                value={categoriaItemId}
+                onValueChange={(value) => {
+                  setCategoriaItemId(value);
+                  setClassificacao("");
+                }}
+                disabled={!setorId}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma região" />
+                  <SelectValue
+                    placeholder={setorId ? "Selecione um item" : "Selecione o setor primeiro"}
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  {regioes.map((item) => (
-                    <SelectItem key={item} value={item}>
-                      {item}
+                  {itensDoSetor.map((i) => (
+                    <SelectItem key={i.id} value={i.id}>
+                      {i.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {itemSelecionado ? (
+            <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
+              <div>
+                <p className="text-sm font-medium">Volume estimado do projeto</p>
+                <p className="text-xs text-muted-foreground">
+                  Medido em <span className="font-medium">{unidadeLabel}</span>. Esse volume é
+                  usado para casar com a capacidade disponível dos fornecedores.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Quantidade</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      value={volumeQuantidade}
+                      onChange={(event) => setVolumeQuantidade(event.target.value)}
+                      placeholder="0"
+                    />
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      {unidadeLabel}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Periodicidade</Label>
+                  <Select
+                    value={volumePeriodicidade}
+                    onValueChange={(value) => setVolumePeriodicidade(value as PeriodicidadeVolume)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="total">Total do contrato</SelectItem>
+                      <SelectItem value="mensal">Por mês</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              {itemSelecionado.tem_classificacao_carga ? (
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Classificação desejada</Label>
+                  <Select
+                    value={classificacao}
+                    onValueChange={(value) => setClassificacao(value as ClassificacaoOpcional)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Leve, médio ou pesado" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="leve">Leve</SelectItem>
+                      <SelectItem value="medio">Médio</SelectItem>
+                      <SelectItem value="pesado">Pesado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          <div className="space-y-2">
+            <Label>Região</Label>
+            <Select value={regiao} onValueChange={setRegiao}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione uma região" />
+              </SelectTrigger>
+              <SelectContent>
+                {regioes.map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {item}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

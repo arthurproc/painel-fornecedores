@@ -94,8 +94,31 @@ export default function TriagemPage({
     );
   }
 
-  const pendentes = listaBase.filter((c) => statusAtual(c) === "enviada");
-  const shortlist = listaBase.filter((c) => statusAtual(c) === "shortlistada");
+  // Ordenação: candidaturas com capacidade compatível sobem; depois apertadas, depois
+  // sem capacidade declarada, depois insuficientes. Dentro de cada grupo, ordena por
+  // fit-score total decrescente. Faz a triagem priorizar quem realmente cabe no volume.
+  const capacidadeRank: Record<string, number> = {
+    compatible: 0,
+    tight: 1,
+    unknown: 2,
+    insufficient: 3,
+  };
+  const ordenadoPorAderencia = (a: Candidatura, b: Candidatura) => {
+    const fa = fornecedores.find((f) => f.id === a.fornecedor_id);
+    const fb = fornecedores.find((f) => f.id === b.fornecedor_id);
+    if (!fa || !fb || !projeto) return 0;
+    const ba = computeFitScore(projeto, fa);
+    const bb = computeFitScore(projeto, fb);
+    const rankDiff = capacidadeRank[ba.capacidade.status] - capacidadeRank[bb.capacidade.status];
+    if (rankDiff !== 0) return rankDiff;
+    return bb.total - ba.total;
+  };
+  const pendentes = listaBase
+    .filter((c) => statusAtual(c) === "enviada")
+    .sort(ordenadoPorAderencia);
+  const shortlist = listaBase
+    .filter((c) => statusAtual(c) === "shortlistada")
+    .sort(ordenadoPorAderencia);
   const descartadas = listaBase.filter((c) => statusAtual(c) === "descartada");
 
   return (

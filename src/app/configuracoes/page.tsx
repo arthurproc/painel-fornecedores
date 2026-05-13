@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Building2, CreditCard, EyeOff, Link2, ShieldCheck, Users } from "lucide-react";
+import { FormCapacidadesFornecedor } from "@/components/configuracoes/form-capacidades-fornecedor";
 import { FormCredenciaisFornecedor } from "@/components/configuracoes/form-credenciais-fornecedor";
 import { FormDocumentosFornecedor } from "@/components/configuracoes/form-documentos-fornecedor";
 import { AppShell } from "@/components/layout/app-shell";
@@ -248,6 +249,12 @@ export default function ConfiguracoesOrganizacaoPage() {
                   </Card>
                 ) : null}
 
+                {perfilFornecedor ? (
+                  <FormCapacidadesFornecedor
+                    fornecedor={perfilFornecedor}
+                    onUpdated={() => forceRender((value) => value + 1)}
+                  />
+                ) : null}
                 {perfilFornecedor ? (
                   <FormCredenciaisFornecedor
                     fornecedor={perfilFornecedor}

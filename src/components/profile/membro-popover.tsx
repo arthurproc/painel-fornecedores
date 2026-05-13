@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { Membro } from "@/lib/mock-data";
 
@@ -8,7 +9,20 @@ interface MembroPopoverProps {
   children: React.ReactNode;
 }
 
+const noopSubscribe = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
+
 export function MembroPopover({ membro, children }: MembroPopoverProps) {
+  // Defer Popover mounting until after hydration. Radix's <PopoverTrigger asChild>
+  // produced a server/client structural mismatch on Next 16 + Turbopack — the
+  // server rendered no trigger while the client expected the asChild-cloned button.
+  // useSyncExternalStore is React's official idiom for "is this rendering on the
+  // client?" without violating React Compiler's no-setState-in-effect rule.
+  const mounted = useSyncExternalStore(noopSubscribe, clientSnapshot, serverSnapshot);
+
+  if (!mounted) return <>{children}</>;
+
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>

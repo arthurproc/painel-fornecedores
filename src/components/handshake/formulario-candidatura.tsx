@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
-import { AlertCircle, CheckCircle2, FilePlus2, Lightbulb, Link2, ShieldAlert } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle2, FilePlus2, Gauge, Lightbulb, Link2, ShieldAlert } from "lucide-react";
 import { CTAConsultoria } from "./cta-consultoria";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { getCredencialNome } from "@/lib/platform-credentials";
+import { getCategoriaItemById, getUnidadeAbreviada } from "@/lib/platform-data";
 import { cn } from "@/lib/utils";
 import type {
+  CapacidadeAlocada,
   Contrato,
   DocumentoCandidaturaAnexado,
   DocumentoEmpresa,
@@ -27,11 +30,27 @@ interface FormularioCandidaturaProps {
   onSubmit: (payload: {
     pitch: string;
     capacidade_declarada: string;
+    capacidade_alocada?: CapacidadeAlocada;
+    observacao_disponibilidade?: string;
     faixa_preco_preliminar?: string;
     contratos_destacados: string[];
     documentos_anexados: DocumentoCandidaturaAnexado[];
     documentos_manuais_meta: Record<string, ManualDraft>;
   }) => void;
+}
+
+const MESES_DEFAULT_CONTRATO_TOTAL = 12;
+
+function volumeRequeridoMensal(projeto: Projeto): number | undefined {
+  const v = projeto.volume_estimado;
+  if (!v) return undefined;
+  if (v.periodicidade === "mensal") return v.quantidade;
+  return v.quantidade / MESES_DEFAULT_CONTRATO_TOTAL;
+}
+
+function formatNumero(valor: number | undefined): string {
+  if (valor === undefined) return "—";
+  return Math.round(valor).toLocaleString("pt-BR");
 }
 
 const LIMITE_PITCH = 500;
@@ -62,7 +81,36 @@ export function FormularioCandidatura({
   const [pitch, setPitch] = useState(
     `Temos forte experiência em ${projeto.categoria.toLowerCase()} e podemos iniciar rapidamente após a aprovação.`
   );
-  const [capacidade, setCapacidade] = useState(fornecedor?.capacidade_atual ?? "");
+
+  // Capacidade derivada do perfil — passo 6 do diagnóstico-capacidade-instalada.md
+  const capacidadePerfil = useMemo(() => {
+    if (!fornecedor || !projeto.categoria_item_id) return undefined;
+    return fornecedor.capacidades_instaladas.find(
+      (c) => c.categoria_item_id === projeto.categoria_item_id
+    );
+  }, [fornecedor, projeto.categoria_item_id]);
+
+  const itemProjeto = projeto.categoria_item_id
+    ? getCategoriaItemById(projeto.categoria_item_id)
+    : undefined;
+  const unidadeMensal = itemProjeto
+    ? getUnidadeAbreviada(itemProjeto.unidade_medida)
+    : undefined;
+  const livreMensal = capacidadePerfil
+    ? capacidadePerfil.capacidade_nominal_mensal *
+      (1 - capacidadePerfil.percent_utilizacao_atual / 100)
+    : undefined;
+  const requeridoMensal = volumeRequeridoMensal(projeto);
+
+  const alocacaoSugerida = (() => {
+    if (requeridoMensal === undefined || livreMensal === undefined) return 0;
+    return Math.min(requeridoMensal, livreMensal);
+  })();
+
+  const [valorAlocado, setValorAlocado] = useState(
+    alocacaoSugerida > 0 ? String(Math.round(alocacaoSugerida)) : ""
+  );
+  const [observacaoDisponibilidade, setObservacaoDisponibilidade] = useState("");
   const [faixa, setFaixa] = useState("");
   const [contratosSelecionados, setContratosSelecionados] = useState<string[]>(
     contratosDestacaveis.slice(0, 2).map((contrato) => contrato.id)
@@ -72,7 +120,23 @@ export function FormularioCandidatura({
   const [manualDrafts, setManualDrafts] = useState<Record<string, ManualDraft>>({});
 
   const pitchValido = pitch.trim().length > 20 && pitch.length <= LIMITE_PITCH;
-  const formularioValido = pitchValido && capacidade.trim().length > 0;
+  const valorAlocadoNum = Number(valorAlocado) || 0;
+  const nominalMensal = capacidadePerfil?.capacidade_nominal_mensal;
+  // Bloqueia só quando alocação > teto físico (impossível na prática). Quando
+  // alocação > livre atual, apenas mostra aviso amarelo (passo 8.5): pode ser
+  // capacidade prevista para a data de início do projeto.
+  const alocacaoExcedeNominal =
+    capacidadePerfil !== undefined &&
+    nominalMensal !== undefined &&
+    valorAlocadoNum > nominalMensal + 0.5;
+  const alocacaoExcedeLivre =
+    capacidadePerfil !== undefined &&
+    livreMensal !== undefined &&
+    valorAlocadoNum > livreMensal + 0.5 &&
+    !alocacaoExcedeNominal;
+  const capacidadeValida =
+    capacidadePerfil !== undefined && valorAlocadoNum > 0 && !alocacaoExcedeNominal;
+  const formularioValido = pitchValido && capacidadeValida;
 
   const pendenciasObrigatorias = useMemo(
     () =>
@@ -142,10 +206,20 @@ export function FormularioCandidatura({
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (!formularioValido) return;
+    if (!formularioValido || !capacidadePerfil) return;
+    const nominal = capacidadePerfil.capacidade_nominal_mensal;
+    const capacidade_alocada: CapacidadeAlocada = {
+      valor_nominal: valorAlocadoNum,
+      percent_da_capacidade_total: nominal > 0 ? Math.round((valorAlocadoNum / nominal) * 100) : 0,
+    };
+    const unidadeStr = unidadeMensal ?? "";
     onSubmit({
       pitch: pitch.trim(),
-      capacidade_declarada: capacidade.trim(),
+      // Mantém o campo legado preenchido com a versão textual da alocação numérica
+      // até que todos os consumers (triagem, listagens) migrem para `capacidade_alocada`.
+      capacidade_declarada: `${formatNumero(valorAlocadoNum)} ${unidadeStr}`.trim(),
+      capacidade_alocada,
+      observacao_disponibilidade: observacaoDisponibilidade.trim() || undefined,
       faixa_preco_preliminar: faixa.trim() || undefined,
       contratos_destacados: contratosSelecionados,
       documentos_anexados: documentosAnexados,
@@ -217,14 +291,122 @@ export function FormularioCandidatura({
 
       <Card className="rounded-xl">
         <CardHeader>
-          <CardTitle className="text-base">Capacidade declarada</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Gauge className="h-4 w-4" /> Capacidade alocada para este projeto
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <Input
-            value={capacidade}
-            onChange={(event) => setCapacidade(event.target.value)}
-            placeholder="Ex.: Equipe de 12 técnicos + engenheiro responsável - disponível em 7 dias"
-          />
+        <CardContent className="space-y-3">
+          {!projeto.categoria_item_id || requeridoMensal === undefined ? (
+            <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>
+                Este projeto ainda não tem item de catálogo nem volume estimado declarados, então
+                não dá pra cruzar com sua capacidade. Você pode prosseguir, mas o fit-score ficará
+                limitado.
+              </span>
+            </div>
+          ) : !capacidadePerfil ? (
+            <div className="space-y-2">
+              <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-900">
+                <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <span>
+                  Você ainda não declarou capacidade em <strong>{itemProjeto?.nome}</strong>.
+                  Sem isso, a empresa não consegue avaliar se você cabe no volume requerido (
+                  {formatNumero(requeridoMensal)} {unidadeMensal}).
+                </span>
+              </div>
+              <Button asChild variant="outline" size="sm" className="gap-1">
+                <Link href="/configuracoes">
+                  <Gauge className="h-3.5 w-3.5" /> Cadastrar capacidade primeiro
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs space-y-1">
+                <p>
+                  Você tem{" "}
+                  <strong>
+                    {formatNumero(capacidadePerfil.capacidade_nominal_mensal)} {unidadeMensal}
+                  </strong>{" "}
+                  instalados. Atualmente{" "}
+                  <strong>{capacidadePerfil.percent_utilizacao_atual}% utilizado</strong> →{" "}
+                  <strong>
+                    {formatNumero(livreMensal)} {unidadeMensal}
+                  </strong>{" "}
+                  livres.
+                </p>
+                <p>
+                  Volume requerido pelo projeto:{" "}
+                  <strong>
+                    {formatNumero(requeridoMensal)} {unidadeMensal}
+                  </strong>
+                  {projeto.volume_estimado?.periodicidade === "total"
+                    ? ` (derivado de ${formatNumero(projeto.volume_estimado.quantidade)} ${unidadeMensal?.replace("/mês", "")} total ÷ ${MESES_DEFAULT_CONTRATO_TOTAL} meses)`
+                    : ""}
+                  .
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">Quanto vai alocar neste projeto?</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={valorAlocado}
+                    onChange={(event) => setValorAlocado(event.target.value)}
+                    placeholder="0"
+                  />
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {unidadeMensal}
+                  </span>
+                </div>
+                {alocacaoExcedeNominal ? (
+                  <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-2.5 text-xs text-red-900">
+                    <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    <span>
+                      Valor maior que seu teto físico ({formatNumero(nominalMensal)}{" "}
+                      {unidadeMensal}). Para alocar mais que isso, amplie sua capacidade
+                      nominal em Configurações.
+                    </span>
+                  </div>
+                ) : alocacaoExcedeLivre ? (
+                  <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-900">
+                    <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    <span>
+                      Você está alocando mais que tem livre hoje ({formatNumero(livreMensal)}{" "}
+                      {unidadeMensal}). Se essa capacidade vai estar disponível na data de
+                      início do projeto, prossiga e descreva o contexto no campo abaixo.
+                    </span>
+                  </div>
+                ) : valorAlocadoNum > 0 && requeridoMensal !== undefined && valorAlocadoNum < requeridoMensal ? (
+                  <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-900">
+                    <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    <span>
+                      Alocação menor que o volume requerido. Você ainda pode candidatar, mas
+                      sinaliza atendimento parcial.
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">Observação sobre disponibilidade (opcional)</Label>
+                <Textarea
+                  value={observacaoDisponibilidade}
+                  onChange={(event) => setObservacaoDisponibilidade(event.target.value)}
+                  placeholder="Ex.: Em jun/2026 libero 40 TON com encerramento do contrato Vale-IT-23."
+                  rows={2}
+                  className="text-xs"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Use se você está alocando acima da capacidade livre hoje, ou se quiser
+                  explicar mobilização e contexto. A empresa vê esta observação na triagem.
+                </p>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -364,7 +546,15 @@ export function FormularioCandidatura({
       {!formularioValido ? (
         <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>Preencha pitch e capacidade declarada antes de enviar.</span>
+          <span>
+            {!pitchValido
+              ? "Pitch precisa ter ao menos 20 caracteres."
+              : !capacidadePerfil
+                ? "Declare capacidade no item antes de enviar."
+                : alocacaoExcedeNominal
+                  ? "Alocação maior que seu teto físico — ajuste antes de enviar."
+                  : "Informe quanto da capacidade vai alocar."}
+          </span>
         </div>
       ) : null}
 

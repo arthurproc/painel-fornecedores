@@ -15,12 +15,25 @@ export interface DocumentoExigido {
   credencial_relacionada_id?: string;
 }
 
+export type PeriodicidadeVolume = "total" | "mensal";
+
+export interface VolumeEstimado {
+  /** Quantidade expressa na unidade do `categoria_item_id` do projeto. */
+  quantidade: number;
+  periodicidade: PeriodicidadeVolume;
+}
+
 export interface Projeto {
   id: string;
   titulo: string;
   empresa_id: string;
   descricao: string;
+  /** @deprecated Migrar para `categoria_item_id`. Mantido durante transição. */
   categoria: string;
+  /** Referência ao catálogo hierárquico (`platform-data.ts > categoriaItens`). */
+  categoria_item_id?: string;
+  /** Volume estimado do projeto na unidade do item. Obrigatório no novo modelo. */
+  volume_estimado?: VolumeEstimado;
   regiao: string;
   cidade: string;
   orcamento: string;
@@ -87,6 +100,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Serviço de manutenção preventiva e corretiva em correias transportadoras do complexo minerador de Itabira. Inclui inspeção periódica, substituição de rolos e alinhamento de correias. Necessário experiência comprovada em mineração.",
     categoria: "Manutenção Industrial",
+    categoria_item_id: "manut.correias",
+    volume_estimado: { quantidade: 1500, periodicidade: "total" },
     regiao: "Itabira - MG",
     cidade: "Itabira",
     orcamento: "R$ 250.000 - R$ 400.000",
@@ -137,6 +152,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Projeto para implantação de sistema integrado de monitoramento ambiental em tempo real nas áreas de mineração do complexo de Itabira. Sensores de qualidade do ar, água e ruído.",
     categoria: "Serviços Ambientais",
+    categoria_item_id: "amb.licenciamento-monitoramento",
+    volume_estimado: { quantidade: 2400, periodicidade: "total" },
     regiao: "Itabira - MG",
     cidade: "Itabira",
     orcamento: "R$ 500.000 - R$ 800.000",
@@ -165,6 +182,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Contratação de serviço de transporte rodoviário de minério de ferro da unidade de Itabira até o terminal portuário. Volume estimado de 5.000 toneladas/mês.",
     categoria: "Transporte e Logística",
+    categoria_item_id: "transp.carga-pesada",
+    volume_estimado: { quantidade: 8000, periodicidade: "mensal" },
     regiao: "Itabira - MG",
     cidade: "Itabira",
     orcamento: "R$ 1.200.000 - R$ 1.800.000",
@@ -184,7 +203,7 @@ const projetoSeeds: ProjetoSeed[] = [
       { nome: "RNTRC", obrigatorio: true },
       { nome: "Apólice de seguro de carga", obrigatorio: true },
     ],
-    criterios_selecao: ["Capacidade de frota", "Preço por tonelada", "SLA de pontualidade"],
+    criterios_selecao: ["Preço por tonelada", "SLA de pontualidade"],
   },
   {
     id: "4",
@@ -193,6 +212,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Reforma completa do refeitório industrial da planta de João Monlevade. Inclui parte elétrica, hidráulica, revestimentos, mobiliário e adequação às normas sanitárias.",
     categoria: "Construção Civil",
+    categoria_item_id: "civil.construcoes-prediais",
+    volume_estimado: { quantidade: 800, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 180.000 - R$ 300.000",
@@ -253,6 +274,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Consultoria especializada para revisão e atualização dos programas de segurança do trabalho. Inclui PPRA, PCMSO, treinamentos NR e auditoria de conformidade.",
     categoria: "Segurança do Trabalho",
+    categoria_item_id: "sst.consultoria-laudos",
+    volume_estimado: { quantidade: 600, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 80.000 - R$ 150.000",
@@ -281,6 +304,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Fornecimento mensal de equipamentos de proteção individual para aproximadamente 2.000 colaboradores do complexo minerador de Itabira.",
     categoria: "Segurança do Trabalho",
+    categoria_item_id: "unif.epis",
+    volume_estimado: { quantidade: 5000, periodicidade: "total" },
     regiao: "Itabira - MG",
     cidade: "Itabira",
     orcamento: "R$ 350.000 - R$ 500.000",
@@ -292,7 +317,6 @@ const projetoSeeds: ProjetoSeed[] = [
     autor_membro_id: "mem-vale-operador",
     requisitos: [
       "Certificado de Aprovação (CA) vigente",
-      "Capacidade de entrega mensal",
       "Estoque mínimo de segurança",
       "Laudo técnico dos produtos",
     ],
@@ -300,7 +324,7 @@ const projetoSeeds: ProjetoSeed[] = [
       { nome: "Certificado de Aprovação (CA)", obrigatorio: true },
       { nome: "Laudo técnico", obrigatorio: true },
     ],
-    criterios_selecao: ["Preço unitário", "Capacidade logística", "Qualidade técnica"],
+    criterios_selecao: ["Preço unitário", "Qualidade técnica"],
   },
   {
     id: "7",
@@ -309,6 +333,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Serviço de manutenção preventiva e corretiva em pontes rolantes e equipamentos de içamento do complexo minerador de Itabira. Inclui lubrificação, troca de cabos, inspeção estrutural e alinhamento de trilhos.",
     categoria: "Manutenção Industrial",
+    categoria_item_id: "manut.preventiva-mecanica",
+    volume_estimado: { quantidade: 1200, periodicidade: "total" },
     regiao: "Itabira - MG",
     cidade: "Itabira",
     orcamento: "R$ 120.000 - R$ 180.000",
@@ -333,6 +359,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Contratação de empresa especializada para coleta, tratamento e destinação ambientalmente adequada de resíduos sólidos industriais gerados nas operações do complexo de Itabira.",
     categoria: "Serviços Ambientais",
+    categoria_item_id: "amb.tratamento-residuos",
+    volume_estimado: { quantidade: 240, periodicidade: "mensal" },
     regiao: "Itabira - MG",
     cidade: "Itabira",
     orcamento: "R$ 200.000 - R$ 320.000",
@@ -360,6 +388,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Revisão completa de pontes rolantes, talhas e equipamentos de içamento da planta de João Monlevade, incluindo troca de cabos e inspeção estrutural.",
     categoria: "Manutenção Industrial",
+    categoria_item_id: "manut.preventiva-mecanica",
+    volume_estimado: { quantidade: 900, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 80.000 - R$ 120.000",
@@ -379,6 +409,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Elaboração do RIMA para licenciamento da expansão da área industrial norte, incluindo estudos de flora, fauna, solo e recursos hídricos.",
     categoria: "Serviços Ambientais",
+    categoria_item_id: "amb.licenciamento-monitoramento",
+    volume_estimado: { quantidade: 1800, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 150.000 - R$ 220.000",
@@ -398,6 +430,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Transporte especializado de equipamentos industriais de grande porte durante a parada geral de manutenção do complexo de Itabira.",
     categoria: "Transporte e Logística",
+    categoria_item_id: "transp.carga-pesada",
+    volume_estimado: { quantidade: 3500, periodicidade: "total" },
     regiao: "Itabira - MG",
     cidade: "Itabira",
     orcamento: "R$ 280.000 - R$ 380.000",
@@ -408,7 +442,7 @@ const projetoSeeds: ProjetoSeed[] = [
     contrato_id: "ct-11",
     requisitos: ["RNTRC", "Licença para transporte de carga especial", "Seguro de carga"],
     documentos_exigidos: [{ nome: "RNTRC", obrigatorio: true }],
-    criterios_selecao: ["Capacidade especializada", "Seguro"],
+    criterios_selecao: ["Experiência setorial", "Seguro"],
   },
   {
     id: "12",
@@ -417,6 +451,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Ampliação e reforma do almoxarifado industrial da planta de João Monlevade, com instalações elétricas, estrutura metálica e piso industrial.",
     categoria: "Construção Civil",
+    categoria_item_id: "civil.construcoes-prediais",
+    volume_estimado: { quantidade: 1200, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 450.000 - R$ 600.000",
@@ -436,6 +472,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Implantação completa do Programa de Gerenciamento de Riscos (PGR) conforme NR-01, incluindo inventário de riscos e plano de ação.",
     categoria: "Segurança do Trabalho",
+    categoria_item_id: "sst.consultoria-laudos",
+    volume_estimado: { quantidade: 800, periodicidade: "total" },
     regiao: "Itabira - MG",
     cidade: "Itabira",
     orcamento: "R$ 100.000 - R$ 160.000",
@@ -455,6 +493,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Treinamento de capacitação em NR-35 (Trabalho em Altura) para 120 colaboradores, incluindo teórico, prático e emissão de certificados.",
     categoria: "Segurança do Trabalho",
+    categoria_item_id: "sst.treinamentos-nr",
+    volume_estimado: { quantidade: 400, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 50.000 - R$ 80.000",
@@ -474,6 +514,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Rascunho inicial - inspeção de NR-13 em vasos de pressão e caldeiras do complexo de Itabira. Escopo ainda em definição pela equipe técnica.",
     categoria: "Manutenção Industrial",
+    categoria_item_id: "eng.diligenciamento-inspecao",
+    volume_estimado: { quantidade: 480, periodicidade: "total" },
     regiao: "Itabira - MG",
     cidade: "Itabira",
     orcamento: "R$ 90.000 - R$ 130.000",
@@ -492,6 +534,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Substituição completa da iluminação convencional por LED no galpão central da planta de João Monlevade. Projeto cancelado por decisão interna de priorização.",
     categoria: "Construção Civil",
+    categoria_item_id: "manut.eletrica-automacao",
+    volume_estimado: { quantidade: 1600, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 220.000 - R$ 300.000",
@@ -510,6 +554,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Pintura e recuperação anticorrosiva da subestação elétrica norte. Projeto expirou sem candidaturas suficientes no prazo previsto.",
     categoria: "Construção Civil",
+    categoria_item_id: "manut.preventiva-mecanica",
+    volume_estimado: { quantidade: 1100, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 60.000 - R$ 95.000",
@@ -528,6 +574,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Manutenção preventiva semestral dos fornos de indução da planta de João Monlevade - inclui inspeção dos indutores, troca de refratários e calibração de sensores de temperatura. Escopo elétrico e mecânico integrado.",
     categoria: "Manutenção Industrial",
+    categoria_item_id: "manut.preventiva-mecanica",
+    volume_estimado: { quantidade: 2000, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 140.000 - R$ 210.000",
@@ -560,6 +608,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Projeto de adequação de 8 prensas mecânicas à NR-12 - inclui diagnóstico, especificação de dispositivos de segurança, instalação de cortinas de luz, chaves de segurança e revisão documental. Obrigatório entregar dossiê técnico.",
     categoria: "Segurança do Trabalho",
+    categoria_item_id: "manut.preventiva-mecanica",
+    volume_estimado: { quantidade: 950, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 180.000 - R$ 260.000",
@@ -591,6 +641,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Contrato anual de fornecimento de eletrodos, arames e gases para soldagem MIG/MAG e TIG. Entregas mensais à planta de João Monlevade com laudos de lote e rastreabilidade completa.",
     categoria: "Fabricação Sob Medida",
+    categoria_item_id: "estr-met.componentes-sob-medida",
+    volume_estimado: { quantidade: 3600, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 90.000 - R$ 150.000",
@@ -602,7 +654,6 @@ const projetoSeeds: ProjetoSeed[] = [
     autor_membro_id: "mem-metalurgica-xyz-operador",
     requisitos: [
       "Rastreabilidade de lote por laudo",
-      "Capacidade de entrega mensal",
       "Homologação prévia dos consumíveis",
     ],
     documentos_exigidos: [
@@ -618,6 +669,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Projeto para retrofit completo do sistema de exaustão da fundição principal, incluindo balanceamento de vazão, substituição de dutos críticos e comissionamento com relatório técnico final.",
     categoria: "Manutenção Industrial",
+    categoria_item_id: "estr-met.montagem-industrial",
+    volume_estimado: { quantidade: 1800, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 220.000 - R$ 320.000",
@@ -636,7 +689,7 @@ const projetoSeeds: ProjetoSeed[] = [
       { nome: "ART de responsabilidade técnica", obrigatorio: true },
       { nome: "Portfólio de retrofit similar", obrigatorio: true },
     ],
-    criterios_selecao: ["Capacidade técnica", "Prazo de parada", "Preço global"],
+    criterios_selecao: ["Qualificação técnica", "Prazo de parada", "Preço global"],
   },
   {
     id: "30",
@@ -645,6 +698,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Inspeção estrutural, emissão de laudo e execução dos ajustes corretivos na ponte rolante principal da aciaria. Contrato já fechado e em andamento.",
     categoria: "Manutenção Industrial",
+    categoria_item_id: "eng.diligenciamento-inspecao",
+    volume_estimado: { quantidade: 320, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 130.000 - R$ 180.000",
@@ -669,6 +724,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Projeto concluído de adequação de duas cabines de pintura com ventilação forçada, enclausuramento e atualização dos procedimentos de segurança.",
     categoria: "Segurança do Trabalho",
+    categoria_item_id: "estr-met.montagem-industrial",
+    volume_estimado: { quantidade: 1200, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 95.000 - R$ 140.000",
@@ -693,6 +750,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Contrato histórico de fabricação e usinagem de eixos de transmissão para linha de laminação auxiliar, concluído com sucesso pelo braço fornecedor da Metalúrgica XYZ.",
     categoria: "Fabricação Sob Medida",
+    categoria_item_id: "estr-met.componentes-sob-medida",
+    volume_estimado: { quantidade: 24, periodicidade: "total" },
     regiao: "Itabira - MG",
     cidade: "Itabira",
     orcamento: "R$ 38.000 - R$ 52.000",
@@ -712,6 +771,8 @@ const projetoSeeds: ProjetoSeed[] = [
     descricao:
       "Contrato em execução para fabricação e montagem de plataforma metálica de manutenção com guarda-corpo e escada marinheiro na área do pátio norte.",
     categoria: "Fabricação Sob Medida",
+    categoria_item_id: "estr-met.caldeiraria",
+    volume_estimado: { quantidade: 18, periodicidade: "total" },
     regiao: "João Monlevade - MG",
     cidade: "João Monlevade",
     orcamento: "R$ 75.000 - R$ 105.000",

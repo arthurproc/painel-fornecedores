@@ -23,6 +23,30 @@ export interface DocumentoEmpresa {
   observacao?: string;
 }
 
+export type ClassificacaoCarga = "leve" | "medio" | "pesado";
+
+export interface EquipamentoDeclarado {
+  nome: string;
+  quantidade: number;
+}
+
+/**
+ * Capacidade instalada por item do catálogo. Inerente ao fornecedor — preenche
+ * uma vez, reaproveita em toda candidatura. Ver docs/diagnostico-capacidade-instalada.md.
+ */
+export interface CapacidadeInstalada {
+  id: string;
+  categoria_item_id: string;
+  classificacao?: ClassificacaoCarga;
+  capacidade_nominal_mensal: number;
+  /** 0-100. Privado por padrão — só exposto à empresa após candidatura. */
+  percent_utilizacao_atual: number;
+  equipamentos: EquipamentoDeclarado[];
+  area_armazenamento_m2?: number;
+  observacao?: string;
+  atualizada_em: string;
+}
+
 export interface Fornecedor {
   id: string;
   organizacao_id: string;
@@ -35,7 +59,9 @@ export interface Fornecedor {
   regioes_atendidas: string[];
   credenciais_ids: string[];
   documentos_empresa: DocumentoEmpresa[];
+  /** @deprecated Migrar para `capacidades_instaladas`. Mantido durante transição. */
   capacidade_atual?: string;
+  capacidades_instaladas: CapacidadeInstalada[];
   projetosRealizados: number;
   desde: string;
   contato: {
@@ -88,6 +114,46 @@ export const fornecedores: Fornecedor[] = [
        }),
      ],
      capacidade_atual: "15 técnicos disponíveis",
+     capacidades_instaladas: [
+       {
+         id: "cap-tech-mec",
+         categoria_item_id: "manut.preventiva-mecanica",
+         classificacao: "pesado",
+         capacidade_nominal_mensal: 2400,
+         percent_utilizacao_atual: 65,
+         equipamentos: [
+           { nome: "Solda elétrica", quantidade: 6 },
+           { nome: "Tornos portáteis", quantidade: 3 },
+           { nome: "Talhas e guinchos", quantidade: 4 },
+         ],
+         observacao: "Equipe 15 técnicos com cobertura 24/7 para mineração.",
+         atualizada_em: "2026-04-20",
+       },
+       {
+         id: "cap-tech-correias",
+         categoria_item_id: "manut.correias",
+         classificacao: "pesado",
+         capacidade_nominal_mensal: 1600,
+         percent_utilizacao_atual: 70,
+         equipamentos: [
+           { nome: "Vulcanizadores", quantidade: 4 },
+           { nome: "Alinhador a laser", quantidade: 2 },
+         ],
+         atualizada_em: "2026-04-20",
+       },
+       {
+         id: "cap-tech-eletrica",
+         categoria_item_id: "manut.eletrica-automacao",
+         classificacao: "medio",
+         capacidade_nominal_mensal: 1200,
+         percent_utilizacao_atual: 50,
+         equipamentos: [
+           { nome: "Multímetros", quantidade: 8 },
+           { nome: "Termovisor", quantidade: 2 },
+         ],
+         atualizada_em: "2026-04-20",
+       },
+     ],
      projetosRealizados: 47,
     desde: "2011",
     contato: {
@@ -121,6 +187,42 @@ export const fornecedores: Fornecedor[] = [
          status: "vigente",
          enviado_em: "2026-01-18",
        }),
+     ],
+     capacidades_instaladas: [
+       {
+         id: "cap-amb-licenciamento",
+         categoria_item_id: "amb.licenciamento-monitoramento",
+         capacidade_nominal_mensal: 1800,
+         percent_utilizacao_atual: 55,
+         equipamentos: [
+           { nome: "Estação meteorológica portátil", quantidade: 2 },
+           { nome: "Kit coleta de águas", quantidade: 4 },
+         ],
+         atualizada_em: "2026-04-15",
+       },
+       {
+         id: "cap-amb-residuos",
+         categoria_item_id: "amb.tratamento-residuos",
+         capacidade_nominal_mensal: 320,
+         percent_utilizacao_atual: 40,
+         equipamentos: [
+           { nome: "Caminhões coletores", quantidade: 5 },
+           { nome: "Caçambas estacionárias", quantidade: 20 },
+         ],
+         area_armazenamento_m2: 1200,
+         atualizada_em: "2026-04-15",
+       },
+       {
+         id: "cap-amb-supressao",
+         categoria_item_id: "amb.supressao-vegetal",
+         capacidade_nominal_mensal: 45000,
+         percent_utilizacao_atual: 30,
+         equipamentos: [
+           { nome: "Motosserras", quantidade: 8 },
+           { nome: "Triturador florestal", quantidade: 1 },
+         ],
+         atualizada_em: "2026-04-15",
+       },
      ],
      projetosRealizados: 32,
     desde: "2014",
@@ -156,6 +258,35 @@ export const fornecedores: Fornecedor[] = [
          enviado_em: "2026-03-04",
        }),
      ],
+     capacidades_instaladas: [
+       {
+         id: "cap-trans-carga",
+         categoria_item_id: "transp.carga-pesada",
+         classificacao: "pesado",
+         capacidade_nominal_mensal: 12000,
+         percent_utilizacao_atual: 75,
+         equipamentos: [
+           { nome: "Carretas", quantidade: 40 },
+           { nome: "Pranchas", quantidade: 6 },
+           { nome: "Caminhões-truck", quantidade: 12 },
+         ],
+         area_armazenamento_m2: 4500,
+         observacao: "Frota com rastreamento em tempo real e cobertura ES/MG.",
+         atualizada_em: "2026-04-30",
+       },
+       {
+         id: "cap-trans-pessoal",
+         categoria_item_id: "transp.pessoal",
+         capacidade_nominal_mensal: 18,
+         percent_utilizacao_atual: 60,
+         equipamentos: [
+           { nome: "Ônibus", quantidade: 6 },
+           { nome: "Microônibus", quantidade: 8 },
+           { nome: "Vans", quantidade: 4 },
+         ],
+         atualizada_em: "2026-04-30",
+       },
+     ],
      projetosRealizados: 85,
     desde: "2008",
     contato: {
@@ -178,6 +309,33 @@ export const fornecedores: Fornecedor[] = [
      regioes_atendidas: ["João Monlevade - MG", "Itabira - MG"],
      credenciais_ids: ["crea_mg", "iso_9001", "pbqp_h"],
      documentos_empresa: [],
+     capacidades_instaladas: [
+       {
+         id: "cap-cm-prediais",
+         categoria_item_id: "civil.construcoes-prediais",
+         capacidade_nominal_mensal: 3500,
+         percent_utilizacao_atual: 80,
+         equipamentos: [
+           { nome: "Betoneiras", quantidade: 4 },
+           { nome: "Andaimes (jogos)", quantidade: 30 },
+           { nome: "Formas metálicas", quantidade: 200 },
+         ],
+         observacao: "Equipe completa de obra civil para reformas industriais.",
+         atualizada_em: "2026-03-22",
+       },
+       {
+         id: "cap-cm-concreto",
+         categoria_item_id: "civil.volume-concreto",
+         capacidade_nominal_mensal: 850,
+         percent_utilizacao_atual: 70,
+         equipamentos: [
+           { nome: "Betoneiras", quantidade: 4 },
+           { nome: "Bomba de concreto", quantidade: 1 },
+           { nome: "Vibradores de concreto", quantidade: 6 },
+         ],
+         atualizada_em: "2026-03-22",
+       },
+     ],
      projetosRealizados: 63,
     desde: "2005",
     contato: {
@@ -211,6 +369,30 @@ export const fornecedores: Fornecedor[] = [
          status: "vigente",
          enviado_em: "2026-02-12",
        }),
+     ],
+     capacidades_instaladas: [
+       {
+         id: "cap-sw-consultoria",
+         categoria_item_id: "sst.consultoria-laudos",
+         capacidade_nominal_mensal: 1400,
+         percent_utilizacao_atual: 60,
+         equipamentos: [
+           { nome: "Dosímetros de ruído", quantidade: 10 },
+           { nome: "Bombas amostradoras", quantidade: 6 },
+         ],
+         observacao: "Equipe sênior multidisciplinar (engenharia, técnicos, médico).",
+         atualizada_em: "2026-04-05",
+       },
+       {
+         id: "cap-sw-treinamentos",
+         categoria_item_id: "sst.treinamentos-nr",
+         capacidade_nominal_mensal: 960,
+         percent_utilizacao_atual: 45,
+         equipamentos: [
+           { nome: "Salas equipadas", quantidade: 3 },
+         ],
+         atualizada_em: "2026-04-05",
+       },
      ],
      projetosRealizados: 120,
     desde: "2010",
@@ -268,6 +450,35 @@ export const fornecedores: Fornecedor[] = [
        }),
      ],
      capacidade_atual: "Em expansão",
+     capacidades_instaladas: [
+       {
+         id: "cap-mx-caldeiraria",
+         categoria_item_id: "estr-met.caldeiraria",
+         classificacao: "pesado",
+         capacidade_nominal_mensal: 95,
+         percent_utilizacao_atual: 35,
+         equipamentos: [
+           { nome: "Calandra", quantidade: 1 },
+           { nome: "Maçaricos", quantidade: 4 },
+           { nome: "Solda elétrica", quantidade: 6 },
+           { nome: "Plasma de corte", quantidade: 1 },
+         ],
+         observacao: "Em expansão — nova nave em fase final de montagem.",
+         atualizada_em: "2026-04-12",
+       },
+       {
+         id: "cap-mx-componentes",
+         categoria_item_id: "estr-met.componentes-sob-medida",
+         capacidade_nominal_mensal: 320,
+         percent_utilizacao_atual: 50,
+         equipamentos: [
+           { nome: "Torno CNC", quantidade: 2 },
+           { nome: "Fresadora", quantidade: 1 },
+           { nome: "Inspeção dimensional", quantidade: 1 },
+         ],
+         atualizada_em: "2026-04-12",
+       },
+     ],
      projetosRealizados: 8,
     desde: "2020",
     contato: {
@@ -372,6 +583,61 @@ export function addDocumentoEmpresa(
     fornecedor.credenciais_ids.push(input.credencial_id);
   }
   return documento;
+}
+
+// ---------------------------------------------------------------------------
+// Mutations on capacidades_instaladas
+// ---------------------------------------------------------------------------
+
+export type CapacidadeInput = Omit<CapacidadeInstalada, "id" | "atualizada_em">;
+
+export function addCapacidadeToFornecedor(
+  fornecedorId: string,
+  input: CapacidadeInput
+): CapacidadeInstalada | undefined {
+  const fornecedor = getFornecedorById(fornecedorId);
+  if (!fornecedor) return undefined;
+  const capacidade: CapacidadeInstalada = {
+    ...input,
+    id: `cap-${fornecedorId}-${fornecedor.capacidades_instaladas.length + 1}`,
+    atualizada_em: hoje(),
+  };
+  fornecedor.capacidades_instaladas.push(capacidade);
+  return capacidade;
+}
+
+export function updateCapacidadeOfFornecedor(
+  fornecedorId: string,
+  capacidadeId: string,
+  patch: Partial<CapacidadeInput>
+): CapacidadeInstalada | undefined {
+  const fornecedor = getFornecedorById(fornecedorId);
+  if (!fornecedor) return undefined;
+  const idx = fornecedor.capacidades_instaladas.findIndex((c) => c.id === capacidadeId);
+  if (idx < 0) return undefined;
+  const atual = fornecedor.capacidades_instaladas[idx];
+  fornecedor.capacidades_instaladas[idx] = {
+    ...atual,
+    ...patch,
+    atualizada_em: hoje(),
+  };
+  return fornecedor.capacidades_instaladas[idx];
+}
+
+export function removeCapacidadeFromFornecedor(
+  fornecedorId: string,
+  capacidadeId: string
+): void {
+  const fornecedor = getFornecedorById(fornecedorId);
+  if (!fornecedor) return;
+  fornecedor.capacidades_instaladas = fornecedor.capacidades_instaladas.filter(
+    (c) => c.id !== capacidadeId
+  );
+}
+
+function hoje(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export function getCredencialIdsFromLegacyNames(names: string[]): string[] {

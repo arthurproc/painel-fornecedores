@@ -67,6 +67,8 @@ export default function CandidatarPage({
   function handleSubmit(payload: {
     pitch: string;
     capacidade_declarada: string;
+    capacidade_alocada?: import("@/lib/mock-data").CapacidadeAlocada;
+    observacao_disponibilidade?: string;
     faixa_preco_preliminar?: string;
     contratos_destacados: string[];
     documentos_anexados: import("@/lib/mock-data").DocumentoCandidaturaAnexado[];
@@ -104,6 +106,8 @@ export default function CandidatarPage({
       pitch: payload.pitch,
       contratos_destacados: payload.contratos_destacados,
       capacidade_declarada: payload.capacidade_declarada,
+      capacidade_alocada: payload.capacidade_alocada,
+      observacao_disponibilidade: payload.observacao_disponibilidade,
       faixa_preco_preliminar: payload.faixa_preco_preliminar,
       documentos_anexados: documentosAnexados,
       status: "enviada",
